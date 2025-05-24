@@ -1,0 +1,6 @@
+{
+  "name": "AI Website Generator from Report",
+  "description": "A web application that uses AI to generate a single-page website from a given text report. The generated website uses HTML and Tailwind CSS.",
+  "requestFramePermissions": [],
+  "prompt": ""
+}
