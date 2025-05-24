@@ -1,6 +1,5 @@
-
 import { GoogleGenAI, GenerateContentParameters } from "@google/genai";
-import { generateWebsitePlanPrompt, generateWebsitePromptWithPlan } from "../promptTemplates";
+import { generateWebsitePlanPrompt, generateWebsitePromptWithPlan } from "../templates/promptTemplates";
 
 // Fix: Updated MODEL_NAME to the allowed model 'gemini-2.5-flash-preview-04-17' as per guidelines.
 const MODEL_NAME = "gemini-2.5-pro-preview-05-06";

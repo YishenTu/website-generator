@@ -1,0 +1,27 @@
+services:
+  ai-website-generator:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+      args:
+        - GEMINI_API_KEY=${GEMINI_API_KEY}
+    env_file:
+      - ../.env.local
+    container_name: ai-website-generator
+    ports:
+      - "8080:80"  # 将容器的80端口映射到主机的8080端口
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.ai-website-generator.rule=Host(`localhost`)"
+      - "traefik.http.services.ai-website-generator.loadbalancer.server.port=80"
+
+networks:
+  default:
+    name: ai-website-generator-network 

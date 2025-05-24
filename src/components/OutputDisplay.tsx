@@ -1,6 +1,5 @@
-
-import React from 'react';
-import { ActiveTab } from '../types';
+import React, { useState, useRef, useEffect } from 'react';
+import { ActiveTab } from '../types/types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { TabButton } from './TabButton';
 import type { AppStage } from '../App'; 

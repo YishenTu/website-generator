@@ -1,4 +1,3 @@
-
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 // Fix: Corrected import according to guidelines, removed unused GenerateContentResponse.
 import { GoogleGenAI, Chat } from "@google/genai";
@@ -7,8 +6,8 @@ import { OutputDisplay } from './components/OutputDisplay';
 import { ChatPanel } from './components/ChatPanel';
 import { PlanDisplay } from './components/PlanDisplay';
 import { generateWebsitePlanStream, generateWebsiteFromReportWithPlanStream } from './services/geminiService';
-import { getChatSystemInstruction } from './promptTemplates';
-import { ActiveTab, ChatMessage, UserType } from './types';
+import { getChatSystemInstruction } from './templates/promptTemplates';
+import { ActiveTab, ChatMessage, UserType } from './types/types';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
 const MODEL_NAME = "gemini-2.5-pro-preview-05-06";
