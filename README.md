@@ -14,10 +14,10 @@
 
 ## 快速开始指南
 
-### 超快部署 (推荐)
+### Docker部署 (推荐)
 
 #### 1. 获取API密钥
-- **Gemini API**: 访问 [Google AI Studio](https://aistudio.google.com/app/apikey) 获取免费的Gemini API密钥
+- **Gemini API**: 访问 [Google AI Studio](https://aistudio.google.com/app/apikey) 获取 Gemini API密钥
 - **OpenRouter API** (可选): 访问 [OpenRouter](https://openrouter.ai/) 获取API密钥以使用更多AI模型
 
 #### 2. 运行自动部署脚本
@@ -33,7 +33,7 @@
 #### 3. 开始使用
 打开浏览器访问：**http://localhost:8080**
 
-## 本地开发
+### 本地开发
 
 **前置要求**: Node.js 18+
 
@@ -61,9 +61,9 @@
 3. **生成网站规划**: AI制定详细的网站结构和内容规划
 
 ### 多AI模型支持
-- **Gemini**: Google的强大AI模型，免费使用
-- **Claude**: Anthropic的Claude模型系列
-- **其他模型**: 通过OpenRouter支持更多AI模型
+- **Gemini**: Gemini 2.5 Pro
+- **Claude**: Claude 4 Sonnet
+- **其他模型**: 通过 OpenRouter 支持更多AI模型
 
 ### 智能聊天优化
 - **实时对话**: 与AI实时交流，优化生成效果
@@ -117,20 +117,18 @@ ai-website-generator-from-report/
 ## 技术栈
 
 ### 前端技术
-- **React 19**: 最新的React框架
+- **React 19**: React框架
 - **TypeScript**: 类型安全的JavaScript
 - **Vite**: 快速的构建工具
-- **CodeMirror**: 专业的代码编辑器
-- **Prism.js**: 语法高亮库
 
 ### AI集成
 - **Google Gemini API**
 - **OpenRouter API**
 
 ### 部署技术
-- **Docker**: 容器化部署
-- **Nginx**: 高性能Web服务器
-- **Docker Compose**: 容器编排
+- **Docker**
+- **Nginx**
+- **Docker Compose**
 
 ## 安全注意事项
 
@@ -176,7 +174,3 @@ ai-website-generator-from-report/
 ## 许可证
 
 本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
-
----
-
-**提示**: 第一次构建可能需要几分钟时间下载依赖，请耐心等待。
