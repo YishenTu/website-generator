@@ -1,5 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
+import { AIModel } from '../types/types';
+import { ModelSelector } from './ModelSelector';
 import { LoadingSpinner } from './LoadingSpinner';
 
 interface PlanDisplayProps {
@@ -9,7 +10,11 @@ interface PlanDisplayProps {
   isAppLoading: boolean; // True if app is generally loading (e.g., plan streaming in)
   isLoadingHtml: boolean; // True if this component's action (generating HTML from plan) is loading
   showGenerateButton?: boolean; 
-  isCompactView?: boolean; 
+  isCompactView?: boolean;
+  htmlModel?: AIModel;
+  onHtmlModelChange?: (model: AIModel) => void;
+  onToggleRefine?: () => void;
+  showRefineButton?: boolean;
 }
 
 const CheckCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -32,7 +37,11 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
   isAppLoading,
   isLoadingHtml,
   showGenerateButton = true, 
-  isCompactView = false,     
+  isCompactView = false,
+  htmlModel = AIModel.Gemini,
+  onHtmlModelChange,
+  onToggleRefine,
+  showRefineButton,
 }) => {
   const [editablePlanText, setEditablePlanText] = useState<string>(planText);
 
@@ -57,7 +66,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
   const containerPadding = isCompactView ? 'p-3' : 'p-4';
   const titleMargin = isCompactView ? 'mb-2' : 'mb-3';
   const titleSize = isCompactView ? 'text-lg' : 'text-xl';
-  const buttonPy = isCompactView ? 'py-2' : 'py-2.5';
+  const buttonPy = 'py-1.5';
 
   const isTextareaDisabled = isAppLoading || isLoadingHtml || (isCompactView && !showGenerateButton);
   const generateButtonDisabled = isAppLoading || isLoadingHtml || !editablePlanText.trim();
@@ -65,11 +74,25 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
 
   return (
     <div className={`flex flex-col bg-slate-800 ${containerPadding} rounded-lg shadow-lg h-full`}>
-      <h2 className={`${titleSize} font-semibold text-sky-400 ${titleMargin} flex-shrink-0`}>
-        {isCompactView ? 'Current Plan' : 
-         isAppLoading ? 'Generating Website Plan (Editable)...' : 
-         'Generated Website Plan (Editable)'}
-      </h2>
+      <div className={`flex items-center justify-between ${titleMargin} flex-shrink-0`}>
+        <h2 className={`${titleSize} font-semibold text-sky-400`}>
+          {isCompactView ? 'Current Plan' : 
+           isAppLoading ? 'Generating Website Plan...' : 
+           'Generated Website Plan'}
+        </h2>
+        {showRefineButton && onToggleRefine && !isAppLoading && (
+          <button
+            onClick={onToggleRefine}
+            className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-1.5 px-3 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm"
+            aria-label="Toggle refine mode"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+            </svg>
+            Refine
+          </button>
+        )}
+      </div>
       <textarea
         value={displayPlan}
         onChange={(e) => setEditablePlanText(e.target.value)}
@@ -78,31 +101,47 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
         aria-label="Website plan text"
         readOnly={isAppLoading && !isCompactView} // Readonly while plan is streaming in
       />
-      <div className={`mt-3 flex ${isCompactView ? 'flex-col space-y-2' : 'flex-col sm:flex-row sm:space-x-3 space-y-2 sm:space-y-0'} flex-shrink-0`}>
+      <div className={`mt-3 flex ${isCompactView ? 'flex-col space-y-2' : 'flex-col space-y-3'} flex-shrink-0`}>
         {showGenerateButton && (
+          <div className={`flex items-center gap-3`}>
             <button
-            onClick={handleProceed}
-            disabled={generateButtonDisabled}
-            className={`flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-800`}
-            aria-label="Generate website from this plan"
+              onClick={handleProceed}
+              disabled={generateButtonDisabled}
+              className={`flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm`}
+              aria-label="Generate website from this plan"
             >
-            {isLoadingHtml ? ( // Spinner only for this button's action
+              {isLoadingHtml ? (
                 <LoadingSpinner className="w-5 h-5 mr-2 text-white" />
-            ) : (
+              ) : (
                 <CheckCircleIcon className="w-5 h-5 mr-2" />
-            )}
-            {isLoadingHtml ? 'Generating Website...' : 'Generate Website from Plan'}
+              )}
+              {isLoadingHtml ? 'Generating Website...' : 'Generate Website from Plan'}
             </button>
+            
+            {onHtmlModelChange && (
+              <div className="flex items-center gap-2">
+                <ModelSelector
+                  selectedModel={htmlModel}
+                  onModelChange={onHtmlModelChange}
+                  disabled={isAppLoading || isLoadingHtml}
+                  size="small"
+                />
+              </div>
+            )}
+          </div>
         )}
-        <button
-          onClick={onReviseReportAndPlan}
-          disabled={reviseButtonDisabled} 
-          className={`flex-1 bg-yellow-600 hover:bg-yellow-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-slate-800 ${isCompactView && !showGenerateButton ? '' : (showGenerateButton ? 'mt-2 sm:mt-0' : '')}`}
-          aria-label="Revise report and re-generate plan"
-        >
-          <PencilSquareIcon className="w-5 h-5 mr-2" />
-          Revise Report / Plan
-        </button>
+        
+        {!showGenerateButton && (
+          <button
+            onClick={onReviseReportAndPlan}
+            disabled={reviseButtonDisabled} 
+            className={`w-full bg-yellow-600 hover:bg-yellow-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm`}
+            aria-label="Revise report and re-generate plan"
+          >
+            <PencilSquareIcon className="w-5 h-5 mr-2" />
+            Revise Report / Plan
+          </button>
+        )}
       </div>
     </div>
   );

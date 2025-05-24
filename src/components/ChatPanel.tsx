@@ -1,11 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChatMessage, UserType } from '../types/types';
+import { ChatMessage, UserType, AIModel } from '../types/types';
+import { ModelSelector } from './ModelSelector';
 
 interface ChatPanelProps {
   messages: ChatMessage[];
   onSendMessage: (message: string) => void;
   isLoading: boolean;
   onStop: () => void;
+  chatModel?: AIModel;
+  onChatModelChange?: (model: AIModel) => void;
+  isChatAvailable?: boolean;
+  title?: string;
 }
 
 const PaperAirplaneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
@@ -21,7 +26,16 @@ const StopIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
   </svg>
 );
 
-export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, isLoading, onStop }) => {
+export const ChatPanel: React.FC<ChatPanelProps> = ({ 
+  messages, 
+  onSendMessage, 
+  isLoading, 
+  onStop, 
+  chatModel = AIModel.Gemini,
+  onChatModelChange,
+  isChatAvailable = true,
+  title
+}) => {
   const [inputText, setInputText] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -33,15 +47,36 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputText.trim() && !isLoading) {
+    if (inputText.trim() && !isLoading && isChatAvailable) {
       onSendMessage(inputText);
       setInputText('');
     }
   };
 
+  const isInputDisabled = isLoading || !isChatAvailable;
+  
+  const getPlaceholderText = () => {
+    if (isLoading) return "AI is thinking...";
+    if (!isChatAvailable) return "Generating website...";
+    return "Describe your changes...";
+  };
+
   return (
     <div className="flex flex-col bg-slate-800 p-4 rounded-lg shadow-lg h-full">
-      <h2 className="text-xl font-semibold text-sky-400 mb-3 flex-shrink-0">Refine with Chat</h2>
+      <div className="flex flex-col items-center mb-3 flex-shrink-0">
+        <h2 className="text-xl font-semibold text-sky-400 mb-3">{title || "Refine Website with Chat"}</h2>
+        {onChatModelChange && (
+          <div className="w-full flex justify-center pb-2 border-b border-slate-700/50">
+            <ModelSelector
+              selectedModel={chatModel}
+              onModelChange={onChatModelChange}
+              disabled={isInputDisabled}
+              size="small"
+            />
+          </div>
+        )}
+      </div>
+      
       <div className="flex-grow overflow-y-auto mb-3 pr-1 space-y-3 custom-scrollbar">
         {messages.map((msg) => (
           <div
@@ -67,9 +102,9 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
-            placeholder={isLoading ? "AI is thinking..." : "Describe your changes..."}
+            placeholder={getPlaceholderText()}
             className="flex-grow p-2.5 bg-slate-700 text-slate-200 border border-slate-600 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-sm"
-            disabled={isLoading}
+            disabled={isInputDisabled}
             aria-label="Chat message input"
           />
           {isLoading ? (
@@ -84,7 +119,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({ messages, onSendMessage, i
           ) : (
             <button
                 type="submit"
-                disabled={isLoading || !inputText.trim()}
+                disabled={isInputDisabled || !inputText.trim()}
                 className="bg-sky-600 hover:bg-sky-700 disabled:bg-slate-600 text-white font-semibold py-2.5 px-3 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-800"
                 aria-label="Send chat message"
             >

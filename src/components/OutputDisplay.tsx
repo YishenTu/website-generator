@@ -1,7 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 import { ActiveTab } from '../types/types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { TabButton } from './TabButton';
+import { CodeEditor } from './CodeEditor';
 import type { AppStage } from '../App'; 
 
 interface OutputDisplayProps {
@@ -183,12 +184,11 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
               />
             )}
             {activeTab === ActiveTab.Code && (
-              <textarea
-                value={htmlContent || ''} // Ensure value is never null
-                onChange={(e) => onHtmlContentChange && onHtmlContentChange(e.target.value)}
-                disabled={!onHtmlContentChange || isFullPreviewActive} // Disable if no handler or in full preview
-                className={`w-full h-full p-3 font-mono text-sm bg-slate-900 text-slate-300 border ${isFullPreviewActive ? 'border-transparent' : 'border-slate-700 rounded-b-md'} resize-none focus:outline-none focus:ring-1 focus:ring-sky-600 custom-scrollbar ${(!onHtmlContentChange || isFullPreviewActive) ? 'cursor-not-allowed opacity-80' : '' }`}
-                aria-label="Generated HTML Code"
+              <CodeEditor
+                value={htmlContent || ''}
+                onChange={onHtmlContentChange}
+                readOnly={!onHtmlContentChange || isFullPreviewActive}
+                className="w-full h-full"
               />
             )}
           </>

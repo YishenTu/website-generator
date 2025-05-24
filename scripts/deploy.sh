@@ -55,10 +55,27 @@ check_env_file() {
     if [ -f ".env.local" ]; then
         print_message "发现 .env.local 文件"
         source .env.local
+        
+        # 检查 Gemini API key
         if [ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your_api_key_here" ]; then
-            print_error "请在 .env.local 文件中设置有效的 GEMINI_API_KEY"
+            print_warning "GEMINI_API_KEY 未设置或无效"
+        else
+            print_success "GEMINI_API_KEY 已配置"
+        fi
+        
+        # 检查 OpenRouter API key
+        if [ -z "$OPENROUTER_API_KEY" ] || [ "$OPENROUTER_API_KEY" = "your_api_key_here" ]; then
+            print_warning "OPENROUTER_API_KEY 未设置或无效"
+        else
+            print_success "OPENROUTER_API_KEY 已配置"
+        fi
+        
+        # 至少需要一个API密钥
+        if ([ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your_api_key_here" ]) && ([ -z "$OPENROUTER_API_KEY" ] || [ "$OPENROUTER_API_KEY" = "your_api_key_here" ]); then
+            print_error "请在 .env.local 文件中至少设置一个有效的 API 密钥（GEMINI_API_KEY 或 OPENROUTER_API_KEY）"
             exit 1
         fi
+        
         print_success "使用现有的 .env.local 文件"
         return 0
     fi
@@ -67,28 +84,66 @@ check_env_file() {
     if [ ! -f ".env" ]; then
         print_warning ".env 和 .env.local 文件都不存在"
         echo
-        print_message "请创建环境变量文件并设置 GEMINI_API_KEY"
+        print_message "请创建环境变量文件并设置 API 密钥"
         echo "示例："
-        echo "GEMINI_API_KEY=your_api_key_here"
+        echo "GEMINI_API_KEY=your_gemini_api_key_here"
+        echo "OPENROUTER_API_KEY=your_openrouter_api_key_here"
         echo
         read -p "创建 .env.local 文件 (开发推荐) 还是 .env 文件? (local/env): " file_choice
         
         if [ "$file_choice" = "local" ]; then
-            read -p "请输入你的 Gemini API 密钥: " api_key
-            echo "GEMINI_API_KEY=$api_key" > .env.local
+            read -p "请输入你的 Gemini API 密钥 (可选，回车跳过): " gemini_key
+            read -p "请输入你的 OpenRouter API 密钥 (可选，回车跳过): " openrouter_key
+            
+            if [ -z "$gemini_key" ] && [ -z "$openrouter_key" ]; then
+                print_error "至少需要提供一个 API 密钥"
+                exit 1
+            fi
+            
+            {
+                [ ! -z "$gemini_key" ] && echo "GEMINI_API_KEY=$gemini_key"
+                [ ! -z "$openrouter_key" ] && echo "OPENROUTER_API_KEY=$openrouter_key"
+            } > .env.local
             print_success ".env.local 文件已创建"
         else
-            read -p "请输入你的 Gemini API 密钥: " api_key
-            echo "GEMINI_API_KEY=$api_key" > .env
+            read -p "请输入你的 Gemini API 密钥 (可选，回车跳过): " gemini_key
+            read -p "请输入你的 OpenRouter API 密钥 (可选，回车跳过): " openrouter_key
+            
+            if [ -z "$gemini_key" ] && [ -z "$openrouter_key" ]; then
+                print_error "至少需要提供一个 API 密钥"
+                exit 1
+            fi
+            
+            {
+                [ ! -z "$gemini_key" ] && echo "GEMINI_API_KEY=$gemini_key"
+                [ ! -z "$openrouter_key" ] && echo "OPENROUTER_API_KEY=$openrouter_key"
+            } > .env
             print_success ".env 文件已创建"
         fi
     else
         # 检查.env文件中的API密钥
         source .env
+        
+        # 检查 Gemini API key
         if [ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your_api_key_here" ]; then
-            print_error "请在 .env 文件中设置有效的 GEMINI_API_KEY"
+            print_warning "GEMINI_API_KEY 未设置或无效"
+        else
+            print_success "GEMINI_API_KEY 已配置"
+        fi
+        
+        # 检查 OpenRouter API key
+        if [ -z "$OPENROUTER_API_KEY" ] || [ "$OPENROUTER_API_KEY" = "your_api_key_here" ]; then
+            print_warning "OPENROUTER_API_KEY 未设置或无效"
+        else
+            print_success "OPENROUTER_API_KEY 已配置"
+        fi
+        
+        # 至少需要一个API密钥
+        if ([ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your_api_key_here" ]) && ([ -z "$OPENROUTER_API_KEY" ] || [ "$OPENROUTER_API_KEY" = "your_api_key_here" ]); then
+            print_error "请在 .env 文件中至少设置一个有效的 API 密钥（GEMINI_API_KEY 或 OPENROUTER_API_KEY）"
             exit 1
         fi
+        
         print_success "使用现有的 .env 文件"
     fi
 }
@@ -156,6 +211,10 @@ show_deployment_info() {
     echo
     echo "🌐 应用访问地址: http://localhost:8080"
     echo "🔍 健康检查: http://localhost:8080/health"
+    echo
+    echo "🤖 支持的AI模型:"
+    [ ! -z "$GEMINI_API_KEY" ] && [ "$GEMINI_API_KEY" != "your_api_key_here" ] && echo "  ✅ Gemini 2.5 Pro (Google)"
+    [ ! -z "$OPENROUTER_API_KEY" ] && [ "$OPENROUTER_API_KEY" != "your_api_key_here" ] && echo "  ✅ Claude 3.5 Sonnet (Anthropic)"
     echo
     echo "📋 常用命令:"
     echo "  查看日志: docker-compose -f docker/docker-compose.yml logs -f"
