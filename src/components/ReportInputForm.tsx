@@ -1,5 +1,6 @@
-
 import React from 'react';
+import { AIModel } from '../types/types';
+import { ModelSelector } from './ModelSelector';
 import type { AppStage } from '../App'; // Import AppStage type
 
 interface ReportInputFormProps {
@@ -11,6 +12,8 @@ interface ReportInputFormProps {
   onStop: () => void;
   isLoading: boolean; // True if planPending or htmlPending
   appStage: AppStage;
+  selectedModel: AIModel;
+  onModelChange: (model: AIModel) => void;
 }
 
 // Consider moving icons to a shared file if they grow
@@ -42,6 +45,8 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
   onStop,
   isLoading,
   appStage,
+  selectedModel,
+  onModelChange,
 }) => {
   let buttonText = "Generate Plan";
   let ButtonIcon = SparklesIcon;
@@ -80,30 +85,40 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
 
   return (
     <div className="flex flex-col bg-slate-800 p-4 rounded-lg shadow-lg h-full">
-      <h2 className="text-xl font-semibold text-sky-400 mb-3 flex-shrink-0">1. Your Report</h2>
+      <h2 className="text-xl font-semibold text-sky-400 mb-3 flex-shrink-0">Text Input</h2>
       <textarea
         value={reportText}
         onChange={(e) => onReportChange(e.target.value)}
-        placeholder="Paste your text report here..."
+        placeholder="Paste your text here..."
         className="w-full p-3 bg-slate-700 text-slate-200 border border-slate-600 rounded-md resize-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-sm leading-relaxed flex-grow min-h-0 custom-scrollbar"
         disabled={isTextareaDisabled}
         aria-label="Report text input"
         aria-disabled={isTextareaDisabled}
       />
-      <button
-        onClick={buttonAction}
-        className={`mt-4 w-full font-semibold py-2.5 px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 flex-shrink-0
-          ${isLoading 
-            ? 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500' 
-            : 'bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500 disabled:bg-slate-600'
-          }
-        `}
-        disabled={!isLoading && appStage === 'initial' && !reportText.trim()}
-        aria-label={buttonAriaLabel}
-      >
-        <ButtonIcon className="w-5 h-5 mr-2" />
-        {buttonText}
-      </button>
+      <div className="mt-4 flex items-center gap-3 flex-shrink-0">
+        <button
+          onClick={buttonAction}
+          className={`flex-1 font-semibold py-1.5 px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm
+            ${isLoading 
+              ? 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500' 
+              : 'bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500 disabled:bg-slate-600'
+            }
+          `}
+          disabled={!isLoading && appStage === 'initial' && !reportText.trim()}
+          aria-label={buttonAriaLabel}
+        >
+          <ButtonIcon className="w-5 h-5 mr-2" />
+          {buttonText}
+        </button>
+        <div className="flex items-center gap-2">
+          <ModelSelector
+            selectedModel={selectedModel}
+            onModelChange={onModelChange}
+            disabled={isLoading}
+            size="small"
+          />
+        </div>
+      </div>
     </div>
   );
 };
