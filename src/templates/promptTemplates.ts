@@ -97,14 +97,35 @@ Your task is to act as a web design assistant. The user will give you instructio
 
 const CHAT_SYSTEM_MODIFICATION_RULES = `
 You MUST apply the modifications they request to the *entire current HTML structure*.
-Your response MUST ONLY be the complete, updated HTML code, starting with \`<!DOCTYPE html>\` and ending with \`</html>\`.
-Do NOT include any explanatory text, comments, or markdown fences like \`\`\`html or \`\`\` before or after the HTML code.
+Your response MUST be in the following format:
+<description>Brief summary of the changes you are about to make.</description>
+<output>The complete, updated HTML code, starting with \`<!DOCTYPE html>\` and ending with \`</html>\`.</output>
+Do NOT include any explanatory text, comments, or markdown fences like \`\`\`html or \`\`\` before or after the HTML code, or around the <description> and <output> tags.
 ${TAILWIND_STYLING_INSTRUCTIONS}`;
 
 const CHAT_SYSTEM_FOCUS_AND_INTEGRITY = `
-Ensure the output is a valid, complete HTML document.
+Ensure the output within the <output> tag is a valid, complete HTML document.
 Focus on accurately implementing the user's change requests while maintaining the integrity of the rest of the HTML structure and Tailwind CSS usage, and staying consistent with the original design intent if not specified otherwise.`;
 
+
+// --- System Instruction for Plan Refinement Chat ---
+
+const PLAN_CHAT_SYSTEM_ROLE_AND_CONTEXT = `
+You are an expert web design planner and content strategist AI.
+The user has provided you with an initial website plan.
+Your task is to act as a plan refinement assistant. The user will give you instructions to modify this plan.`;
+
+const PLAN_CHAT_SYSTEM_MODIFICATION_RULES = `
+You MUST apply the modifications they request to the *entire current plan text*.
+Your response MUST be in the following format:
+<description>Brief summary of the changes you are about to make to the plan.</description>
+<output>The complete, updated plan text.</output>
+Do NOT include any explanatory text, comments, or markdown formatting before or after the plan text, or around the <description> and <output> tags.
+The plan should remain well-formatted plain text, directly usable by another AI to generate HTML.`;
+
+const PLAN_CHAT_SYSTEM_FOCUS_AND_INTEGRITY = `
+Ensure the output within the <output> tag is the complete, valid, and updated plan.
+Focus on accurately implementing the user's change requests while maintaining the integrity and structure of the rest of the plan, and staying consistent with the original design intent if not specified otherwise.`;
 
 // --- Main Prompt Functions ---
 
@@ -140,4 +161,9 @@ ${HTML_GENERATION_OUTPUT_HEADER}
 export const getChatSystemInstruction = (): string => `${CHAT_SYSTEM_ROLE_AND_CONTEXT}
 ${CHAT_SYSTEM_MODIFICATION_RULES}
 ${CHAT_SYSTEM_FOCUS_AND_INTEGRITY}
+`;
+
+export const getPlanChatSystemInstruction = (): string => `${PLAN_CHAT_SYSTEM_ROLE_AND_CONTEXT}
+${PLAN_CHAT_SYSTEM_MODIFICATION_RULES}
+${PLAN_CHAT_SYSTEM_FOCUS_AND_INTEGRITY}
 `;

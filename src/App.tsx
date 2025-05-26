@@ -11,9 +11,10 @@ import {
   validateModelApiKeys
 } from './services/aiService';
 import { OpenRouterChatSession, OpenRouterPlanChatSession } from './services/openrouterChatService';
-import { getChatSystemInstruction } from './templates/promptTemplates';
+import { getChatSystemInstruction, getPlanChatSystemInstruction } from './templates/promptTemplates';
 import { ActiveTab, ChatMessage, UserType, AIModel } from './types/types';
 import { LoadingSpinner } from './components/LoadingSpinner';
+import { parseAIResponse } from './utils/parsingUtils';
 
 const MODEL_NAME = "gemini-2.5-pro-preview-05-06";
 
@@ -155,21 +156,24 @@ const App: React.FC = () => {
     const targetModel = model || planChatModel;
     try {
       if (targetModel === AIModel.Gemini) {
+        // History for Gemini plan chat will be minimal, relying on system prompt
         const chatHistory = [
-          { role: "user", parts: [{ text: `I have a website plan generated from a report. Here's the plan. I will give you instructions to modify it. Your responses should only be the complete, updated plan text. Initial Plan:\n\n${planText}` }] },
-          { role: "model", parts: [{ text: planText }] }
+          { role: "user", parts: [{ text: `Initial Plan:\n\n${planText}` }] },
+          { role: "model", parts: [{ text: `<description>Initial plan received.</description><output>${planText}</output>` }] } // AI's first response confirms receipt
         ];
         
         planChatSessionRef.current = ai.chats.create({
           model: MODEL_NAME,
-          config: { systemInstruction: `You are an expert web design planner. When the user asks you to modify a website plan, respond with only the complete updated plan text. Do not include any explanations, markdown formatting, or additional text.` },
+          config: { systemInstruction: getPlanChatSystemInstruction() }, // Use new system instruction
           history: chatHistory,
         });
 
-        setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated. How would you like to modify it?", isHtml: false }]);
+        setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan loaded. When you ask for changes, I'll first describe what I'm going to do, then provide the updated plan. How would you like to modify it?", isHtml: false }]);
       } else if (targetModel === AIModel.Claude) {
-        openRouterPlanChatSessionRef.current = new OpenRouterPlanChatSession(planText);
-        setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated. How would you like to modify it?", isHtml: false }]);
+        // OpenRouterPlanChatSession might not use the XML format internally, 
+        // so we keep its initialization simpler. It will respond with the full plan text.
+        openRouterPlanChatSessionRef.current = new OpenRouterPlanChatSession(planText); 
+        setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan loaded. When you ask for changes, I'll first describe what I'm going to do, then provide the updated plan. How would you like to modify it?", isHtml: false }]);
       }
     } catch (error) {
       console.error("Failed to initialize plan chat session:", error);
@@ -231,10 +235,10 @@ const App: React.FC = () => {
                 history: chatHistory,
               });
 
-              setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Initial website generated. How would you like to refine it?", isHtml: false }]);
+              setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Initial website generated. When you ask for changes, I'll first describe what I'm going to do, then provide the updated code. How would you like to refine it?", isHtml: false }]);
             } else if (chatModel === AIModel.Claude) {
               openRouterChatSessionRef.current = new OpenRouterChatSession(cleanedInitialHtml);
-              setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Initial website generated. How would you like to refine it?", isHtml: false }]);
+              setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Initial website generated. When you ask for changes, I'll first describe what I'm going to do, then provide the updated code. How would you like to refine it?", isHtml: false }]);
             }
           } catch (chatError) {
             console.error("Failed to initialize chat session:", chatError);
@@ -303,7 +307,7 @@ const App: React.FC = () => {
           const chunkText = chunk.text; 
           if (chunkText) {
             currentResponseHtml += chunkText;
-            setGeneratedHtml(currentResponseHtml);
+            // Do not setGeneratedHtml here directly anymore, buffer and parse later
           }
         }
       } else if (chatModel === AIModel.Claude && openRouterChatSessionRef.current) {
@@ -314,22 +318,53 @@ const App: React.FC = () => {
               throw new DOMException('The user aborted a request.', 'AbortError');
             }
             currentResponseHtml += chunk;
-            setGeneratedHtml(currentResponseHtml);
+            // Do not setGeneratedHtml here directly anymore, buffer and parse later
           },
           (finalText: string) => {
-            currentResponseHtml = finalText;
+            // finalText from OpenRouter might not be the full stream if chunking occurred,
+            // ensure currentResponseHtml has the complete text.
+            currentResponseHtml = finalText; // Assuming finalText is the complete response for Claude
           },
           signal
         );
       }
       
-      const finalCleanedHtmlFromChat = cleanTextOutput(currentResponseHtml);
-      setGeneratedHtml(finalCleanedHtmlFromChat);
+      // Parse the accumulated response using the utility function
+      const parseResult = parseAIResponse(currentResponseHtml);
 
-      // Update AI chat message to a static confirmation
-      setChatMessages((prevMsgs: ChatMessage[]) => prevMsgs.map((msg: ChatMessage) => 
-        msg.id === aiMessageId ? {...msg, text: "Website updated successfully." } : msg
-      ));
+      if (parseResult.success && parseResult.description !== null && parseResult.output !== null) {
+        const outputHtml = cleanTextOutput(parseResult.output);
+        setGeneratedHtml(outputHtml);
+
+        const descriptionMessage: ChatMessage = {
+          id: (Date.now() + 0.5).toString(),
+          sender: UserType.AI,
+          text: parseResult.description,
+          isHtml: false,
+        };
+        
+        setChatMessages((prevMsgs: ChatMessage[]) => {
+          const processingMsgIndex = prevMsgs.findIndex(msg => msg.id === aiMessageId);
+          if (processingMsgIndex !== -1) {
+            const newMessages = [...prevMsgs];
+            newMessages.splice(processingMsgIndex, 0, descriptionMessage);
+            return newMessages.map(msg => 
+              msg.id === aiMessageId ? { ...msg, text: "Website updated successfully." } : msg
+            );
+          }
+          // Should ideally not happen if processingMsg is always added
+          return [...prevMsgs, descriptionMessage, { id: aiMessageId, sender: UserType.AI, text: "Website updated successfully." }];
+        });
+
+      } else {
+        // Parsing failed or tags were empty
+        setGeneratedHtml(cleanTextOutput(currentResponseHtml)); // Fallback: set the raw response
+        const formatErrorMessage = parseResult.error || "AI response format issue. Displaying raw output.";
+        setChatMessages((prevMsgs: ChatMessage[]) => prevMsgs.map((msg: ChatMessage) => 
+          msg.id === aiMessageId ? {...msg, text: formatErrorMessage } : msg
+        ));
+        setError(formatErrorMessage);
+      }
 
     } catch (err) {
       let chatError = "An unknown error occurred during chat.";
@@ -363,16 +398,20 @@ const App: React.FC = () => {
       try {
         if (model === AIModel.Gemini) {
           const chatHistory = [
-            { role: "user", parts: [{ text: `I have a website generated from a report and a plan. Here's the initial HTML. I will give you instructions to modify it. Your responses should only be the complete, updated HTML code. Initial HTML:\n\n${generatedHtml}` }] },
-            { role: "model", parts: [{ text: generatedHtml }] }
+            // User's first message in history now just provides the current HTML
+            { role: "user", parts: [{ text: `Current HTML:\n\n${generatedHtml}` }] },
+            // AI's first response confirms receipt, fitting the new format
+            { role: "model", parts: [{ text: `<description>HTML context received. Ready for refinement instructions.</description><output>${generatedHtml}</output>` }] }
           ];
           
           chatSessionRef.current = ai.chats.create({
             model: MODEL_NAME,
-            config: { systemInstruction: getChatSystemInstruction() },
+            config: { systemInstruction: getChatSystemInstruction() }, // This already uses the new format instruction
             history: chatHistory,
           });
         } else if (model === AIModel.Claude) {
+          // OpenRouterChatSession is initialized with HTML and uses its own system prompt.
+          // It won't use the XML format unless OpenRouterChatSession itself is updated.
           openRouterChatSessionRef.current = new OpenRouterChatSession(generatedHtml);
         }
         
@@ -545,7 +584,7 @@ const App: React.FC = () => {
           const chunkText = chunk.text; 
           if (chunkText) {
             currentResponsePlan += chunkText;
-            setGeneratedPlan(currentResponsePlan);
+            // Do not setGeneratedPlan here directly anymore, buffer and parse later
           }
         }
       } else if (planChatModel === AIModel.Claude && openRouterPlanChatSessionRef.current) {
@@ -556,22 +595,59 @@ const App: React.FC = () => {
               throw new DOMException('The user aborted a request.', 'AbortError');
             }
             currentResponsePlan += chunk;
-            setGeneratedPlan(currentResponsePlan);
+            // Do not setGeneratedPlan here directly anymore, buffer and parse later
           },
           (finalText: string) => {
-            currentResponsePlan = finalText;
+            currentResponsePlan = finalText; // Assuming finalText is the complete response for Claude
           },
           signal
         );
       }
       
-      const finalCleanedPlanFromChat = cleanTextOutput(currentResponsePlan);
-      setGeneratedPlan(finalCleanedPlanFromChat);
+      // Parse the accumulated response for Plan Chat using the utility function
+      const parseResult = parseAIResponse(currentResponsePlan);
 
-      // Update AI chat message to a static confirmation
-      setPlanChatMessages((prevMsgs: ChatMessage[]) => prevMsgs.map((msg: ChatMessage) => 
-        msg.id === aiMessageId ? {...msg, text: "Plan updated successfully." } : msg
-      ));
+      if (parseResult.success && parseResult.description !== null && parseResult.output !== null) {
+        const outputPlan = cleanTextOutput(parseResult.output);
+        setGeneratedPlan(outputPlan);
+
+        const descriptionMessage: ChatMessage = {
+          id: (Date.now() + 0.5).toString(),
+          sender: UserType.AI,
+          text: parseResult.description,
+          isHtml: false,
+        };
+
+        setPlanChatMessages((prevMsgs: ChatMessage[]) => {
+          const processingMsgIndex = prevMsgs.findIndex(msg => msg.id === aiMessageId);
+          if (processingMsgIndex !== -1) {
+            const newMessages = [...prevMsgs];
+            newMessages.splice(processingMsgIndex, 0, descriptionMessage);
+            return newMessages.map(msg =>
+              msg.id === aiMessageId ? { ...msg, text: "Plan updated successfully." } : msg
+            );
+          }
+          return [...prevMsgs, descriptionMessage, { id: aiMessageId, sender: UserType.AI, text: "Plan updated successfully." }];
+        });
+
+      } else {
+        // Parsing failed. Check if it's Claude (which might not use XML) or a genuine parsing error for Gemini.
+        if (planChatModel === AIModel.Claude && openRouterPlanChatSessionRef.current) {
+          const finalCleanedPlanFromChat = cleanTextOutput(currentResponsePlan);
+          setGeneratedPlan(finalCleanedPlanFromChat);
+          setPlanChatMessages((prevMsgs: ChatMessage[]) => prevMsgs.map((msg: ChatMessage) => 
+            msg.id === aiMessageId ? {...msg, text: "Plan updated successfully (Claude - plain text)." } : msg
+          ));
+        } else {
+          // For Gemini or if Claude session isn't active, it's a format error.
+          setGeneratedPlan(cleanTextOutput(currentResponsePlan)); // Fallback
+          const formatErrorMessage = parseResult.error || "AI response format issue for plan update. Displaying raw output.";
+          setPlanChatMessages((prevMsgs: ChatMessage[]) => prevMsgs.map((msg: ChatMessage) => 
+            msg.id === aiMessageId ? {...msg, text: formatErrorMessage } : msg
+          ));
+          setError(formatErrorMessage);
+        }
+      }
 
     } catch (err) {
       let chatError = "An unknown error occurred during plan chat.";
@@ -601,8 +677,9 @@ const App: React.FC = () => {
       planChatSessionRef.current = null;
       openRouterPlanChatSessionRef.current = null;
       
-      // Immediately reinitialize with the new model
-      initializePlanChatSession(generatedPlan, model);
+      // Immediately reinitialize with the new model.
+      // initializePlanChatSession already handles setting the correct system instruction for Gemini.
+      initializePlanChatSession(generatedPlan, model); 
       
       // Add a system message about model change
       setPlanChatMessages((prev: ChatMessage[]) => [
