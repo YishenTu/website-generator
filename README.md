@@ -110,12 +110,13 @@ ai-website-generator-from-report/
 │   │   └── types.ts                # TypeScript类型定义
 │   ├── utils/             # 工具函数
 │   │   ├── constants.ts            # 应用常量定义
-│   │   ├── envValidator.ts         # 环境变量验证
-│   │   ├── errorHandler.ts         # 统一错误处理
-│   │   ├── logger.ts               # 日志工具
-│   │   ├── streamHandler.ts        # 流处理工具
+│   │   ├── envValidator.ts         # 环境变量验证工具
+│   │   ├── errorHandler.ts         # 统一错误处理工具
+│   │   ├── logger.ts               # 结构化日志工具
+│   │   ├── streamHandler.ts        # 流数据处理工具
 │   │   └── styleConstants.ts       # 样式常量定义
-│   └── App.tsx            # 主应用组件和应用入口
+│   ├── App.tsx            # 主应用组件
+│   └── main.tsx           # 应用入口文件
 ├── docker/                # Docker相关文件
 │   ├── Dockerfile         # Docker镜像构建文件
 │   ├── docker-compose.yml # Docker Compose配置
