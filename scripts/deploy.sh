@@ -152,6 +152,17 @@ check_env_file() {
 stop_existing() {
     print_message "停止现有容器..."
     
+    # 确保环境变量被导出（避免docker-compose警告）
+    if [ -f ".env.local" ]; then
+        set -a
+        source .env.local
+        set +a
+    elif [ -f ".env" ]; then
+        set -a
+        source .env
+        set +a
+    fi
+    
     if docker-compose -f docker/docker-compose.yml ps | grep -q "ai-website-generator"; then
         docker-compose -f docker/docker-compose.yml down
         print_success "现有容器已停止"
@@ -166,9 +177,22 @@ build_and_start() {
     
     # 确保环境变量被导出
     if [ -f ".env.local" ]; then
-        export $(grep -v '^#' .env.local | xargs)
+        # 使用更安全的方式导出环境变量
+        set -a  # 自动导出所有变量
+        source .env.local
+        set +a  # 关闭自动导出
     elif [ -f ".env" ]; then
-        export $(grep -v '^#' .env | xargs)
+        set -a
+        source .env
+        set +a
+    fi
+    
+    # 验证环境变量已导出
+    if [ ! -z "$GEMINI_API_KEY" ]; then
+        print_message "GEMINI_API_KEY 已设置"
+    fi
+    if [ ! -z "$OPENROUTER_API_KEY" ]; then
+        print_message "OPENROUTER_API_KEY 已设置"
     fi
     
     docker-compose -f docker/docker-compose.yml build --no-cache

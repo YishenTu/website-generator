@@ -5,6 +5,7 @@
 
 import { ENV_VARS } from './constants';
 import { logger } from './logger';
+import { getEnvVar, isDevelopment } from './env';
 
 export interface EnvValidationResult {
   isValid: boolean;
@@ -24,13 +25,13 @@ export function validateEnvironmentVariables(): EnvValidationResult {
   };
 
   // 检查 Gemini API Key
-  const geminiKey = process.env[ENV_VARS.GEMINI_API_KEY];
+  const geminiKey = getEnvVar('GEMINI_API_KEY');
   if (!geminiKey || geminiKey.trim() === '') {
     result.warnings.push(`${ENV_VARS.GEMINI_API_KEY} is not set. Gemini models will not be available.`);
   }
 
   // 检查 OpenRouter API Key
-  const openrouterKey = process.env[ENV_VARS.OPENROUTER_API_KEY];
+  const openrouterKey = getEnvVar('OPENROUTER_API_KEY');
   if (!openrouterKey || openrouterKey.trim() === '') {
     result.warnings.push(`${ENV_VARS.OPENROUTER_API_KEY} is not set. OpenRouter models will not be available.`);
   }
@@ -43,7 +44,7 @@ export function validateEnvironmentVariables(): EnvValidationResult {
   }
 
   // 开发环境特定的检查
-  if (process.env.NODE_ENV === 'development') {
+  if (isDevelopment()) {
     // 检查是否使用了占位符值
     if (geminiKey === 'your_gemini_api_key_here' || geminiKey === 'your_api_key_here') {
       result.warnings.push('Gemini API key appears to be a placeholder value.');
@@ -74,11 +75,11 @@ export function validateEnvironmentVariables(): EnvValidationResult {
 export function getAvailableProviders(): string[] {
   const providers: string[] = [];
   
-  if (process.env[ENV_VARS.GEMINI_API_KEY]) {
+  if (getEnvVar('GEMINI_API_KEY')) {
     providers.push('gemini');
   }
   
-  if (process.env[ENV_VARS.OPENROUTER_API_KEY]) {
+  if (getEnvVar('OPENROUTER_API_KEY')) {
     providers.push('openrouter');
   }
   
@@ -93,9 +94,9 @@ export function getAvailableProviders(): string[] {
 export function isProviderAvailable(provider: 'gemini' | 'openrouter'): boolean {
   switch (provider) {
     case 'gemini':
-      return !!process.env[ENV_VARS.GEMINI_API_KEY];
+      return !!getEnvVar('GEMINI_API_KEY');
     case 'openrouter':
-      return !!process.env[ENV_VARS.OPENROUTER_API_KEY];
+      return !!getEnvVar('OPENROUTER_API_KEY');
     default:
       return false;
   }

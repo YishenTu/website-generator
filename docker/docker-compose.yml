@@ -1,13 +1,12 @@
 services:
   ai-website-generator:
+    image: ai-website-generator:latest
     build:
       context: ..
       dockerfile: docker/Dockerfile
       args:
         - GEMINI_API_KEY=${GEMINI_API_KEY}
         - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
-    env_file:
-      - ../.env.local
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}

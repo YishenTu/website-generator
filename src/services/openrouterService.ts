@@ -10,6 +10,7 @@ import { handleApiError, formatErrorMessage } from "../utils/errorHandler";
 import { handleStreamResponse } from "../utils/streamHandler";
 import { createLogger } from "../utils/logger";
 import { ENV_VARS } from "../utils/constants";
+import { getEnvVar } from "../utils/env";
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
@@ -56,7 +57,7 @@ async function makeGenericStreamRequest(
   signal?: AbortSignal,
   errorContext: string = "OpenRouter"
 ): Promise<void> {
-  const apiKey = process.env[ENV_VARS.OPENROUTER_API_KEY];
+  const apiKey = getEnvVar('OPENROUTER_API_KEY');
   
   if (!apiKey) {
     throw new Error(`OpenRouter API key is not configured. Please ensure the ${ENV_VARS.OPENROUTER_API_KEY} environment variable is set.`);
@@ -173,7 +174,7 @@ export class OpenRouterChatSession {
   private modelName: string;
 
   constructor(initialHtml: string, modelName?: string) {
-    this.apiKey = process.env[ENV_VARS.OPENROUTER_API_KEY] || '';
+    this.apiKey = getEnvVar('OPENROUTER_API_KEY') || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
     if (!this.apiKey) {
@@ -235,7 +236,7 @@ export class OpenRouterPlanChatSession {
   private modelName: string;
 
   constructor(initialPlan: string, modelName?: string) {
-    this.apiKey = process.env[ENV_VARS.OPENROUTER_API_KEY] || '';
+    this.apiKey = getEnvVar('OPENROUTER_API_KEY') || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
     if (!this.apiKey) {

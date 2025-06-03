@@ -12,8 +12,9 @@ import { ActiveTab } from './types/types';
 import { useWebsiteGeneration } from './hooks/useWebsiteGeneration';
 import { validateEnvironmentVariables } from './utils/envValidator';
 import { logger } from './utils/logger';
+import { getEnvVar } from './utils/env';
 import { CONTAINER_STYLES, TEXT_STYLES, BUTTON_STYLES, LAYOUT_STYLES, ICON_SIZES, combineStyles } from './utils/styleConstants';
-import { UI_TEXT, FILE, ENV_VARS } from './utils/constants';
+import { UI_TEXT, FILE } from './utils/constants';
 
 export type AppStage = 'initial' | 'planPending' | 'planReady' | 'htmlPending' | 'htmlReady';
 
@@ -28,7 +29,7 @@ const App: React.FC = () => {
   }, []);
 
   // Initialize GoogleGenAI
-  const ai = useRef(new GoogleGenAI({ apiKey: process.env[ENV_VARS.GEMINI_API_KEY] })).current;
+  const ai = useRef(new GoogleGenAI({ apiKey: getEnvVar('GEMINI_API_KEY') })).current;
 
   // Use the website generation hook
   const {
