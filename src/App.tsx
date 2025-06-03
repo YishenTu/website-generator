@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 // Fix: Corrected import according to guidelines, removed unused GenerateContentResponse.
-import { GoogleGenAI, Chat } from "@google/genai";
+import { GoogleGenAI } from "@google/genai";
 import { ReportInputForm } from './components/ReportInputForm';
 import { OutputDisplay } from './components/OutputDisplay';
 import { ChatPanel } from './components/ChatPanel';
@@ -8,14 +8,16 @@ import { PlanDisplay } from './components/PlanDisplay';
 import { 
   generateWebsitePlanWithModel, 
   generateWebsiteFromReportWithPlanWithModel,
-  validateModelApiKeys
+  validateModelApiKeys,
+  createHtmlChatSession,
+  createPlanChatSession,
+  ChatSession
 } from './services/aiService';
-import { OpenRouterChatSession, OpenRouterPlanChatSession } from './services/openrouterChatService';
-import { getChatSystemInstruction } from './templates/promptTemplates';
+import { cleanTextOutput, getModelDisplayName } from './components/textUtils';
+import { copyHtmlToClipboard, downloadHtmlFile } from './components/fileUtils';
+import { abortAllOperations } from './components/appStateUtils';
 import { ActiveTab, ChatMessage, UserType, AIModel } from './types/types';
 import { LoadingSpinner } from './components/LoadingSpinner';
-
-const MODEL_NAME = "gemini-2.5-pro-preview-05-06";
 
 export type AppStage = 'initial' | 'planPending' | 'planReady' | 'htmlPending' | 'htmlReady';
 
@@ -51,40 +53,15 @@ const App: React.FC = () => {
   
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [planChatMessages, setPlanChatMessages] = useState<ChatMessage[]>([]);
-  const chatSessionRef = useRef<Chat | null>(null);
-  const planChatSessionRef = useRef<Chat | null>(null);
-  const openRouterChatSessionRef = useRef<OpenRouterChatSession | null>(null);
-  const openRouterPlanChatSessionRef = useRef<OpenRouterPlanChatSession | null>(null);
+  const chatSessionRef = useRef<ChatSession | null>(null);
+  const planChatSessionRef = useRef<ChatSession | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const planAbortControllerRef = useRef<AbortController | null>(null);
 
   // Fix: Initialize GoogleGenAI with apiKey from process.env.API_KEY directly as per guidelines.
   const ai = useRef(new GoogleGenAI({ apiKey: process.env.API_KEY })).current;
 
-  const cleanTextOutput = (text: string): string => {
-    let cleaned = text;
-    const fenceRegex = /^```(?:[a-zA-Z]+)?\s*\n?(.*?)\n?\s*```$/si;
-    const match = cleaned.match(fenceRegex);
-    if (match && match[1]) {
-      cleaned = match[1].trim();
-    } else if (cleaned.startsWith("```") && cleaned.endsWith("```")) {
-      const firstNewline = cleaned.indexOf('\n');
-      const lastNewline = cleaned.lastIndexOf('\n');
-      if (firstNewline !== -1 && lastNewline !== -1 && lastNewline > firstNewline) {
-        cleaned = cleaned.substring(firstNewline + 1, lastNewline).trim();
-      } else {
-        cleaned = cleaned.substring(3, cleaned.length - 3).trim();
-        const potentialKeywords = ["html", "text", "json", "javascript", "css", "markdown"];
-        for (const keyword of potentialKeywords) {
-            if (cleaned.toLowerCase().startsWith(keyword)) {
-                cleaned = cleaned.substring(keyword.length).trim();
-                break;
-            }
-        }
-      }
-    }
-    return cleaned.trim();
-  };
+
   
   const handleGeneratePlan = useCallback(async () => {
     setError(null); 
@@ -112,8 +89,6 @@ const App: React.FC = () => {
     setPlanChatMessages([]);
     chatSessionRef.current = null;
     planChatSessionRef.current = null;
-    openRouterChatSessionRef.current = null;
-    openRouterPlanChatSessionRef.current = null;
     setIsFullPreviewActive(false);
     setIsRefineMode(false);
     setAppStage('planPending'); 
@@ -154,28 +129,13 @@ const App: React.FC = () => {
   const initializePlanChatSession = useCallback((planText: string, model?: AIModel) => {
     const targetModel = model || planChatModel;
     try {
-      if (targetModel === AIModel.Gemini) {
-        const chatHistory = [
-          { role: "user", parts: [{ text: `I have a website plan generated from a report. Here's the plan. I will give you instructions to modify it. Your responses should only be the complete, updated plan text. Initial Plan:\n\n${planText}` }] },
-          { role: "model", parts: [{ text: planText }] }
-        ];
-        
-        planChatSessionRef.current = ai.chats.create({
-          model: MODEL_NAME,
-          config: { systemInstruction: `You are an expert web design planner. When the user asks you to modify a website plan, respond with only the complete updated plan text. Do not include any explanations, markdown formatting, or additional text.` },
-          history: chatHistory,
-        });
-
-        setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated. How would you like to modify it?", isHtml: false }]);
-      } else if (targetModel === AIModel.Claude) {
-        openRouterPlanChatSessionRef.current = new OpenRouterPlanChatSession(planText);
-        setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated. How would you like to modify it?", isHtml: false }]);
-      }
+      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText);
+      setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated. How would you like to modify it?", isHtml: false }]);
     } catch (error) {
       console.error("Failed to initialize plan chat session:", error);
       setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated successfully! Note: Chat functionality is not available due to initialization error.", isHtml: false }]);
     }
-  }, [ai]);
+  }, [ai, planChatModel]);
 
   const handleGenerateHtmlFromPlan = useCallback(async (currentPlanText: string) => {
     setError(null); 
@@ -200,7 +160,6 @@ const App: React.FC = () => {
     setGeneratedHtml(''); 
     setChatMessages([]);
     chatSessionRef.current = null;
-    openRouterChatSessionRef.current = null;
     setActiveTab(ActiveTab.Code); 
     setAppStage('htmlReady'); 
 
@@ -219,23 +178,8 @@ const App: React.FC = () => {
 
           // Initialize chat session based on chat model (not html model)
           try {
-            if (chatModel === AIModel.Gemini) {
-              const chatHistory = [
-                { role: "user", parts: [{ text: `I have a website generated from a report and a plan. Here's the initial HTML. I will give you instructions to modify it. Your responses should only be the complete, updated HTML code. Initial HTML:\n\n${cleanedInitialHtml}` }] },
-                { role: "model", parts: [{ text: cleanedInitialHtml }] }
-              ];
-              
-              chatSessionRef.current = ai.chats.create({
-                model: MODEL_NAME,
-                config: { systemInstruction: getChatSystemInstruction() },
-                history: chatHistory,
-              });
-
-              setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Initial website generated. How would you like to refine it?", isHtml: false }]);
-            } else if (chatModel === AIModel.Claude) {
-              openRouterChatSessionRef.current = new OpenRouterChatSession(cleanedInitialHtml);
-              setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Initial website generated. How would you like to refine it?", isHtml: false }]);
-            }
+            chatSessionRef.current = createHtmlChatSession(chatModel, ai, cleanedInitialHtml);
+            setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Initial website generated. How would you like to refine it?", isHtml: false }]);
           } catch (chatError) {
             console.error("Failed to initialize chat session:", chatError);
             setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Website generated successfully! Note: Chat functionality is not available due to initialization error.", isHtml: false }]);
@@ -264,11 +208,7 @@ const App: React.FC = () => {
   const handleSendChatMessage = useCallback(async (messageText: string) => {
     setError(null);
     
-    // Check if we have an active chat session based on chat model
-    const hasGeminiChat = chatModel === AIModel.Gemini && chatSessionRef.current;
-    const hasClaudeChat = chatModel === AIModel.Claude && openRouterChatSessionRef.current;
-    
-    if (!hasGeminiChat && !hasClaudeChat) {
+    if (!chatSessionRef.current) {
       setError("No active chat session. Please generate a website first.");
       return;
     }
@@ -291,37 +231,20 @@ const App: React.FC = () => {
     let currentResponseHtml = "";
 
     try {
-      if (chatModel === AIModel.Gemini && chatSessionRef.current) {
-        const stream = await chatSessionRef.current.sendMessageStream({
-          message: messageText
-        });
-
-        for await (const chunk of stream) {
-          if (signal.aborted) { 
+      await chatSessionRef.current.sendMessageStream(
+        messageText,
+        (chunk: string) => {
+          if (signal.aborted) {
             throw new DOMException('The user aborted a request.', 'AbortError');
           }
-          const chunkText = chunk.text; 
-          if (chunkText) {
-            currentResponseHtml += chunkText;
-            setGeneratedHtml(currentResponseHtml);
-          }
-        }
-      } else if (chatModel === AIModel.Claude && openRouterChatSessionRef.current) {
-        await openRouterChatSessionRef.current.sendMessageStream(
-          messageText,
-          (chunk: string) => {
-            if (signal.aborted) {
-              throw new DOMException('The user aborted a request.', 'AbortError');
-            }
-            currentResponseHtml += chunk;
-            setGeneratedHtml(currentResponseHtml);
-          },
-          (finalText: string) => {
-            currentResponseHtml = finalText;
-          },
-          signal
-        );
-      }
+          currentResponseHtml += chunk;
+          setGeneratedHtml(currentResponseHtml);
+        },
+        (finalText: string) => {
+          currentResponseHtml = finalText;
+        },
+        signal
+      );
       
       const finalCleanedHtmlFromChat = cleanTextOutput(currentResponseHtml);
       setGeneratedHtml(finalCleanedHtmlFromChat);
@@ -354,27 +277,13 @@ const App: React.FC = () => {
     
     setChatModel(model);
     
-    // Clear existing chat sessions
+        // Clear existing chat sessions
     chatSessionRef.current = null;
-    openRouterChatSessionRef.current = null;
     
     // Re-initialize chat session with new model if we have generated HTML
     if (generatedHtml) {
       try {
-        if (model === AIModel.Gemini) {
-          const chatHistory = [
-            { role: "user", parts: [{ text: `I have a website generated from a report and a plan. Here's the initial HTML. I will give you instructions to modify it. Your responses should only be the complete, updated HTML code. Initial HTML:\n\n${generatedHtml}` }] },
-            { role: "model", parts: [{ text: generatedHtml }] }
-          ];
-          
-          chatSessionRef.current = ai.chats.create({
-            model: MODEL_NAME,
-            config: { systemInstruction: getChatSystemInstruction() },
-            history: chatHistory,
-          });
-        } else if (model === AIModel.Claude) {
-          openRouterChatSessionRef.current = new OpenRouterChatSession(generatedHtml);
-        }
+        chatSessionRef.current = createHtmlChatSession(model, ai, generatedHtml);
         
         // Add a system message about model change
         setChatMessages((prev: ChatMessage[]) => [
@@ -393,24 +302,10 @@ const App: React.FC = () => {
     }
   }, [chatModel, generatedHtml, ai]);
 
-  const getModelDisplayName = (model: AIModel): string => {
-    switch (model) {
-      case AIModel.Gemini:
-        return 'Gemini 2.5 Pro';
-      case AIModel.Claude:
-        return 'Claude 4 Sonnet';
-      default:
-        return 'Unknown Model';
-    }
-  };
+
 
   const handleStopGeneration = useCallback(() => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-    if (planAbortControllerRef.current) {
-      planAbortControllerRef.current.abort();
-    }
+    abortAllOperations([abortControllerRef.current, planAbortControllerRef.current]);
   }, []);
 
   const handleResetToInitial = useCallback(() => { 
@@ -420,8 +315,6 @@ const App: React.FC = () => {
     setPlanChatMessages([]);
     chatSessionRef.current = null;
     planChatSessionRef.current = null;
-    openRouterChatSessionRef.current = null;
-    openRouterPlanChatSessionRef.current = null;
     setAppStage('initial');
     setError(null);
     setIsLoading(false);
@@ -448,11 +341,10 @@ const App: React.FC = () => {
 
   const handleCopyCode = useCallback(async () => {
     if (generatedHtml) {
-      try {
-        await navigator.clipboard.writeText(generatedHtml);
+      const success = await copyHtmlToClipboard(generatedHtml);
+      if (success) {
         alert('HTML code copied to clipboard!');
-      } catch (err) {
-        console.error('Failed to copy code:', err);
+      } else {
         alert('Failed to copy code. Check console for details.');
       }
     }
@@ -460,15 +352,7 @@ const App: React.FC = () => {
 
   const handleDownloadHtml = useCallback(() => {
     if (generatedHtml) {
-      const blob = new Blob([generatedHtml], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'generated-website.html';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      downloadHtmlFile(generatedHtml);
     }
   }, [generatedHtml]);
 
@@ -492,26 +376,20 @@ const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleEscKey);
   }, [isFullPreviewActive]);
 
-  // Check if chat is available based on chat model
+  // Check if chat is available
   const isChatAvailable = () => {
-    return (chatModel === AIModel.Gemini && chatSessionRef.current) ||
-           (chatModel === AIModel.Claude && openRouterChatSessionRef.current);
+    return !!chatSessionRef.current;
   };
 
-  // Check if plan chat is available based on plan chat model
+  // Check if plan chat is available
   const isPlanChatAvailable = () => {
-    return (planChatModel === AIModel.Gemini && planChatSessionRef.current) ||
-           (planChatModel === AIModel.Claude && openRouterPlanChatSessionRef.current);
+    return !!planChatSessionRef.current;
   };
 
   const handleSendPlanChatMessage = useCallback(async (messageText: string) => {
     setError(null);
     
-    // Check if we have an active plan chat session based on plan chat model
-    const hasGeminiPlanChat = planChatModel === AIModel.Gemini && planChatSessionRef.current;
-    const hasClaudePlanChat = planChatModel === AIModel.Claude && openRouterPlanChatSessionRef.current;
-    
-    if (!hasGeminiPlanChat && !hasClaudePlanChat) {
+    if (!planChatSessionRef.current) {
       setError("No active plan chat session. Please generate a plan first.");
       return;
     }
@@ -533,37 +411,20 @@ const App: React.FC = () => {
     let currentResponsePlan = "";
 
     try {
-      if (planChatModel === AIModel.Gemini && planChatSessionRef.current) {
-        const stream = await planChatSessionRef.current.sendMessageStream({
-          message: messageText
-        });
-
-        for await (const chunk of stream) {
-          if (signal.aborted) { 
+      await planChatSessionRef.current.sendMessageStream(
+        messageText,
+        (chunk: string) => {
+          if (signal.aborted) {
             throw new DOMException('The user aborted a request.', 'AbortError');
           }
-          const chunkText = chunk.text; 
-          if (chunkText) {
-            currentResponsePlan += chunkText;
-            setGeneratedPlan(currentResponsePlan);
-          }
-        }
-      } else if (planChatModel === AIModel.Claude && openRouterPlanChatSessionRef.current) {
-        await openRouterPlanChatSessionRef.current.sendMessageStream(
-          messageText,
-          (chunk: string) => {
-            if (signal.aborted) {
-              throw new DOMException('The user aborted a request.', 'AbortError');
-            }
-            currentResponsePlan += chunk;
-            setGeneratedPlan(currentResponsePlan);
-          },
-          (finalText: string) => {
-            currentResponsePlan = finalText;
-          },
-          signal
-        );
-      }
+          currentResponsePlan += chunk;
+          setGeneratedPlan(currentResponsePlan);
+        },
+        (finalText: string) => {
+          currentResponsePlan = finalText;
+        },
+        signal
+      );
       
       const finalCleanedPlanFromChat = cleanTextOutput(currentResponsePlan);
       setGeneratedPlan(finalCleanedPlanFromChat);
@@ -599,7 +460,6 @@ const App: React.FC = () => {
     if (generatedPlan) {
       // Clear existing plan chat sessions
       planChatSessionRef.current = null;
-      openRouterPlanChatSessionRef.current = null;
       
       // Immediately reinitialize with the new model
       initializePlanChatSession(generatedPlan, model);

@@ -2,12 +2,26 @@ import { GoogleGenAI } from "@google/genai";
 import { AIModel } from "../types/types";
 import { 
   generateWebsitePlanStream, 
-  generateWebsiteFromReportWithPlanStream 
+  generateWebsiteFromReportWithPlanStream,
+  GeminiChatSession,
+  GeminiPlanChatSession
 } from "./geminiService";
 import {
   generateWebsitePlanStreamOpenRouter,
-  generateWebsiteFromReportWithPlanStreamOpenRouter
+  generateWebsiteFromReportWithPlanStreamOpenRouter,
+  OpenRouterChatSession,
+  OpenRouterPlanChatSession
 } from "./openrouterService";
+
+// 统一的聊天会话接口
+export interface ChatSession {
+  sendMessageStream(
+    message: string,
+    onChunk: (chunkText: string) => void,
+    onComplete: (finalText: string) => void,
+    signal?: AbortSignal
+  ): Promise<void>;
+}
 
 export async function generateWebsitePlanWithModel(
   model: AIModel,
@@ -47,6 +61,36 @@ export async function generateWebsiteFromReportWithPlanWithModel(
       );
     default:
       throw new Error(`Unsupported model: ${model}`);
+  }
+}
+
+export function createHtmlChatSession(
+  model: AIModel,
+  ai: GoogleGenAI,
+  initialHtml: string
+): ChatSession {
+  switch (model) {
+    case AIModel.Gemini:
+      return new GeminiChatSession(ai, initialHtml);
+    case AIModel.Claude:
+      return new OpenRouterChatSession(initialHtml);
+    default:
+      throw new Error(`Unsupported model for HTML chat: ${model}`);
+  }
+}
+
+export function createPlanChatSession(
+  model: AIModel,
+  ai: GoogleGenAI,
+  initialPlan: string
+): ChatSession {
+  switch (model) {
+    case AIModel.Gemini:
+      return new GeminiPlanChatSession(ai, initialPlan);
+    case AIModel.Claude:
+      return new OpenRouterPlanChatSession(initialPlan);
+    default:
+      throw new Error(`Unsupported model for plan chat: ${model}`);
   }
 }
 

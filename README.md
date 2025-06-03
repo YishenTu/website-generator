@@ -8,6 +8,7 @@
 - **智能聊天**: 与AI实时对话，优化网站生成效果
 - **代码编辑器**: 内置代码编辑器，支持实时预览和编辑
 - **智能规划**: AI自动分析报告内容，生成网站结构规划
+- **现代化布局**: 采用Linear App风格的现代化布局设计，辅以灵活的网格布局
 - **一键部署**: 自动化部署脚本，3步完成部署
 - **响应式设计**: 生成的网站自适应各种设备
 - **实时预览**: 即时查看生成效果，支持实时修改
@@ -56,7 +57,7 @@
 ### 智能报告分析
 1. **输入文本报告**: 支持各种格式的文本报告
 2. **AI智能分析**: 自动提取关键信息和结构
-3. **生成网站规划**: AI制定详细的网站结构和内容规划
+3. **生成网站规划**: AI制定详细的网站结构和内容规划，采用现代化的Linear App布局风格
 
 ### 多AI模型支持
 - **Gemini**: Gemini 2.5 Pro
@@ -69,6 +70,7 @@
 - **个性化建议**: 根据你的需求提供定制化建议
 
 ### 网站生成
+- **现代化布局**: 采用Linear App风格的垂直流动布局，在适当时使用网格布局展示数据
 - **响应式设计**: 自动适配桌面和移动设备
 - **现代UI**: 使用最新的设计趋势和最佳实践
 - **SEO优化**: 生成的网站包含SEO最佳实践
@@ -79,21 +81,26 @@
 ```
 ai-website-generator-from-report/
 ├── src/                    # 源代码目录
-│   ├── components/         # React组件
+│   ├── components/         # React组件和工具函数
 │   │   ├── ChatPanel.tsx           # 聊天面板组件
 │   │   ├── CodeEditor.tsx          # 代码编辑器组件
+│   │   ├── LoadingSpinner.tsx      # 加载动画组件
 │   │   ├── ModelSelector.tsx       # AI模型选择器
 │   │   ├── OutputDisplay.tsx       # 输出显示组件
 │   │   ├── PlanDisplay.tsx         # 规划显示组件
 │   │   ├── ReportInputForm.tsx     # 报告输入表单
-│   │   └── LoadingSpinner.tsx      # 加载动画组件
+│   │   ├── TabButton.tsx           # 标签按钮组件
+│   │   ├── appStateUtils.ts        # 应用状态工具函数
+│   │   ├── fileUtils.ts            # 文件操作工具函数
+│   │   └── textUtils.ts            # 文本处理工具函数
 │   ├── services/          # 服务层代码
 │   │   ├── aiService.ts            # AI服务统一接口
 │   │   ├── geminiService.ts        # Gemini API服务
-│   │   ├── openrouterService.ts    # OpenRouter API服务
-│   │   └── openrouterChatService.ts # OpenRouter聊天服务
-│   ├── types/             # 类型定义
+│   │   └── openrouterService.ts    # OpenRouter API服务
 │   ├── templates/         # 模板文件
+│   │   └── promptTemplates.ts      # AI提示词模板
+│   ├── types/             # 类型定义
+│   │   └── types.ts                # TypeScript类型定义
 │   ├── App.tsx            # 主应用组件
 │   └── main.tsx           # 应用入口
 ├── docker/                # Docker相关文件
@@ -103,10 +110,13 @@ ai-website-generator-from-report/
 │   └── .dockerignore      # Docker忽略文件
 ├── scripts/               # 脚本文件
 │   └── deploy.sh          # 自动部署脚本
+├── dist/                  # 构建输出目录
+├── node_modules/          # 依赖包目录
 ├── index.html             # HTML入口文件
-├── package.json           # 项目依赖
+├── package.json           # 项目依赖配置
+├── package-lock.json      # 依赖版本锁定文件
 ├── tsconfig.json          # TypeScript配置
-├── vite.config.ts         # Vite配置
+├── vite.config.ts         # Vite构建配置
 ├── .gitignore             # Git忽略文件
 ├── metadata.json          # 项目元数据
 └── README.md              # 项目说明文档
@@ -152,7 +162,13 @@ ai-website-generator-from-report/
 
 ## 更新日志
 
-### v1.2.0 (最新)
+### v1.2.1 (最新)
+- 优化网站布局风格：采用Linear App风格为主，辅以灵活的网格布局
+- 改进prompt模板，生成更现代化的展示网页
+- 修复TypeScript编译警告
+- 优化代码结构和性能
+
+### v1.2.0
 - 新增多AI模型支持 (Claude, GPT等)
 - 添加智能聊天功能
 - 集成专业代码编辑器

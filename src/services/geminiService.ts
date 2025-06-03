@@ -1,5 +1,12 @@
-import { GoogleGenAI, GenerateContentParameters } from "@google/genai";
-import { generateWebsitePlanPrompt, generateWebsitePromptWithPlan } from "../templates/promptTemplates";
+import { GoogleGenAI, GenerateContentParameters, Chat } from "@google/genai";
+import { 
+  generateWebsitePlanPrompt, 
+  generateWebsitePromptWithPlan,
+  getChatSystemInstruction,
+  getPlanChatSystemInstruction,
+  getHtmlChatInitialMessage,
+  getPlanChatInitialMessage
+} from "../templates/promptTemplates";
 
 // Fix: Updated MODEL_NAME to the allowed model 'gemini-2.5-flash-preview-04-17' as per guidelines.
 const MODEL_NAME = "gemini-2.5-pro-preview-05-06";
@@ -106,5 +113,101 @@ export async function generateWebsiteFromReportWithPlanStream(
       throw new Error(`Failed to generate website from plan: ${error.message}`);
     }
     throw new Error("An unknown error occurred while generating the website from plan.");
+  }
+}
+
+// --- Gemini Chat Session Classes ---
+
+export class GeminiChatSession {
+  private chatSession: Chat;
+
+  constructor(ai: GoogleGenAI, initialHtml: string) {
+    // 构造Gemini API格式的聊天历史
+    const chatHistory = [
+      { role: "user", parts: [{ text: getHtmlChatInitialMessage(initialHtml) }] },
+      { role: "model", parts: [{ text: initialHtml }] }
+    ];
+    
+    this.chatSession = ai.chats.create({
+      model: MODEL_NAME,
+      config: { systemInstruction: getChatSystemInstruction() },
+      history: chatHistory,
+    });
+  }
+
+  async sendMessageStream(
+    message: string,
+    onChunk: (chunkText: string) => void,
+    onComplete: (finalText: string) => void,
+    signal?: AbortSignal
+  ): Promise<void> {
+    try {
+      const stream = await this.chatSession.sendMessageStream({
+        message: message
+      });
+
+      let accumulatedText = "";
+      for await (const chunk of stream) {
+        if (signal?.aborted) {
+          throw new DOMException('The user aborted a request.', 'AbortError');
+        }
+        const chunkText = chunk.text;
+        if (chunkText) {
+          accumulatedText += chunkText;
+          onChunk(chunkText);
+        }
+      }
+      onComplete(accumulatedText);
+    } catch (error) {
+      console.error("Error in Gemini chat stream:", error);
+      throw error;
+    }
+  }
+}
+
+export class GeminiPlanChatSession {
+  private chatSession: Chat;
+
+  constructor(ai: GoogleGenAI, initialPlan: string) {
+    // 构造Gemini API格式的聊天历史
+    const chatHistory = [
+      { role: "user", parts: [{ text: getPlanChatInitialMessage(initialPlan) }] },
+      { role: "model", parts: [{ text: initialPlan }] }
+    ];
+    
+    this.chatSession = ai.chats.create({
+      model: MODEL_NAME,
+      config: { systemInstruction: getPlanChatSystemInstruction() },
+      history: chatHistory,
+    });
+  }
+
+  async sendMessageStream(
+    message: string,
+    onChunk: (chunkText: string) => void,
+    onComplete: (finalText: string) => void,
+    signal?: AbortSignal
+  ): Promise<void> {
+    try {
+      const stream = await this.chatSession.sendMessageStream({
+        message: message
+      });
+
+      let accumulatedText = "";
+      for await (const chunk of stream) {
+        if (signal?.aborted) {
+          throw new DOMException('The user aborted a request.', 'AbortError');
+        }
+        const chunkText = chunk.text;
+        if (chunkText) {
+          accumulatedText += chunkText;
+          onChunk(chunkText);
+        }
+      }
+      onComplete(accumulatedText);
+    } catch (error) {
+      console.error("Error in Gemini plan chat stream:", error);
+      throw error;
+    }
   }
 }
