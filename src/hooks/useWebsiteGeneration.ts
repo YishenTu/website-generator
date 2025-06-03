@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { 
   generateWebsitePlan, 
@@ -443,6 +443,18 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
 
   const isChatAvailable = () => !!chatSessionRef.current;
   const isPlanChatAvailable = () => !!planChatSessionRef.current;
+
+  // Cleanup effect to handle component unmount
+  useEffect(() => {
+    return () => {
+      // Abort all ongoing operations
+      abortAllOperations([abortControllerRef.current, planAbortControllerRef.current]);
+      
+      // Clear session references to help with garbage collection
+      chatSessionRef.current = null;
+      planChatSessionRef.current = null;
+    };
+  }, []); // Empty dependency array ensures this only runs on unmount
 
   return {
     // State

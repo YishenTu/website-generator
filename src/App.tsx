@@ -1,5 +1,4 @@
 import React, { useRef, useEffect } from 'react';
-import ReactDOM from 'react-dom/client';
 import { GoogleGenAI } from "@google/genai";
 import { ReportInputForm } from './components/ReportInputForm';
 import { OutputDisplay } from './components/OutputDisplay';
@@ -14,7 +13,7 @@ import { useWebsiteGeneration } from './hooks/useWebsiteGeneration';
 import { validateEnvironmentVariables } from './utils/envValidator';
 import { logger } from './utils/logger';
 import { CONTAINER_STYLES, TEXT_STYLES, BUTTON_STYLES, LAYOUT_STYLES, ICON_SIZES, combineStyles } from './utils/styleConstants';
-import { UI_TEXT, FILE } from './utils/constants';
+import { UI_TEXT, FILE, ENV_VARS } from './utils/constants';
 
 export type AppStage = 'initial' | 'planPending' | 'planReady' | 'htmlPending' | 'htmlReady';
 
@@ -29,7 +28,7 @@ const App: React.FC = () => {
   }, []);
 
   // Initialize GoogleGenAI
-  const ai = useRef(new GoogleGenAI({ apiKey: process.env.API_KEY })).current;
+  const ai = useRef(new GoogleGenAI({ apiKey: process.env[ENV_VARS.GEMINI_API_KEY] })).current;
 
   // Use the website generation hook
   const {
@@ -428,16 +427,3 @@ const AppWithErrorBoundary: React.FC = () => (
 );
 
 export default AppWithErrorBoundary;
-
-// 渲染应用到 DOM
-const rootElement = document.getElementById('root');
-if (!rootElement) {
-  throw new Error("Could not find root element to mount to");
-}
-
-const root = ReactDOM.createRoot(rootElement);
-root.render(
-  <React.StrictMode>
-    <AppWithErrorBoundary />
-  </React.StrictMode>
-);

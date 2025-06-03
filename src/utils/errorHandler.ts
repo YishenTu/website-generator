@@ -2,6 +2,8 @@
  * 错误处理工具函数
  */
 
+import { logger } from './logger';
+
 export interface ErrorInfo {
   code?: string;
   message: string;
@@ -15,7 +17,7 @@ export interface ErrorInfo {
  * @returns 格式化的错误信息
  */
 export function handleApiError(error: unknown, context: string): ErrorInfo {
-  console.error(`Error in ${context}:`, error);
+  logger.error(`Error in ${context}:`, error);
   
   if (error instanceof Error) {
     if (error.name === 'AbortError') {

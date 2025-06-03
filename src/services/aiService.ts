@@ -13,6 +13,7 @@ import {
   OpenRouterPlanChatSession,
   OPENROUTER_MODELS
 } from "./openrouterService";
+import { ENV_VARS } from "../utils/constants";
 
 // 模型信息接口
 export interface ModelInfo {
@@ -163,8 +164,8 @@ export function validateModelApiKeys(modelId: string): { isValid: boolean; missi
     return { isValid: false, missingKey: 'UNKNOWN_MODEL' };
   }
 
-  const apiKey = modelInfo.provider === 'gemini' ? process.env.GEMINI_API_KEY : process.env.OPENROUTER_API_KEY;
-  const keyName = modelInfo.provider === 'gemini' ? 'GEMINI_API_KEY' : 'OPENROUTER_API_KEY';
+  const apiKey = modelInfo.provider === 'gemini' ? process.env[ENV_VARS.GEMINI_API_KEY] : process.env[ENV_VARS.OPENROUTER_API_KEY];
+  const keyName = modelInfo.provider === 'gemini' ? ENV_VARS.GEMINI_API_KEY : ENV_VARS.OPENROUTER_API_KEY;
   
   return {
     isValid: !!apiKey,

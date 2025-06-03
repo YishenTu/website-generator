@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ActiveTab } from '../types/types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { TabButton } from './TabButton';
@@ -50,6 +50,9 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
   // 添加iframe加载状态
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const [iframeError, setIframeError] = useState(false);
+  
+  // Create ref for iframe element
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   // 使用防抖动的HTML内容，减少iframe频繁更新
   const shouldDebounce = isLoading && appStage === 'htmlReady';
@@ -78,20 +81,55 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
   const optimizedHtmlContent = useMemo(() => {
     if (!debouncedHtmlContent) return debouncedHtmlContent;
     
-    // 添加预加载和优化标签
-    const optimizedHtml = debouncedHtmlContent.replace(
-      '<head>',
-      `<head>
-    <!-- 预加载关键资源 -->
-    <link rel="preconnect" href="https://cdn.tailwindcss.com">
-    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://cdn.jsdelivr.net">
-    <link rel="preconnect" href="https://d3js.org">
-    
-    <!-- 优化加载性能 -->
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
+    try {
+      // 使用DOMParser进行健壮的HTML解析和修改
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(debouncedHtmlContent, 'text/html');
+      
+      // 获取head元素（不区分大小写，支持属性）
+      const headElement = doc.querySelector('head');
+      if (!headElement) {
+        // 如果没有head元素，返回原始内容
+        return debouncedHtmlContent;
+      }
+      
+      // 创建预加载链接元素
+      const preconnectUrls = [
+        'https://cdn.tailwindcss.com',
+        'https://cdnjs.cloudflare.com',
+        'https://fonts.googleapis.com',
+        'https://cdn.jsdelivr.net',
+        'https://d3js.org'
+      ];
+      
+      // 添加预加载关键资源的注释
+      const preloadComment = doc.createComment(' 预加载关键资源 ');
+      headElement.appendChild(preloadComment);
+      
+      // 添加预连接链接
+      preconnectUrls.forEach(url => {
+        const link = doc.createElement('link');
+        link.rel = 'preconnect';
+        link.href = url;
+        headElement.appendChild(link);
+      });
+      
+      // 检查是否已存在viewport meta标签
+      const existingViewport = headElement.querySelector('meta[name="viewport"]');
+      if (!existingViewport) {
+        const viewportMeta = doc.createElement('meta');
+        viewportMeta.name = 'viewport';
+        viewportMeta.content = 'width=device-width, initial-scale=1.0';
+        headElement.appendChild(viewportMeta);
+      }
+      
+      // 添加优化加载性能的注释
+      const optimizationComment = doc.createComment(' 优化加载性能 ');
+      headElement.appendChild(optimizationComment);
+      
+      // 添加样式元素
+      const styleElement = doc.createElement('style');
+      styleElement.textContent = `
       /* 预加载时显示loading状态 */
       body { 
         opacity: 0; 
@@ -105,9 +143,12 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
       * {
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
-      }
-    </style>
-    <script>
+      }`;
+      headElement.appendChild(styleElement);
+      
+      // 添加脚本元素
+      const scriptElement = doc.createElement('script');
+      scriptElement.textContent = `
       // 确保所有资源加载完成后显示内容
       document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
@@ -122,20 +163,25 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
           // 在开发环境中记录错误
         }
         document.body.classList.add('loaded'); // 即使有错误也显示内容
-      });
-    </script>`
-    );
-    
-    return optimizedHtml;
+      });`;
+      headElement.appendChild(scriptElement);
+      
+      // 序列化回HTML字符串
+      return doc.documentElement.outerHTML;
+      
+    } catch (error) {
+      // 如果DOMParser失败，降级到原始内容
+      console.warn('Failed to optimize HTML with DOMParser:', error);
+      return debouncedHtmlContent;
+    }
   }, [debouncedHtmlContent]);
 
   const handleRetry = useCallback(() => {
     setIsIframeLoading(true);
     setIframeError(false);
-    // Force iframe reload by updating the srcdoc
-    const iframe = document.querySelector('iframe[title="Website Preview"]') as HTMLIFrameElement;
-    if (iframe && optimizedHtmlContent) {
-      iframe.srcdoc = optimizedHtmlContent;
+    // Force iframe reload by updating the srcdoc using ref
+    if (iframeRef.current && optimizedHtmlContent) {
+      iframeRef.current.srcdoc = optimizedHtmlContent;
     }
   }, [optimizedHtmlContent]);
 
@@ -264,6 +310,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
           <>
             {activeTab === ActiveTab.Preview && (
               <iframe
+                ref={iframeRef}
                 // 移除key prop，避免不必要的重新创建
                 srcDoc={optimizedHtmlContent || ''}
                 title="Website Preview"

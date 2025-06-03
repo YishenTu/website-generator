@@ -4,7 +4,7 @@ import { CONTAINER_STYLES, TEXT_STYLES, BUTTON_STYLES, combineStyles } from '../
 
 interface ErrorBoundaryProps {
   children: ReactNode;
-  fallback?: (error: Error, errorInfo: React.ErrorInfo) => ReactNode;
+  fallback?: (error: Error, errorInfo: React.ErrorInfo | null) => ReactNode;
 }
 
 interface ErrorBoundaryState {
@@ -27,6 +27,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo): void {
     // 记录错误日志
     logger.error('React Error Boundary caught an error:', error, errorInfo);
+    // 更新状态以保存错误信息
+    this.setState({ errorInfo });
   }
 
   handleReset = (): void => {
@@ -38,7 +40,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   render() {
     if (this.state.hasError && this.state.error) {
       // 如果提供了自定义的fallback渲染函数，使用它
-      if (this.props.fallback && this.state.errorInfo) {
+      if (this.props.fallback) {
         return this.props.fallback(this.state.error, this.state.errorInfo);
       }
 
@@ -73,9 +75,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
               <p className={combineStyles(TEXT_STYLES.paragraph, 'mb-6')}>
                 应用程序遇到了意外错误。请尝试刷新页面或联系技术支持。
               </p>
-
               {/* 错误详情（仅在开发环境显示） */}
-              {import.meta.env.DEV && (
+              {process.env.NODE_ENV === 'development' && (
                 <details className="mb-6 text-left">
                   <summary className="cursor-pointer text-sm text-slate-400 hover:text-slate-300">
                     查看错误详情
