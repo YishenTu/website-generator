@@ -70,7 +70,7 @@ const CODE_CORE_TASK_AND_PLAN_ADHERENCE = `
 
 const CODE_LAYOUT_CONTENT_AND_STYLING = `
 2.  **Layout and Content Presentation (as per Plan):**
-    *   Primary approach should be a linear app-style layout with sections flowing vertically down the page. Use bento grid layouts only when the plan specifically suggests it or when content naturally fits this format (e.g., statistics, features, comparisons).
+    *   Primary approach should be a “Linear App Style” layout with sections flowing vertically down the page. Use bento grid layouts only when the plan specifically suggests it or when content naturally fits this format (e.g., statistics, features, comparisons).
     *   For linear sections, use full-width or contained layouts with clear vertical progression.
     *   For bento grid sections (when appropriate), use Tailwind's grid utilities (e.g., \`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6\`) or flexbox to create them.
     *   Each section must correspond to a section outlined in the plan.

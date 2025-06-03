@@ -142,9 +142,14 @@ export class GeminiChatSession {
     signal?: AbortSignal
   ): Promise<void> {
     try {
-      const stream = await this.chatSession.sendMessageStream({
-        message: message
-      });
+      // Early check for already aborted signal
+      if (signal?.aborted) {
+        throw new DOMException('The user aborted a request.', 'AbortError');
+      }
+
+      // Pass AbortSignal to sendMessageStream if supported
+      const streamRequest = signal ? { message: message, signal } : { message: message };
+      const stream = await this.chatSession.sendMessageStream(streamRequest);
 
       let accumulatedText = "";
       for await (const chunk of stream) {
@@ -189,9 +194,14 @@ export class GeminiPlanChatSession {
     signal?: AbortSignal
   ): Promise<void> {
     try {
-      const stream = await this.chatSession.sendMessageStream({
-        message: message
-      });
+      // Early check for already aborted signal
+      if (signal?.aborted) {
+        throw new DOMException('The user aborted a request.', 'AbortError');
+      }
+
+      // Pass AbortSignal to sendMessageStream if supported
+      const streamRequest = signal ? { message: message, signal } : { message: message };
+      const stream = await this.chatSession.sendMessageStream(streamRequest);
 
       let accumulatedText = "";
       for await (const chunk of stream) {

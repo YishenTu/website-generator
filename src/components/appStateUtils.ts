@@ -1,4 +1,6 @@
+import React from 'react';
 import { ActiveTab } from "../types/types";
+import type { AppStage } from "../App";
 
 /**
  * 应用状态管理工具函数
@@ -20,18 +22,18 @@ export const abortAllOperations = (abortControllers: (AbortController | null)[])
  * 重置应用状态的配置
  */
 export interface ResetAppStateConfig {
-  setGeneratedPlan: (plan: string | null) => void;
-  setGeneratedHtml: (html: string | null) => void;
-  setChatMessages: (messages: any[]) => void;
-  setPlanChatMessages: (messages: any[]) => void;
-  setAppStage: (stage: string) => void;
-  setError: (error: string | null) => void;
-  setIsLoading: (loading: boolean) => void;
-  setIsChatLoading: (loading: boolean) => void;
-  setIsPlanChatLoading: (loading: boolean) => void;
-  setIsFullPreviewActive: (active: boolean) => void;
-  setIsRefineMode: (refine: boolean) => void;
-  setActiveTab: (tab: ActiveTab) => void;
+  setGeneratedPlan: React.Dispatch<React.SetStateAction<string | null>>;
+  setGeneratedHtml: React.Dispatch<React.SetStateAction<string | null>>;
+  setChatMessages: React.Dispatch<React.SetStateAction<any[]>>;
+  setPlanChatMessages: React.Dispatch<React.SetStateAction<any[]>>;
+  setAppStage: React.Dispatch<React.SetStateAction<AppStage>>;
+  setError: React.Dispatch<React.SetStateAction<string | null>>;
+  setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsChatLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsPlanChatLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsFullPreviewActive: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsRefineMode: React.Dispatch<React.SetStateAction<boolean>>;
+  setActiveTab: React.Dispatch<React.SetStateAction<ActiveTab>>;
   chatSessionRef: React.MutableRefObject<any>;
   planChatSessionRef: React.MutableRefObject<any>;
   abortControllerRef: React.MutableRefObject<AbortController | null>;

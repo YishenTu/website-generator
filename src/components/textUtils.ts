@@ -10,28 +10,23 @@ import { AIModel } from "../types/types";
  * @returns 清理后的文本
  */
 export const cleanTextOutput = (text: string): string => {
-  let cleaned = text;
-  const fenceRegex = /^```(?:[a-zA-Z]+)?\s*\n?(.*?)\n?\s*```$/si;
-  const match = cleaned.match(fenceRegex);
-  if (match && match[1]) {
-    cleaned = match[1].trim();
-  } else if (cleaned.startsWith("```") && cleaned.endsWith("```")) {
-    const firstNewline = cleaned.indexOf('\n');
-    const lastNewline = cleaned.lastIndexOf('\n');
-    if (firstNewline !== -1 && lastNewline !== -1 && lastNewline > firstNewline) {
-      cleaned = cleaned.substring(firstNewline + 1, lastNewline).trim();
-    } else {
-      cleaned = cleaned.substring(3, cleaned.length - 3).trim();
-      const potentialKeywords = ["html", "text", "json", "javascript", "css", "markdown"];
-      for (const keyword of potentialKeywords) {
-          if (cleaned.toLowerCase().startsWith(keyword)) {
-              cleaned = cleaned.substring(keyword.length).trim();
-              break;
-          }
-      }
-    }
+  // 使用更全面的正则表达式匹配代码块，包括可选的语言标识符
+  const fenceRegex = /^```(?:[a-zA-Z0-9]*\s*)?\n?(.*?)\n?```$/s;
+  const match = text.match(fenceRegex);
+  
+  if (match && match[1] !== undefined) {
+    return match[1].trim();
   }
-  return cleaned.trim();
+  
+  // 如果正则不匹配但仍以三个反引号开始和结束，手动处理
+  if (text.startsWith("```") && text.endsWith("```")) {
+    let cleaned = text.substring(3, text.length - 3);
+    // 移除开头的语言标识符
+    cleaned = cleaned.replace(/^[a-zA-Z0-9]*\s*/, '');
+    return cleaned.trim();
+  }
+  
+  return text.trim();
 };
 
 /**

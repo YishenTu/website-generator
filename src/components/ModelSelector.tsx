@@ -41,8 +41,6 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   disabled = false,
   size = 'normal'
 }) => {
-  const selectedModelInfo = models.find(m => m.id === selectedModel);
-  
   if (size === 'small') {
     return (
       <div className="relative inline-block">

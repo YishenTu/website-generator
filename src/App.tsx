@@ -15,7 +15,7 @@ import {
 } from './services/aiService';
 import { cleanTextOutput, getModelDisplayName } from './components/textUtils';
 import { copyHtmlToClipboard, downloadHtmlFile } from './components/fileUtils';
-import { abortAllOperations } from './components/appStateUtils';
+import { abortAllOperations, resetAppToInitialState } from './components/appStateUtils';
 import { ActiveTab, ChatMessage, UserType, AIModel } from './types/types';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
@@ -309,28 +309,24 @@ const App: React.FC = () => {
   }, []);
 
   const handleResetToInitial = useCallback(() => { 
-    setGeneratedPlan(null);
-    setGeneratedHtml(null);
-    setChatMessages([]);
-    setPlanChatMessages([]);
-    chatSessionRef.current = null;
-    planChatSessionRef.current = null;
-    setAppStage('initial');
-    setError(null);
-    setIsLoading(false);
-    setIsChatLoading(false);
-    setIsPlanChatLoading(false);
-    setIsFullPreviewActive(false);
-    setIsRefineMode(false);
-    setActiveTab(ActiveTab.Preview); 
-    if (abortControllerRef.current) {
-        abortControllerRef.current.abort();
-        abortControllerRef.current = null;
-    }
-    if (planAbortControllerRef.current) {
-        planAbortControllerRef.current.abort();
-        planAbortControllerRef.current = null;
-    }
+    resetAppToInitialState({
+      setGeneratedPlan,
+      setGeneratedHtml,
+      setChatMessages,
+      setPlanChatMessages,
+      setAppStage,
+      setError,
+      setIsLoading,
+      setIsChatLoading,
+      setIsPlanChatLoading,
+      setIsFullPreviewActive,
+      setIsRefineMode,
+      setActiveTab,
+      chatSessionRef,
+      planChatSessionRef,
+      abortControllerRef,
+      planAbortControllerRef,
+    });
   }, []);
   
   const handleStartNewSession = useCallback(() => { 
