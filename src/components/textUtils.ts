@@ -1,4 +1,4 @@
-import { AIModel } from "../types/types";
+import { getModelInfo } from "../services/aiService";
 
 /**
  * 文本处理工具函数
@@ -31,16 +31,10 @@ export const cleanTextOutput = (text: string): string => {
 
 /**
  * 获取AI模型的显示名称
- * @param model AI模型枚举
+ * @param modelId 模型ID字符串
  * @returns 显示名称
  */
-export const getModelDisplayName = (model: AIModel): string => {
-  switch (model) {
-    case AIModel.Gemini:
-      return 'Gemini 2.5 Pro';
-    case AIModel.Claude:
-      return 'Claude 4 Sonnet';
-    default:
-      return 'Unknown Model';
-  }
+export const getModelDisplayName = (modelId: string): string => {
+  const modelInfo = getModelInfo(modelId);
+  return modelInfo?.name || modelId;
 }; 

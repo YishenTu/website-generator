@@ -8,20 +8,33 @@ import {
   getPlanChatInitialMessage
 } from "../templates/promptTemplates";
 
-// Fix: Updated MODEL_NAME to the allowed model 'gemini-2.5-flash-preview-04-17' as per guidelines.
-const MODEL_NAME = "gemini-2.5-pro-preview-05-06";
+// 可选择的Gemini模型列表
+export const GEMINI_MODELS = [
+  {
+    id: "gemini-2.5-pro-preview-05-06",
+    name: "Gemini 2.5 Pro"
+  },
+  {
+    id: "gemini-2.5-flash-preview-05-20",
+    name: "Gemini 2.5 Flash"
+  }
+] as const;
+
+// 默认模型
+const DEFAULT_MODEL = GEMINI_MODELS[0].id;
 
 export async function generateWebsitePlanStream(
   ai: GoogleGenAI,
   reportText: string,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  modelName?: string
 ): Promise<void> {
   const prompt = generateWebsitePlanPrompt(reportText);
   
   const requestParams: GenerateContentParameters = { 
-    model: MODEL_NAME, 
+    model: modelName || DEFAULT_MODEL, 
     contents: prompt 
   };
 
@@ -69,12 +82,13 @@ export async function generateWebsiteFromReportWithPlanStream(
   planText: string,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  modelName?: string
 ): Promise<void> {
   const prompt = generateWebsitePromptWithPlan(reportText, planText);
 
   const requestParams: GenerateContentParameters = { 
-    model: MODEL_NAME, 
+    model: modelName || DEFAULT_MODEL, 
     contents: prompt 
   };
   
@@ -121,7 +135,7 @@ export async function generateWebsiteFromReportWithPlanStream(
 export class GeminiChatSession {
   private chatSession: Chat;
 
-  constructor(ai: GoogleGenAI, initialHtml: string) {
+  constructor(ai: GoogleGenAI, initialHtml: string, modelName?: string) {
     // 构造Gemini API格式的聊天历史
     const chatHistory = [
       { role: "user", parts: [{ text: getHtmlChatInitialMessage(initialHtml) }] },
@@ -129,7 +143,7 @@ export class GeminiChatSession {
     ];
     
     this.chatSession = ai.chats.create({
-      model: MODEL_NAME,
+      model: modelName || DEFAULT_MODEL,
       config: { systemInstruction: getChatSystemInstruction() },
       history: chatHistory,
     });
@@ -173,7 +187,7 @@ export class GeminiChatSession {
 export class GeminiPlanChatSession {
   private chatSession: Chat;
 
-  constructor(ai: GoogleGenAI, initialPlan: string) {
+  constructor(ai: GoogleGenAI, initialPlan: string, modelName?: string) {
     // 构造Gemini API格式的聊天历史
     const chatHistory = [
       { role: "user", parts: [{ text: getPlanChatInitialMessage(initialPlan) }] },
@@ -181,7 +195,7 @@ export class GeminiPlanChatSession {
     ];
     
     this.chatSession = ai.chats.create({
-      model: MODEL_NAME,
+      model: modelName || DEFAULT_MODEL,
       config: { systemInstruction: getPlanChatSystemInstruction() },
       history: chatHistory,
     });

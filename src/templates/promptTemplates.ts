@@ -47,10 +47,15 @@ The plan should be structured and easy to understand. Please outline the followi
     *   Notes on card/section appearance (e.g., "Rounded corners, subtle shadows for depth, clear visual hierarchy for text").`;
 
 const PLAN_OUTPUT_FORMAT_INSTRUCTIONS = `
-**Output Format:**
+**Output Format and Language Instructions:**
 Provide ONLY the plan as well-formatted, plain text.
 Do NOT include any HTML code, markdown formatting (like \`\`\` or # headings for the plan itself), or any explanatory text outside of the requested plan content.
 The plan should be directly usable as input for another AI to generate the HTML.
+
+**Language Requirements:**
+- The plan should be written in Chinese (中文)
+- If the original report contains important concepts in languages other than Chinese, include both the Chinese translation and the original language terms in parentheses
+- Example: "数据分析 (Data Analysis)" or "人工智能 (Artificial Intelligence)"
 
 Generated Website Plan:`;
 
@@ -61,7 +66,15 @@ Generated Website Plan:`;
 const CODE_GENERATION_ROLE = `
 You are an expert web developer and content strategist AI.
 Your mission is to transform the provided textual report into a compelling, single-page showcase webpage, strictly adhering to the provided Website Plan.
-The website should present the information in a modern, engaging format that tells a cohesive story and provides an excellent user experience.`;
+The website should present the information in a modern, engaging format that tells a cohesive story and provides an excellent user experience.
+
+**Language Requirements:**
+- The webpage content language should match the language of the original report, regardless of the plan's language
+- If the report is in Chinese, generate the webpage in Chinese
+- If the report is in English, generate the webpage in English
+- If the report is in other languages, use that language for the webpage
+- Unless the user specifically requests to use a particular language, always follow the report's language
+- For multi-language reports, use the primary/dominant language of the report`;
 
 const CODE_CORE_TASK_AND_PLAN_ADHERENCE = `
 **Core Task & Requirements (Guided by the Plan):**
@@ -90,11 +103,11 @@ const CODE_PAGE_AESTHETICS_AND_STRUCTURE = `
     *   The overall design should be modern, clean, professional, and engaging, reflecting the theme from the plan.
     *   **Hero Section (If appropriate and guided by the Plan):** Strongly consider starting the page with a visually distinct hero section. This section should typically feature the main title and a brief, compelling introductory sentence or tagline derived from the plan or report. It should set the tone for the entire page.
     *   The page should start with a clear, prominent title for the entire showcase, derived from the plan or report (often as part of the Hero section). If a distinct hero section is NOT used, ensure the first content element on the page still has significant top margin (e.g., \`mt-8\` or \`mt-12\`) to create visual separation from the browser's top edge.
-    *   **Negative Space:** Ensure generous negative space ('whitespace') around the main content. The primary content block within the \`<main>\` element should not exceed 70% of the viewport width on larger screens (e.g., 1280px and wider), providing MANDATORY at least 15% empty space on each side.
+    *   **Negative Space:** Ensure generous negative space ('whitespace') around the main content. The primary content block within the \`<main>\` element should not exceed 80% of the viewport width on larger screens (e.g., 1280px and wider), providing MANDATORY at least 10% empty space on each side.
     *   Use a main container for consistent padding/centering: e.g., \`<body class="bg-slate-900 text-slate-100 antialiased p-4 sm:p-6 md:p-8 min-h-screen flex flex-col items-center">\` and \`<main class="w-full max-w-5xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">\`. Using classes like \`max-w-5xl\` (or \`max-w-4xl\` for even more whitespace) along with \`mx-auto\` and internal padding like \`px-4 sm:px-6 lg:px-8\` on this main container is CRUCIAL.
     *   Individual sections/elements within this main container must also have generous internal padding (e.g., \`p-4\`, \`p-6\`, \`p-8\`) and ensure content doesn't touch their edges.
     *   Ensure responsiveness. Linear sections should stack naturally, and bento grid sections (if used) must adapt gracefully.
-    *   Include HTML boilerplate: \`<!DOCTYPE html>\`, \`<html lang="en">\`, \`<head>\` with \`<title>\`, \`<meta charset="UTF-8">\`, \`<meta name="viewport" content="width=device-width, initial-scale=1.0">\`.
+    *   Include HTML boilerplate: \`<!DOCTYPE html>\`, \`<html>\` with appropriate lang attribute based on content language (e.g., \`lang="zh"\` for Chinese, \`lang="en"\` for English), \`<head>\` with \`<title>\`, \`<meta charset="UTF-8">\`, \`<meta name="viewport" content="width=device-width, initial-scale=1.0">\`.
     *   Embed Tailwind CSS via CDN: \`<script src="https://cdn.tailwindcss.com"></script>\`.`;
 
 const CODE_ADVANCED_INTERACTIVITY_AND_EXCELLENCE = `
@@ -120,7 +133,12 @@ Generated Showcase Webpage HTML (Based on Report and Plan):`;
 const CHAT_SYSTEM_ROLE_AND_CONTEXT = `
 You are an expert web developer AI.
 The user has provided you with an initial HTML structure for a webpage, which was generated based on a report and a specific plan.
-Your task is to act as a web design assistant. The user will give you instructions to modify this HTML.`;
+Your task is to act as a web design assistant. The user will give you instructions to modify this HTML.
+
+**Language Maintenance:**
+- Maintain the existing language of the webpage content unless explicitly asked to change it
+- If adding new content, use the same language as the existing webpage content
+- Only change the content language if the user specifically requests it`;
 
 const CHAT_SYSTEM_MODIFICATION_RULES = `
 You MUST apply the modifications they request to the *entire current HTML structure*.
@@ -133,7 +151,61 @@ Ensure the output is a valid, complete HTML document.
 Focus on accurately implementing the user's change requests while maintaining the integrity of the rest of the HTML structure and Tailwind CSS usage, and staying consistent with the original design intent if not specified otherwise.`;
 
 const PLAN_CHAT_SYSTEM_INSTRUCTION = `
-You are an expert web design planner. When the user asks you to modify a website plan, respond with only the complete updated plan text. Do not include any explanations, markdown formatting, or additional text.`;
+You are an expert web design planner. When the user asks you to modify a website plan, respond with only the complete updated plan text. Do not include any explanations, markdown formatting, or additional text.
+
+**Language Maintenance:**
+- Keep the plan in Chinese (中文) unless the user specifically requests a different language
+- For important concepts that need to reference original terminology, include both Chinese and original language terms
+- Maintain consistency with the existing plan's language style`;
+
+// ==============================================
+// LANGUAGE DETECTION HELPER
+// ==============================================
+
+const detectReportLanguage = (reportText: string): string => {
+  // Simple language detection based on character analysis
+  const chineseChars = (reportText.match(/[\u4e00-\u9fff]/g) || []).length;
+  const totalChars = reportText.length;
+  const chineseRatio = chineseChars / totalChars;
+  
+  // If more than 20% Chinese characters, consider it Chinese
+  if (chineseRatio > 0.2) {
+    return 'Chinese';
+  }
+  
+  // Additional detection for other languages can be added here
+  return 'English'; // Default fallback
+};
+
+const getLanguageSpecificInstructions = (reportText: string): string => {
+  const detectedLanguage = detectReportLanguage(reportText);
+  
+  switch (detectedLanguage) {
+    case 'Chinese':
+      return `
+**Detected Language: Chinese (中文)**
+- Generate the webpage content in Chinese (中文)
+- Use Chinese for all text content, headings, and descriptions
+- Set HTML lang attribute to "zh" (\`<html lang="zh">\`)
+- Maintain proper Chinese typography and spacing
+- Use simplified Chinese characters unless the report uses traditional Chinese`;
+      
+    case 'English':
+      return `
+**Detected Language: English**
+- Generate the webpage content in English
+- Use English for all text content, headings, and descriptions
+- Set HTML lang attribute to "en" (\`<html lang="en">\`)
+- Maintain proper English typography and grammar`;
+      
+    default:
+      return `
+**Language Detection: ${detectedLanguage}**
+- Generate the webpage content in the same language as the report
+- Maintain consistency with the report's language throughout the webpage
+- Set appropriate HTML lang attribute for the detected language`;
+  }
+};
 
 // ==============================================
 // PUBLIC API FUNCTIONS
@@ -158,6 +230,7 @@ ${PLAN_OUTPUT_FORMAT_INSTRUCTIONS}
 export const generateWebsitePromptWithPlan = (reportText: string, planText: string): string => `
 
 ${CODE_GENERATION_ROLE}
+${getLanguageSpecificInstructions(reportText)}
 
 **Website Plan to Follow:**
 ---

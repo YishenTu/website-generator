@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { AIModel } from '../types/types';
 import { ModelSelector } from './ModelSelector';
 import { LoadingSpinner } from './LoadingSpinner';
+import { getDefaultModel } from '../services/aiService';
 
 interface PlanDisplayProps {
   planText: string;
@@ -11,8 +11,8 @@ interface PlanDisplayProps {
   isLoadingHtml: boolean; // True if this component's action (generating HTML from plan) is loading
   showGenerateButton?: boolean; 
   isCompactView?: boolean;
-  htmlModel?: AIModel;
-  onHtmlModelChange?: (model: AIModel) => void;
+  htmlModel?: string; // 模型ID字符串
+  onHtmlModelChange?: (model: string) => void; // 模型ID回调
   onToggleRefine?: () => void;
   showRefineButton?: boolean;
 }
@@ -38,7 +38,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
   isLoadingHtml,
   showGenerateButton = true, 
   isCompactView = false,
-  htmlModel = AIModel.Gemini,
+  htmlModel = getDefaultModel('gemini'),
   onHtmlModelChange,
   onToggleRefine,
   showRefineButton,

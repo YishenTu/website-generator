@@ -1,17 +1,73 @@
 import { GoogleGenAI } from "@google/genai";
-import { AIModel } from "../types/types";
 import { 
   generateWebsitePlanStream, 
   generateWebsiteFromReportWithPlanStream,
   GeminiChatSession,
-  GeminiPlanChatSession
+  GeminiPlanChatSession,
+  GEMINI_MODELS
 } from "./geminiService";
 import {
   generateWebsitePlanStreamOpenRouter,
   generateWebsiteFromReportWithPlanStreamOpenRouter,
   OpenRouterChatSession,
-  OpenRouterPlanChatSession
+  OpenRouterPlanChatSession,
+  OPENROUTER_MODELS
 } from "./openrouterService";
+
+// 模型信息接口
+export interface ModelInfo {
+  id: string;
+  name: string;
+  provider: 'gemini' | 'openrouter';
+}
+
+// 统一的模型列表
+export const ALL_MODELS: ModelInfo[] = [
+  // Gemini 模型
+  ...GEMINI_MODELS.map(model => ({
+    id: model.id,
+    name: model.name,
+    provider: 'gemini' as const
+  })),
+  // OpenRouter 模型
+  ...OPENROUTER_MODELS.map(model => ({
+    id: model.id,
+    name: model.name,
+    provider: 'openrouter' as const
+  }))
+];
+
+// 按提供商分组的模型 - 重用ALL_MODELS避免重复映射
+export const MODELS_BY_PROVIDER = {
+  gemini: ALL_MODELS.filter(model => model.provider === 'gemini'),
+  openrouter: ALL_MODELS.filter(model => model.provider === 'openrouter')
+};
+
+// 获取模型信息
+export function getModelInfo(modelId: string): ModelInfo | undefined {
+  return ALL_MODELS.find(model => model.id === modelId);
+}
+
+// 检查模型是否是Gemini模型 - 基于getModelInfo减少重复查找
+export function isGeminiModel(modelId: string): boolean {
+  const modelInfo = getModelInfo(modelId);
+  return modelInfo?.provider === 'gemini';
+}
+
+// 检查模型是否是OpenRouter模型 - 基于getModelInfo减少重复查找
+export function isOpenRouterModel(modelId: string): boolean {
+  const modelInfo = getModelInfo(modelId);
+  return modelInfo?.provider === 'openrouter';
+}
+
+// 获取默认模型
+export function getDefaultModel(provider: 'gemini' | 'openrouter'): string {
+  if (provider === 'gemini') {
+    return GEMINI_MODELS[0].id;
+  } else {
+    return OPENROUTER_MODELS[0].id;
+  }
+}
 
 // 统一的聊天会话接口
 export interface ChatSession {
@@ -23,49 +79,43 @@ export interface ChatSession {
   ): Promise<void>;
 }
 
-// 会话构造函数类型定义
-type SessionConstructorMap<T> = {
-  [AIModel.Gemini]: new (ai: GoogleGenAI, initialContent: T) => ChatSession;
-  [AIModel.Claude]: new (initialContent: T) => ChatSession;
-};
+// 通用的模型分发辅助函数
+function dispatchToModel<T>(
+  modelId: string,
+  geminiHandler: () => T,
+  openrouterHandler: () => T
+): T {
+  const modelInfo = getModelInfo(modelId);
+  if (!modelInfo) {
+    throw new Error(`Unsupported model: ${modelId}`);
+  }
 
-// 通用的聊天会话工厂函数
-function createChatSession<T>(
-  model: AIModel,
-  ai: GoogleGenAI,
-  initialContent: T,
-  sessionConstructors: SessionConstructorMap<T>
-): ChatSession {
-  switch (model) {
-    case AIModel.Gemini:
-      return new sessionConstructors[AIModel.Gemini](ai, initialContent);
-    case AIModel.Claude:
-      return new sessionConstructors[AIModel.Claude](initialContent);
-    default:
-      throw new Error(`Unsupported model: ${model}`);
+  if (modelInfo.provider === 'gemini') {
+    return geminiHandler();
+  } else {
+    return openrouterHandler();
   }
 }
 
-export async function generateWebsitePlanWithModel(
-  model: AIModel,
+// 主要的生成函数 - 基于模型ID生成网站规划
+export async function generateWebsitePlan(
+  modelId: string,
   ai: GoogleGenAI,
   reportText: string,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal
 ): Promise<void> {
-  switch (model) {
-    case AIModel.Gemini:
-      return generateWebsitePlanStream(ai, reportText, onChunk, onComplete, signal);
-    case AIModel.Claude:
-      return generateWebsitePlanStreamOpenRouter(reportText, onChunk, onComplete, signal);
-    default:
-      throw new Error(`Unsupported model: ${model}`);
-  }
+  return dispatchToModel(
+    modelId,
+    () => generateWebsitePlanStream(ai, reportText, onChunk, onComplete, signal, modelId),
+    () => generateWebsitePlanStreamOpenRouter(reportText, onChunk, onComplete, signal, modelId)
+  );
 }
 
-export async function generateWebsiteFromReportWithPlanWithModel(
-  model: AIModel,
+// 主要的生成函数 - 基于模型ID生成网站
+export async function generateWebsiteFromPlan(
+  modelId: string,
   ai: GoogleGenAI,
   reportText: string,
   planText: string,
@@ -73,59 +123,51 @@ export async function generateWebsiteFromReportWithPlanWithModel(
   onComplete: (finalText: string) => void,
   signal?: AbortSignal
 ): Promise<void> {
-  switch (model) {
-    case AIModel.Gemini:
-      return generateWebsiteFromReportWithPlanStream(
-        ai, reportText, planText, onChunk, onComplete, signal
-      );
-    case AIModel.Claude:
-      return generateWebsiteFromReportWithPlanStreamOpenRouter(
-        reportText, planText, onChunk, onComplete, signal
-      );
-    default:
-      throw new Error(`Unsupported model: ${model}`);
-  }
+  return dispatchToModel(
+    modelId,
+    () => generateWebsiteFromReportWithPlanStream(ai, reportText, planText, onChunk, onComplete, signal, modelId),
+    () => generateWebsiteFromReportWithPlanStreamOpenRouter(reportText, planText, onChunk, onComplete, signal, modelId)
+  );
 }
 
+// 主要的会话创建函数 - 基于模型ID创建HTML聊天会话
 export function createHtmlChatSession(
-  model: AIModel,
+  modelId: string,
   ai: GoogleGenAI,
   initialHtml: string
 ): ChatSession {
-  const htmlSessionConstructors: SessionConstructorMap<string> = {
-    [AIModel.Gemini]: GeminiChatSession,
-    [AIModel.Claude]: OpenRouterChatSession
-  };
-  
-  return createChatSession(model, ai, initialHtml, htmlSessionConstructors);
+  return dispatchToModel<ChatSession>(
+    modelId,
+    () => new GeminiChatSession(ai, initialHtml, modelId),
+    () => new OpenRouterChatSession(initialHtml, modelId)
+  );
 }
 
+// 主要的会话创建函数 - 基于模型ID创建Plan聊天会话
 export function createPlanChatSession(
-  model: AIModel,
+  modelId: string,
   ai: GoogleGenAI,
   initialPlan: string
 ): ChatSession {
-  const planSessionConstructors: SessionConstructorMap<string> = {
-    [AIModel.Gemini]: GeminiPlanChatSession,
-    [AIModel.Claude]: OpenRouterPlanChatSession
-  };
-  
-  return createChatSession(model, ai, initialPlan, planSessionConstructors);
+  return dispatchToModel<ChatSession>(
+    modelId,
+    () => new GeminiPlanChatSession(ai, initialPlan, modelId),
+    () => new OpenRouterPlanChatSession(initialPlan, modelId)
+  );
 }
 
-export function validateModelApiKeys(model: AIModel): { isValid: boolean; missingKey?: string } {
-  switch (model) {
-    case AIModel.Gemini:
-      return {
-        isValid: !!process.env.GEMINI_API_KEY,
-        missingKey: !process.env.GEMINI_API_KEY ? 'GEMINI_API_KEY' : undefined
-      };
-    case AIModel.Claude:
-      return {
-        isValid: !!process.env.OPENROUTER_API_KEY,
-        missingKey: !process.env.OPENROUTER_API_KEY ? 'OPENROUTER_API_KEY' : undefined
-      };
-    default:
-      return { isValid: false, missingKey: 'UNKNOWN_MODEL' };
+// 主要的验证函数 - 验证模型的API密钥
+export function validateModelApiKeys(modelId: string): { isValid: boolean; missingKey?: string } {
+  const modelInfo = getModelInfo(modelId);
+  if (!modelInfo) {
+    return { isValid: false, missingKey: 'UNKNOWN_MODEL' };
   }
+
+  const apiKey = modelInfo.provider === 'gemini' ? process.env.GEMINI_API_KEY : process.env.OPENROUTER_API_KEY;
+  const keyName = modelInfo.provider === 'gemini' ? 'GEMINI_API_KEY' : 'OPENROUTER_API_KEY';
+  
+  return {
+    isValid: !!apiKey,
+    missingKey: !apiKey ? keyName : undefined
+  };
 } 

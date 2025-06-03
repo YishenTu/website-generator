@@ -1,14 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChatMessage, UserType, AIModel } from '../types/types';
+import { ChatMessage, UserType } from '../types/types';
 import { ModelSelector } from './ModelSelector';
+import { getDefaultModel } from '../services/aiService';
 
 interface ChatPanelProps {
   messages: ChatMessage[];
   onSendMessage: (message: string) => void;
   isLoading: boolean;
   onStop: () => void;
-  chatModel?: AIModel;
-  onChatModelChange?: (model: AIModel) => void;
+  chatModel?: string; // 模型ID字符串
+  onChatModelChange?: (model: string) => void; // 模型ID回调
   isChatAvailable?: boolean;
   title?: string;
 }
@@ -31,7 +32,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   onSendMessage, 
   isLoading, 
   onStop, 
-  chatModel = AIModel.Gemini,
+  chatModel = getDefaultModel('gemini'),
   onChatModelChange,
   isChatAvailable = true,
   title

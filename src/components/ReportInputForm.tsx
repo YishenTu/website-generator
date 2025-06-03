@@ -1,5 +1,4 @@
 import React from 'react';
-import { AIModel } from '../types/types';
 import { ModelSelector } from './ModelSelector';
 import type { AppStage } from '../App'; // Import AppStage type
 
@@ -12,8 +11,8 @@ interface ReportInputFormProps {
   onStop: () => void;
   isLoading: boolean; // True if planPending or htmlPending
   appStage: AppStage;
-  selectedModel: AIModel;
-  onModelChange: (model: AIModel) => void;
+  selectedModel: string; // 模型ID字符串
+  onModelChange: (model: string) => void; // 模型ID回调
 }
 
 // Consider moving icons to a shared file if they grow

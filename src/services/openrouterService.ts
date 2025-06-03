@@ -8,7 +8,29 @@ import {
 } from "../templates/promptTemplates";
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
-const CLAUDE_MODEL = 'anthropic/claude-sonnet-4';
+
+// 可选择的OpenRouter模型列表
+export const OPENROUTER_MODELS = [
+  {
+    id: 'anthropic/claude-sonnet-4',
+    name: 'Claude 4 Sonnet'
+  },
+  {
+    id: 'anthropic/claude-opus-4',
+    name: 'Claude 4 Opus'
+  },
+  {
+    id: 'anthropic/claude-3.7-sonnet',
+    name: 'Claude 3.7 Sonnet'
+  },
+  {
+    id: 'deepseek/deepseek-r1-0528',
+    name: 'DeepSeek R1'
+  }
+] as const;
+
+// 默认模型
+const DEFAULT_MODEL = OPENROUTER_MODELS[0].id;
 
 interface OpenRouterMessage {
   role: 'system' | 'user' | 'assistant';
@@ -117,10 +139,11 @@ async function makeOpenRouterStreamRequest(
   prompt: string,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  modelName?: string
 ): Promise<void> {
   const requestBody: OpenRouterRequest = {
-    model: CLAUDE_MODEL,
+    model: modelName || DEFAULT_MODEL,
     messages: [
       {
         role: 'user',
@@ -139,10 +162,11 @@ async function makeChatStreamRequest(
   messages: OpenRouterMessage[],
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  modelName?: string
 ): Promise<void> {
   const requestBody: OpenRouterRequest = {
-    model: CLAUDE_MODEL,
+    model: modelName || DEFAULT_MODEL,
     messages: [...messages],
     stream: true
   };
@@ -156,10 +180,11 @@ export async function generateWebsitePlanStreamOpenRouter(
   reportText: string,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  modelName?: string
 ): Promise<void> {
   const prompt = generateWebsitePlanPrompt(reportText);
-  return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal);
+  return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal, modelName);
 }
 
 export async function generateWebsiteFromReportWithPlanStreamOpenRouter(
@@ -167,10 +192,11 @@ export async function generateWebsiteFromReportWithPlanStreamOpenRouter(
   planText: string,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  modelName?: string
 ): Promise<void> {
   const prompt = generateWebsitePromptWithPlan(reportText, planText);
-  return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal);
+  return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal, modelName);
 }
 
 // --- Chat Session Classes ---
@@ -178,9 +204,11 @@ export async function generateWebsiteFromReportWithPlanStreamOpenRouter(
 export class OpenRouterChatSession {
   private messages: OpenRouterMessage[] = [];
   private apiKey: string;
+  private modelName: string;
 
-  constructor(initialHtml: string) {
+  constructor(initialHtml: string, modelName?: string) {
     this.apiKey = process.env.OPENROUTER_API_KEY || '';
+    this.modelName = modelName || DEFAULT_MODEL;
     
     if (!this.apiKey) {
       throw new Error("OpenRouter API key is not configured.");
@@ -229,7 +257,8 @@ export class OpenRouterChatSession {
         });
         onComplete(accumulatedText);
       },
-      signal
+      signal,
+      this.modelName
     );
   }
 }
@@ -237,9 +266,11 @@ export class OpenRouterChatSession {
 export class OpenRouterPlanChatSession {
   private messages: OpenRouterMessage[] = [];
   private apiKey: string;
+  private modelName: string;
 
-  constructor(initialPlan: string) {
+  constructor(initialPlan: string, modelName?: string) {
     this.apiKey = process.env.OPENROUTER_API_KEY || '';
+    this.modelName = modelName || DEFAULT_MODEL;
     
     if (!this.apiKey) {
       throw new Error("OpenRouter API key is not configured.");
@@ -288,7 +319,8 @@ export class OpenRouterPlanChatSession {
         });
         onComplete(accumulatedText);
       },
-      signal
+      signal,
+      this.modelName
     );
   }
 } 

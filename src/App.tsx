@@ -6,17 +6,18 @@ import { OutputDisplay } from './components/OutputDisplay';
 import { ChatPanel } from './components/ChatPanel';
 import { PlanDisplay } from './components/PlanDisplay';
 import { 
-  generateWebsitePlanWithModel, 
-  generateWebsiteFromReportWithPlanWithModel,
+  generateWebsitePlan, 
+  generateWebsiteFromPlan,
   validateModelApiKeys,
   createHtmlChatSession,
   createPlanChatSession,
-  ChatSession
+  ChatSession,
+  getDefaultModel
 } from './services/aiService';
 import { cleanTextOutput, getModelDisplayName } from './components/textUtils';
 import { copyHtmlToClipboard, downloadHtmlFile } from './components/fileUtils';
 import { abortAllOperations, resetAppToInitialState } from './components/appStateUtils';
-import { ActiveTab, ChatMessage, UserType, AIModel } from './types/types';
+import { ActiveTab, ChatMessage, UserType } from './types/types';
 import { LoadingSpinner } from './components/LoadingSpinner';
 
 export type AppStage = 'initial' | 'planPending' | 'planReady' | 'htmlPending' | 'htmlReady';
@@ -35,10 +36,10 @@ const App: React.FC = () => {
   const [reportText, setReportText] = useState<string>('');
   const [generatedPlan, setGeneratedPlan] = useState<string | null>(null);
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
-  const [planModel, setPlanModel] = useState<AIModel>(AIModel.Gemini);
-  const [htmlModel, setHtmlModel] = useState<AIModel>(AIModel.Claude);
-  const [chatModel, setChatModel] = useState<AIModel>(AIModel.Gemini);
-  const [planChatModel, setPlanChatModel] = useState<AIModel>(AIModel.Gemini);
+  const [planModel, setPlanModel] = useState<string>(getDefaultModel('gemini'));
+  const [htmlModel, setHtmlModel] = useState<string>(getDefaultModel('openrouter'));
+  const [chatModel, setChatModel] = useState<string>(getDefaultModel('gemini'));
+  const [planChatModel, setPlanChatModel] = useState<string>(getDefaultModel('gemini'));
   
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isChatLoading, setIsChatLoading] = useState<boolean>(false);
@@ -94,7 +95,7 @@ const App: React.FC = () => {
     setAppStage('planPending'); 
 
     try {
-      await generateWebsitePlanWithModel(
+      await generateWebsitePlan(
         planModel,
         ai, 
         reportText,
@@ -126,7 +127,7 @@ const App: React.FC = () => {
     }
   }, [reportText, planModel, ai]);
 
-  const initializePlanChatSession = useCallback((planText: string, model?: AIModel) => {
+  const initializePlanChatSession = useCallback((planText: string, model?: string) => {
     const targetModel = model || planChatModel;
     try {
       planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText);
@@ -164,7 +165,7 @@ const App: React.FC = () => {
     setAppStage('htmlReady'); 
 
     try {
-      await generateWebsiteFromReportWithPlanWithModel(
+      await generateWebsiteFromPlan(
         htmlModel,
         ai, 
         reportText, 
@@ -272,7 +273,7 @@ const App: React.FC = () => {
     }
   }, [chatModel]);
 
-  const handleChatModelChange = useCallback((model: AIModel) => {
+  const handleChatModelChange = useCallback((model: string) => {
     if (model === chatModel) return;
     
     setChatModel(model);
@@ -447,7 +448,7 @@ const App: React.FC = () => {
     }
   }, [planChatModel]);
 
-  const handlePlanChatModelChange = useCallback((model: AIModel) => {
+  const handlePlanChatModelChange = useCallback((model: string) => {
     if (model === planChatModel) return;
     
     setPlanChatModel(model);
