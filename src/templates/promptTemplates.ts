@@ -40,7 +40,8 @@ The plan should be structured and easy to understand. Please outline the followi
         *   **Primary Layout Style: "Linear App Style"** - Page structure starting with a prominent hero section followed by sequential content sections that flow naturally down the page
         *   **Supporting Layout Element: "Bento Grid"** - Use grid layouts in appropriate content areas to showcase related item collections (such as statistics, features, comparison data, etc.)
         *   **Design Aesthetic: "Glassmorphism"** - Overall adoption of glassmorphism design style to create a modern, elegant visual effect
-    *   **Bento Grid Usage Rules - Important:** Only use grid layouts when content can naturally be broken down into at least 2 related items per row. Avoid creating single large boxes for entire sections or one box per section.
+    *   **Bento Grid Usage Rules - Important:** Only use grid layouts when content can naturally be broken down into at least 2 related items per row. 
+    *   **Avoid:** DO NOT create single large boxes for entire sections or one box per section.
 
 4.  **Styling & Visual Notes (Tailwind CSS based):**
     *   **Required Design Style Characteristics:**
@@ -81,23 +82,18 @@ const CODE_GENERATION_ROLE = `
 You are an expert web developer and content strategist AI.
 Your mission is to transform the provided textual report into a compelling, single-page showcase webpage, strictly adhering to the provided Website Plan.
 The website should present the information in a modern, engaging format that tells a cohesive story and provides an excellent user experience.
-
-**Language Requirements:**
-- The webpage content language should match the language of the original report, regardless of the plan's language
-- If the report is in Chinese, generate the webpage in Chinese
-- If the report is in English, generate the webpage in English
-- Unless the user specifically requests a particular language, always follow the report's language
-- For multi-language reports, use the primary/dominant language of the report`;
+`;
 
 const CODE_CORE_TASK_AND_PLAN_ADHERENCE = `
 **Core Task & Requirements (Guided by the Plan):**
 
 1.  **Adhere to the Plan:** The generated HTML structure, content summarization, sectioning, layout, and styling cues MUST be derived from the "Website Plan to Follow". The original report is for detailed content extraction where the plan refers to it.
 
-2.  **Language Requirements Priority:** 
-    -   **CRITICAL:** If the plan contains any explicit language instructions (such as "使用英文输出", "英文网页", "use English", "English output", etc.), these MUST override any automatic language detection from the report.
-    -   Pay special attention to language directives in the plan and follow them exactly.
-    -   The language instructions in the plan take absolute precedence over report language detection.`;
+2. **Language Requirements:**
+    - The webpage content language should match the language of the original report, regardless of the plan's language
+    - Unless the user specifically requests a particular language, always follow the report's language
+    - For multi-language reports, use the primary/dominant language of the report
+`;
 
 const CODE_LAYOUT_CONTENT_AND_STYLING = `
 3.  **Layout and Content Presentation (as per Plan):**
@@ -180,54 +176,7 @@ You are an expert web design planner. When the user asks you to modify a website
 - For important concepts that need to reference original terminology, include both Chinese and original language terms
 - Maintain consistency with the existing plan's language style`;
 
-// ==============================================
-// LANGUAGE DETECTION HELPER
-// ==============================================
 
-const detectReportLanguage = (reportText: string): string => {
-  // Simple language detection based on character analysis
-  const chineseChars = (reportText.match(/[\u4e00-\u9fff]/g) || []).length;
-  const totalChars = reportText.length;
-  const chineseRatio = chineseChars / totalChars;
-  
-  // If more than 20% Chinese characters, consider it Chinese
-  if (chineseRatio > 0.2) {
-    return 'Chinese';
-  }
-  
-  // Additional detection for other languages can be added here
-  return 'English'; // Default fallback
-};
-
-const getLanguageSpecificInstructions = (reportText: string): string => {
-  const detectedLanguage = detectReportLanguage(reportText);
-  
-  switch (detectedLanguage) {
-    case 'Chinese':
-      return `
-**Detected Language: Chinese (中文)**
-- Generate the webpage content in Chinese (中文)
-- Use Chinese for all text content, headings, and descriptions
-- Set HTML lang attribute to "zh" (\`<html lang="zh">\`)
-- Maintain proper Chinese typography and spacing
-- Use simplified Chinese characters unless the report uses traditional Chinese`;
-      
-    case 'English':
-      return `
-**Detected Language: English**
-- Generate the webpage content in English
-- Use English for all text content, headings, and descriptions
-- Set HTML lang attribute to "en" (\`<html lang="en">\`)
-- Maintain proper English typography and grammar`;
-      
-    default:
-      return `
-**Language Detection: ${detectedLanguage}**
-- Generate the webpage content in the same language as the report
-- Maintain consistency with the report's language throughout the webpage
-- Set appropriate HTML lang attribute for the detected language`;
-  }
-};
 
 // ==============================================
 // PUBLIC API FUNCTIONS
@@ -252,10 +201,6 @@ ${PLAN_OUTPUT_FORMAT_INSTRUCTIONS}
 export const generateWebsitePromptWithPlan = (reportText: string, planText: string): string => `
 
 ${CODE_GENERATION_ROLE}
-${getLanguageSpecificInstructions(reportText)}
-
-**CRITICAL LANGUAGE OVERRIDE INSTRUCTIONS:**
-**If the plan below contains any explicit language instructions specifying the output language, those instructions MUST override the detected language above and take absolute precedence.**
 
 **Website Plan to Follow:**
 ---
