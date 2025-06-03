@@ -2,6 +2,11 @@
  * 文件操作工具函数
  */
 
+import { createLogger } from '../utils/logger';
+import { FILE } from '../utils/constants';
+
+const logger = createLogger('FileUtils');
+
 /**
  * 使用传统方法复制文本到剪贴板（回退方案）
  * @param text 要复制的文本
@@ -26,14 +31,14 @@ const fallbackCopyToClipboard = (text: string): boolean => {
     document.body.removeChild(textarea);
     
     if (successful) {
-      console.log('使用回退方法成功复制到剪贴板');
+      logger.debug('使用回退方法成功复制到剪贴板');
       return true;
     } else {
-      console.error('回退方法复制失败：execCommand 返回 false');
+      logger.error('回退方法复制失败：execCommand 返回 false');
       return false;
     }
   } catch (err) {
-    console.error('回退方法复制失败:', err);
+    logger.error('回退方法复制失败:', err);
     return false;
   }
 };
@@ -45,7 +50,7 @@ const fallbackCopyToClipboard = (text: string): boolean => {
  */
 export const copyHtmlToClipboard = async (htmlContent: string): Promise<boolean> => {
   if (!htmlContent) {
-    console.error('复制失败：HTML内容不能为空');
+    logger.error('复制失败：HTML内容不能为空');
     return false;
   }
   
@@ -53,16 +58,16 @@ export const copyHtmlToClipboard = async (htmlContent: string): Promise<boolean>
   if (navigator.clipboard && window.isSecureContext) {
     try {
       await navigator.clipboard.writeText(htmlContent);
-      console.log('使用 Clipboard API 成功复制到剪贴板');
+      logger.debug('使用 Clipboard API 成功复制到剪贴板');
       return true;
     } catch (err) {
-      console.warn('Clipboard API 复制失败，尝试使用回退方法:', err);
+      logger.warn('Clipboard API 复制失败，尝试使用回退方法:', err);
       // 如果 Clipboard API 失败，尝试回退方法
       return fallbackCopyToClipboard(htmlContent);
     }
   } else {
     // 如果不支持 Clipboard API 或不在安全上下文中，直接使用回退方法
-    console.log('不支持 Clipboard API 或非安全上下文，使用回退方法');
+    logger.debug('不支持 Clipboard API 或非安全上下文，使用回退方法');
     return fallbackCopyToClipboard(htmlContent);
   }
 };
@@ -88,15 +93,15 @@ const isValidHtmlFilename = (filename: string): boolean => {
  * @param filename 文件名（默认：'generated-website.html'）
  * @returns Promise<boolean> 是否成功下载
  */
-export const downloadHtmlFile = async (htmlContent: string, filename: string = 'generated-website.html'): Promise<boolean> => {
+export const downloadHtmlFile = async (htmlContent: string, filename: string = FILE.DEFAULT_HTML_NAME): Promise<boolean> => {
   if (!htmlContent) {
-    console.error('下载失败：HTML内容不能为空');
+    logger.error('下载失败：HTML内容不能为空');
     return false;
   }
   
   // 验证文件名
   if (!isValidHtmlFilename(filename)) {
-    console.error('下载失败：文件名格式无效，必须是非空字符串且以 .html 或 .htm 结尾');
+    logger.error('下载失败：文件名格式无效，必须是非空字符串且以 .html 或 .htm 结尾');
     return false;
   }
   
@@ -111,10 +116,10 @@ export const downloadHtmlFile = async (htmlContent: string, filename: string = '
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
     
-    console.log(`文件 "${filename}" 下载成功`);
+    logger.info(`文件 "${filename}" 下载成功`);
     return true;
   } catch (err) {
-    console.error('下载文件时发生错误:', err);
+    logger.error('下载文件时发生错误:', err);
     // 可以在这里添加用户通知逻辑，比如显示错误提示
     return false;
   }

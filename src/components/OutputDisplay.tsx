@@ -1,9 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { ActiveTab } from '../types/types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { TabButton } from './TabButton';
 import { CodeEditor } from './CodeEditor';
+import { PreviewLoader } from './PreviewLoader';
+import { useDebounce } from '../hooks/useDebounce';
+import { 
+  DocumentDuplicateIcon, 
+  ArrowDownTrayIcon, 
+  ArrowTopRightOnSquareIcon, 
+  XMarkIcon,
+  InitialStateIcon,
+  PlanReadyIcon 
+} from './icons';
 import type { AppStage } from '../App'; 
+import { CONTAINER_STYLES, TEXT_STYLES, BUTTON_STYLES, LAYOUT_STYLES, ICON_SIZES, combineStyles } from '../utils/styleConstants';
+import { UI_TEXT, DELAYS } from '../utils/constants';
+
 
 interface OutputDisplayProps {
   htmlContent: string | null;
@@ -20,44 +33,6 @@ interface OutputDisplayProps {
   onHtmlContentChange?: (newHtml: string) => void; // New prop for editable code view
 }
 
-// ... (SVG Icons remain the same) ...
-const DocumentDuplicateIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 17.25v3.375c0 .621-.504 1.125-1.125 1.125h-9.75a1.125 1.125 0 0 1-1.125-1.125V7.875c0-.621.504-1.125 1.125-1.125H6.75a9.06 9.06 0 0 1 1.5.124m7.5 10.376h3.375c.621 0 1.125-.504 1.125-1.125V11.25c0-4.46-3.243-8.161-7.5-8.876a9.06 9.06 0 0 0-1.5-.124H9.375c-.621 0-1.125.504-1.125 1.125v3.5m7.5 10.375H9.375a1.125 1.125 0 0 1-1.125-1.125v-9.25m12 6.625v-1.875a3.375 3.375 0 0 0-3.375-3.375h-1.5a1.125 1.125 0 0 1-1.125-1.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H9.75" />
-  </svg>
-);
-
-const ArrowDownTrayIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
-  </svg>
-);
-
-const ArrowTopRightOnSquareIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" />
-  </svg>
-);
-
-const XMarkIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
-  </svg>
-);
-
-const InitialStateIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 mx-auto mb-2 text-slate-600" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h3.75M9 15h3.75M9 18h3.75m3 .75H18a2.25 2.25 0 0 0 2.25-2.25V6.108c0-1.135-.845-2.098-1.976-2.192a48.424 48.424 0 0 0-1.123-.08m-5.801 0c-.065.21-.1.433-.1.664 0 .414.336.75.75.75h4.5a.75.75 0 0 0 .75-.75 2.25 2.25 0 0 0-.1-.664m-5.8 0A2.251 2.251 0 0 1 5.25 6h.008a2.25 2.25 0 0 1 2.242 2.123M8.25 12h.008v.008H8.25V12Zm0 3h.008v.008H8.25V15Zm0 3h.008v.008H8.25V18Zm-4.5-3H3.75A2.25 2.25 0 0 1 1.5 12.75V6.75A2.25 2.25 0 0 1 3.75 4.5h13.5A2.25 2.25 0 0 1 19.5 6.75v6A2.25 2.25 0 0 1 17.25 15H9.75Z" />
-  </svg>
-);
-
-const PlanReadyIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-16 h-16 mx-auto mb-2 text-slate-600" {...props}>
-  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h.01M15 12h.01M10.5 16.5h3M12 3c-4.97 0-9 4.03-9 9s4.03 9 9 9 9-4.03 9-9-4.03-9-9-9Zm0 15c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6Z" />
-  <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 8.25h3M12 21V12m0-9v2.25m0 13.5V18M3.27 10.5H5.52m13.06-.002H16.48m-10.965 6L7.015 15m9.97 1.5-.005-1.505M7.5 12a4.5 4.5 0 0 1 4.5-4.5 4.502 4.502 0 0 1 2.858 1.023" />
-</svg>
-);
-
 export const OutputDisplay: React.FC<OutputDisplayProps> = ({
   htmlContent,
   isLoading,
@@ -72,12 +47,104 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
   className = "", 
   onHtmlContentChange,
 }) => {
-  const baseContainerClasses = "flex flex-col bg-slate-800 rounded-lg shadow-lg";
-  const fullPreviewClasses = "fixed inset-0 z-50 bg-slate-900 flex flex-col";
+  // 添加iframe加载状态
+  const [isIframeLoading, setIsIframeLoading] = useState(true);
+  const [iframeError, setIframeError] = useState(false);
+
+  // 使用防抖动的HTML内容，减少iframe频繁更新
+  const shouldDebounce = isLoading && appStage === 'htmlReady';
+  const debouncedHtmlContent = useDebounce(htmlContent, shouldDebounce ? DELAYS.DEBOUNCE_INPUT : 0);
+
+  // iframe加载处理函数
+  const handleIframeLoad = useCallback(() => {
+    setIsIframeLoading(false);
+    setIframeError(false);
+  }, []);
+
+  const handleIframeError = useCallback(() => {
+    setIsIframeLoading(false);
+    setIframeError(true);
+  }, []);
+
+  // 重置iframe状态当内容变化时
+  useEffect(() => {
+    if (debouncedHtmlContent !== null) {
+      setIsIframeLoading(true);
+      setIframeError(false);
+    }
+  }, [debouncedHtmlContent]);
+
+  // 生成优化的HTML，预加载关键资源
+  const optimizedHtmlContent = useMemo(() => {
+    if (!debouncedHtmlContent) return debouncedHtmlContent;
+    
+    // 添加预加载和优化标签
+    const optimizedHtml = debouncedHtmlContent.replace(
+      '<head>',
+      `<head>
+    <!-- 预加载关键资源 -->
+    <link rel="preconnect" href="https://cdn.tailwindcss.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://d3js.org">
+    
+    <!-- 优化加载性能 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+      /* 预加载时显示loading状态 */
+      body { 
+        opacity: 0; 
+        transition: opacity 0.3s ease-in-out; 
+      }
+      body.loaded { 
+        opacity: 1; 
+      }
+      
+      /* 优化字体渲染 */
+      * {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+      }
+    </style>
+    <script>
+      // 确保所有资源加载完成后显示内容
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+          document.body.classList.add('loaded');
+        }, ${DELAYS.IFRAME_LOAD});
+      });
+      
+      // 处理错误情况
+      window.addEventListener('error', function(e) {
+        if (e.target && e.target !== window) {
+          // 资源加载错误（图片、脚本等）
+          // 在开发环境中记录错误
+        }
+        document.body.classList.add('loaded'); // 即使有错误也显示内容
+      });
+    </script>`
+    );
+    
+    return optimizedHtml;
+  }, [debouncedHtmlContent]);
+
+  const handleRetry = useCallback(() => {
+    setIsIframeLoading(true);
+    setIframeError(false);
+    // Force iframe reload by updating the srcdoc
+    const iframe = document.querySelector('iframe[title="Website Preview"]') as HTMLIFrameElement;
+    if (iframe && optimizedHtmlContent) {
+      iframe.srcdoc = optimizedHtmlContent;
+    }
+  }, [optimizedHtmlContent]);
+
+  const baseContainerClasses = combineStyles(LAYOUT_STYLES.flexCol, CONTAINER_STYLES.card);
+  const fullPreviewClasses = CONTAINER_STYLES.modalOverlay;
   
   const containerClasses = isFullPreviewActive
     ? fullPreviewClasses
-    : `${baseContainerClasses} ${className} ${className.includes('h-full') ? '' : 'h-full'}`;
+    : combineStyles(baseContainerClasses, className, className.includes('h-full') ? '' : LAYOUT_STYLES.fullHeight);
 
   let placeholderTextContent = null;
   // Determine placeholder content only if htmlContent is truly null (not empty string for streaming)
@@ -87,16 +154,16 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
       placeholderTextContent = (
         <>
           <InitialStateIcon />
-          <p className="text-lg">Your generated website will appear here.</p>
-          <p className="text-sm">Enter a report and click "Generate Plan" to begin.</p>
+          <p className={TEXT_STYLES.headingMd}>Your generated website will appear here.</p>
+          <p className={TEXT_STYLES.mutedXs}>Enter a report and click "Generate Plan" to begin.</p>
         </>
       );
     } else if (appStage === 'planReady' || appStage === 'htmlPending') {
       placeholderTextContent = (
         <>
           <PlanReadyIcon />
-          <p className="text-lg">Plan generated. Awaiting website creation.</p>
-          <p className="text-sm">Review the plan and proceed to "Generate Website from Plan".</p>
+          <p className={TEXT_STYLES.headingMd}>Plan generated. Awaiting website creation.</p>
+          <p className={TEXT_STYLES.mutedXs}>Review the plan and proceed to "Generate Website from Plan".</p>
         </>
       );
     }
@@ -108,9 +175,9 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                          (appStage === 'htmlReady' && htmlContent === null));
 
   return (
-    <div className={`${containerClasses} ${isFullPreviewActive ? '' : 'p-4'}`}>
+    <div className={combineStyles(containerClasses, isFullPreviewActive ? '' : CONTAINER_STYLES.cardPadding)}>
       {!isFullPreviewActive && (
-        <div className="flex mb-3 border-b border-slate-700 flex-shrink-0">
+        <div className={combineStyles(LAYOUT_STYLES.flexRow, 'mb-3 border-b border-slate-700', LAYOUT_STYLES.flexShrink0)}>
           <TabButton
             label="Preview"
             isActive={activeTab === ActiveTab.Preview}
@@ -125,8 +192,10 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
           />
            {isLoading && appStage === 'htmlReady' && htmlContent !== null && (
             <div className="ml-auto flex items-center px-3">
-              <LoadingSpinner className="w-5 h-5 text-sky-400" />
-              <span className="ml-2 text-sm text-slate-400">Streaming...</span>
+              <LoadingSpinner className={combineStyles(ICON_SIZES.sm, 'text-sky-400')} />
+              <span className={combineStyles('ml-2', TEXT_STYLES.muted)}>
+                {isIframeLoading ? UI_TEXT.LOADING_PREVIEW : 'Streaming...'}
+              </span>
             </div>
           )}
         </div>
@@ -135,52 +204,79 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
       {isFullPreviewActive && htmlContent && (
          <button
             onClick={onToggleFullPreview}
-            className="absolute top-4 right-4 z-[60] bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-3 rounded-full shadow-lg flex items-center justify-center transition-colors text-sm"
+            className={combineStyles(
+              'absolute top-4 right-4 z-[60] bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-3 rounded-full shadow-lg',
+              LAYOUT_STYLES.flexCenter,
+              BUTTON_STYLES.smallButton,
+              'transition-colors'
+            )}
             aria-label="Exit Full Preview"
           >
-            <XMarkIcon className="w-5 h-5" />
+            <XMarkIcon className={ICON_SIZES.sm} />
           </button>
       )}
 
-      <div className={`flex-grow relative min-h-0 ${isFullPreviewActive ? 'h-full w-full' : ''}`}>
+      <div className={combineStyles(LAYOUT_STYLES.flexGrow, LAYOUT_STYLES.relative, LAYOUT_STYLES.minH0, isFullPreviewActive ? 'h-full w-full' : '')}>
         {showMainSpinner && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-800 bg-opacity-80 z-10 rounded-b-md">
-            <LoadingSpinner className="w-12 h-12 text-sky-500" />
-            <p className="mt-3 text-lg text-slate-300">
-              {appStage === 'planPending' ? 'Generating your website plan...' : 
+          <div className={combineStyles(
+            CONTAINER_STYLES.absolute,
+            CONTAINER_STYLES.inset0,
+            LAYOUT_STYLES.flexCol,
+            LAYOUT_STYLES.flexCenter,
+            'bg-slate-800 bg-opacity-80 z-10 rounded-b-md'
+          )}>
+            <LoadingSpinner className={combineStyles(ICON_SIZES.xxl, 'text-sky-500')} />
+            <p className={combineStyles('mt-3', TEXT_STYLES.headingMd, 'text-slate-300')}>
+              {appStage === 'planPending' ? UI_TEXT.LOADING_PLAN : 
                appStage === 'htmlPending' ? 'Preparing for website generation...' :
-               'Generating your website...'}
+               UI_TEXT.LOADING_HTML}
             </p>
           </div>
         )}
         {error && !showMainSpinner && ( // Show error if not already showing main spinner
-          <div className="h-full flex items-center justify-center p-4">
+          <div className={combineStyles(LAYOUT_STYLES.fullHeight, LAYOUT_STYLES.flexCenter, 'p-4')}>
             <div className="text-center bg-red-900/50 border border-red-700 text-red-300 p-4 rounded-md">
-              <h3 className="font-semibold text-lg mb-1">Operation Failed</h3>
-              <p className="text-sm">{error}</p>
+              <h3 className={combineStyles('font-semibold text-lg mb-1')}>{UI_TEXT.ERROR_TITLE}</h3>
+              <p className={TEXT_STYLES.mutedXs}>{error}</p>
             </div>
           </div>
         )}
         
         {placeholderTextContent && !showMainSpinner && !error && ( // Show placeholder if no spinner, error, and conditions met
-            <div className="h-full flex flex-col items-center justify-center p-4 text-center">
+            <div className={combineStyles(LAYOUT_STYLES.fullHeight, LAYOUT_STYLES.flexCol, LAYOUT_STYLES.flexCenter, 'p-4 text-center')}>
                 <div className="text-slate-500">
                     {placeholderTextContent}
                 </div>
             </div>
         )}
 
+        {/* iframe加载状态指示 - 使用PreviewLoader组件 */}
+        {activeTab === ActiveTab.Preview && optimizedHtmlContent && !showMainSpinner && (
+          <PreviewLoader 
+            isLoading={isIframeLoading} 
+            hasError={iframeError} 
+            onRetry={handleRetry}
+          />
+        )}
+
         {/* Render content area if htmlContent is not null (even empty string) and no error, or if full preview active */}
-        {(htmlContent !== null && !error) || (isFullPreviewActive && htmlContent !== null) ? (
+        {(optimizedHtmlContent !== null && !error) || (isFullPreviewActive && optimizedHtmlContent !== null) ? (
           <>
             {activeTab === ActiveTab.Preview && (
               <iframe
-                // Use a key that changes with htmlContent to force iframe reload if srcDoc is not reliably refreshing
-                key={isFullPreviewActive ? 'full-preview' : `preview-${htmlContent ? htmlContent.length : '0'}`}
-                srcDoc={htmlContent || ''}
+                // 移除key prop，避免不必要的重新创建
+                srcDoc={optimizedHtmlContent || ''}
                 title="Website Preview"
-                className={`w-full h-full border-0 ${isFullPreviewActive ? '' : 'rounded-b-md'} bg-white`}
-                sandbox="allow-scripts allow-same-origin"
+                className={combineStyles('w-full h-full border-0', isFullPreviewActive ? '' : 'rounded-b-md', 'bg-white')}
+                sandbox="allow-scripts allow-same-origin allow-downloads"
+                loading="eager"
+                onLoad={handleIframeLoad}
+                onError={handleIframeError}
+                style={{ 
+                  minHeight: '400px',
+                  opacity: isIframeLoading ? 0.5 : 1,
+                  transition: 'opacity 0.3s ease-in-out'
+                }}
               />
             )}
             {activeTab === ActiveTab.Code && (
@@ -196,29 +292,49 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
       </div>
 
       {!isFullPreviewActive && htmlContent && !isLoading && !error && appStage === 'htmlReady' && (
-        <div className="mt-4 pt-4 border-t border-slate-700 flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 flex-shrink-0">
+        <div className={combineStyles(
+          'mt-4 pt-4 border-t border-slate-700',
+          LAYOUT_STYLES.flexCol,
+          'sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3',
+          LAYOUT_STYLES.flexShrink0
+        )}>
           <button
             onClick={onToggleFullPreview}
-            className="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-md flex items-center justify-center transition-colors text-sm"
+            className={combineStyles(
+              'flex-1',
+              BUTTON_STYLES.base,
+              BUTTON_STYLES.blue,
+              BUTTON_STYLES.smallButton
+            )}
             aria-label="Full Preview"
           >
-            <ArrowTopRightOnSquareIcon className="w-4 h-4 mr-2" />
+            <ArrowTopRightOnSquareIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
             Full Preview
           </button>
           <button
             onClick={onCopyCode}
-            className="flex-1 bg-sky-600 hover:bg-sky-700 text-white font-medium py-2 px-4 rounded-md flex items-center justify-center transition-colors text-sm"
+            className={combineStyles(
+              'flex-1',
+              BUTTON_STYLES.base,
+              BUTTON_STYLES.primary,
+              BUTTON_STYLES.smallButton
+            )}
             aria-label="Copy HTML code"
           >
-            <DocumentDuplicateIcon className="w-4 h-4 mr-2" />
+            <DocumentDuplicateIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
             Copy Code
           </button>
           <button
             onClick={onDownloadHtml}
-            className="flex-1 bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md flex items-center justify-center transition-colors text-sm"
+            className={combineStyles(
+              'flex-1',
+              BUTTON_STYLES.base,
+              BUTTON_STYLES.success,
+              BUTTON_STYLES.smallButton
+            )}
             aria-label="Download HTML file"
           >
-            <ArrowDownTrayIcon className="w-4 h-4 mr-2" />
+            <ArrowDownTrayIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
             Download
           </button>
         </div>

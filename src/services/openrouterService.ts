@@ -6,6 +6,8 @@ import {
   getHtmlChatInitialMessage,
   getPlanChatInitialMessage
 } from "../templates/promptTemplates";
+import { handleApiError, formatErrorMessage } from "../utils/errorHandler";
+import { handleStreamResponse } from "../utils/streamHandler";
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
@@ -81,55 +83,17 @@ async function makeGenericStreamRequest(
       throw new Error('Failed to get response reader');
     }
 
-    const decoder = new TextDecoder();
-    let accumulatedText = "";
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split('\n').filter(line => line.trim());
-
-        for (const line of lines) {
-          if (line.startsWith('data: ')) {
-            const data = line.slice(6);
-            if (data === '[DONE]') {
-              onComplete(accumulatedText);
-              return;
-            }
-
-            try {
-              const parsed = JSON.parse(data);
-              const content = parsed.choices?.[0]?.delta?.content;
-              if (content) {
-                accumulatedText += content;
-                onChunk(content);
-              }
-            } catch (e) {
-              // Ignore parsing errors for malformed chunks
-            }
-          }
-        }
-      }
-    } finally {
-      reader.releaseLock();
-    }
-
-    onComplete(accumulatedText);
+    await handleStreamResponse(reader, {
+      onChunk,
+      onComplete,
+      signal
+    });
   } catch (error) {
-    console.error(`Error in ${errorContext} stream request:`, error);
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        throw error;
-      }
-      if (error.message.includes("API key") || error.message.includes("Authorization")) {
-        throw new Error(`Invalid or missing OpenRouter API Key${errorContext !== "OpenRouter" ? ` for ${errorContext}` : ""}.`);
-      }
-      throw new Error(`Failed to communicate with OpenRouter${errorContext !== "OpenRouter" ? ` (${errorContext})` : ""}: ${error.message}`);
+    const errorInfo = handleApiError(error, `${errorContext} stream request`);
+    if (errorInfo.code === 'ABORTED') {
+      throw error; // Re-throw abort errors
     }
-    throw new Error(`An unknown error occurred while communicating with OpenRouter${errorContext !== "OpenRouter" ? ` (${errorContext})` : ""}.`);
+    throw new Error(formatErrorMessage(errorInfo));
   }
 }
 

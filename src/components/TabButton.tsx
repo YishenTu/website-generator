@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 interface TabButtonProps {
@@ -8,7 +7,7 @@ interface TabButtonProps {
   disabled?: boolean; // New prop
 }
 
-export const TabButton: React.FC<TabButtonProps> = ({ label, isActive, onClick, disabled }) => {
+export const TabButton: React.FC<TabButtonProps> = React.memo(({ label, isActive, onClick, disabled }) => {
   return (
     <button
       onClick={onClick}
@@ -26,4 +25,4 @@ export const TabButton: React.FC<TabButtonProps> = ({ label, isActive, onClick, 
       {label}
     </button>
   );
-};
+});

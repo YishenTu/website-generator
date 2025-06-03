@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ModelSelector } from './ModelSelector';
 import { LoadingSpinner } from './LoadingSpinner';
 import { getDefaultModel } from '../services/aiService';
+import { CheckCircleIcon, PencilSquareIcon } from './icons';
 
 interface PlanDisplayProps {
   planText: string;
@@ -16,18 +17,6 @@ interface PlanDisplayProps {
   onToggleRefine?: () => void;
   showRefineButton?: boolean;
 }
-
-const CheckCircleIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
-    <path fillRule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clipRule="evenodd" />
-  </svg>
-);
-
-const PencilSquareIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
-    <path d="M2.695 14.763l-1.262 3.154a.5.5 0 0 0 .65.65l3.155-1.262a4 4 0 0 0 1.343-.885L17.5 5.5a2.121 2.121 0 0 0-3-3L3.58 13.42a4 4 0 0 0-.885 1.343Z" />
-  </svg>
-);
 
 
 export const PlanDisplay: React.FC<PlanDisplayProps> = ({

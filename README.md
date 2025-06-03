@@ -82,17 +82,24 @@
 ai-website-generator-from-report/
 ├── src/                    # 源代码目录
 │   ├── components/         # React组件和工具函数
+│   │   ├── icons/                  # 图标组件目录
+│   │   │   └── index.tsx           # 统一的图标导出文件
 │   │   ├── ChatPanel.tsx           # 聊天面板组件
 │   │   ├── CodeEditor.tsx          # 代码编辑器组件
+│   │   ├── ErrorBoundary.tsx       # 错误边界组件
 │   │   ├── LoadingSpinner.tsx      # 加载动画组件
 │   │   ├── ModelSelector.tsx       # AI模型选择器
 │   │   ├── OutputDisplay.tsx       # 输出显示组件
 │   │   ├── PlanDisplay.tsx         # 规划显示组件
+│   │   ├── PreviewLoader.tsx       # 预览加载器组件
 │   │   ├── ReportInputForm.tsx     # 报告输入表单
 │   │   ├── TabButton.tsx           # 标签按钮组件
 │   │   ├── appStateUtils.ts        # 应用状态工具函数
 │   │   ├── fileUtils.ts            # 文件操作工具函数
 │   │   └── textUtils.ts            # 文本处理工具函数
+│   ├── hooks/             # 自定义React Hooks
+│   │   ├── useDebounce.ts          # 防抖动Hook
+│   │   └── useWebsiteGeneration.ts # 网站生成业务逻辑Hook
 │   ├── services/          # 服务层代码
 │   │   ├── aiService.ts            # AI服务统一接口
 │   │   ├── geminiService.ts        # Gemini API服务
@@ -101,8 +108,14 @@ ai-website-generator-from-report/
 │   │   └── promptTemplates.ts      # AI提示词模板
 │   ├── types/             # 类型定义
 │   │   └── types.ts                # TypeScript类型定义
-│   ├── App.tsx            # 主应用组件
-│   └── main.tsx           # 应用入口
+│   ├── utils/             # 工具函数
+│   │   ├── constants.ts            # 应用常量定义
+│   │   ├── envValidator.ts         # 环境变量验证
+│   │   ├── errorHandler.ts         # 统一错误处理
+│   │   ├── logger.ts               # 日志工具
+│   │   ├── streamHandler.ts        # 流处理工具
+│   │   └── styleConstants.ts       # 样式常量定义
+│   └── App.tsx            # 主应用组件和应用入口
 ├── docker/                # Docker相关文件
 │   ├── Dockerfile         # Docker镜像构建文件
 │   ├── docker-compose.yml # Docker Compose配置
@@ -162,7 +175,23 @@ ai-website-generator-from-report/
 
 ## 更新日志
 
-### v1.2.1 (最新)
+### v1.2.2 (最新)
+- **代码质量优化**：
+  - 创建统一的样式常量系统，消除重复的Tailwind CSS类定义
+  - 实现生产环境日志系统，自动禁用调试日志
+  - 添加React错误边界组件，提高应用稳定性
+  - 集成环境变量验证，确保API密钥配置正确
+- **性能优化**：
+  - 为小组件添加React.memo优化，减少不必要的重渲染
+  - 拆分大型组件（OutputDisplay），提高代码可维护性
+  - 创建独立的PreviewLoader组件，优化加载体验
+- **代码重构**：
+  - 统一错误处理机制，提供友好的错误提示
+  - 提取常量到专门的文件，便于维护和修改
+  - 替换所有console日志为专业的日志系统
+  - 优化TypeScript类型定义，增强类型安全
+
+### v1.2.1
 - 优化网站布局风格：采用Linear App风格为主，辅以灵活的网格布局
 - 改进prompt模板，生成更现代化的展示网页
 - 修复TypeScript编译警告

@@ -1,11 +1,10 @@
-
 import React from 'react';
 
 interface LoadingSpinnerProps {
   className?: string;
 }
 
-export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ className = 'w-8 h-8 text-sky-500' }) => {
+export const LoadingSpinner: React.FC<LoadingSpinnerProps> = React.memo(({ className = 'w-8 h-8 text-sky-500' }) => {
   return (
     <svg
       className={`animate-spin ${className}`}
@@ -28,4 +27,4 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({ className = 'w-8
       ></path>
     </svg>
   );
-};
+});

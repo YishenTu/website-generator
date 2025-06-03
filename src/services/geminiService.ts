@@ -7,6 +7,11 @@ import {
   getHtmlChatInitialMessage,
   getPlanChatInitialMessage
 } from "../templates/promptTemplates";
+import { handleApiError, formatErrorMessage } from "../utils/errorHandler";
+import { createLogger } from "../utils/logger";
+
+// 创建模块特定的logger
+const logger = createLogger('GeminiService');
 
 // 可选择的Gemini模型列表
 export const GEMINI_MODELS = [
@@ -38,7 +43,7 @@ export async function generateWebsitePlanStream(
     contents: prompt 
   };
 
-  // console.log("Attempting to stream plan..."); // For debugging
+  logger.debug('Starting plan generation stream');
   try {
     // Fix: Pass AbortSignal directly within the first argument object
     const streamRequest = signal ? { ...requestParams, signal } : requestParams;
@@ -48,30 +53,18 @@ export async function generateWebsitePlanStream(
     for await (const chunk of responseStream) {
       const chunkText = chunk.text; 
       if (chunkText) { 
-        // console.log("Plan Stream Chunk Text (service):", `"${chunkText}" (Length: ${chunkText.length})`); // For debugging
         accumulatedText += chunkText;
         onChunk(chunkText); 
-      } else {
-        // console.log("Plan Stream (service): Received chunk without text or empty text."); // For debugging
       }
     }
-    // console.log("Plan Stream Complete (service). Accumulated Text Length:", accumulatedText.length); // For debugging
+    logger.debug('Plan stream completed', { length: accumulatedText.length });
     onComplete(accumulatedText);
   } catch (error) {
-    console.error("Error in generateWebsitePlanStream:", error);
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        throw error;
-      }
-      if (error.message.includes("API key") || error.message.includes("API_KEY")) {
-         throw new Error("Invalid or missing Gemini API Key for plan generation.");
-      }
-      if (error.message.includes("finishReason") || error.message.includes("SAFETY")) {
-        throw new Error(`AI model error (plan): Content restrictions or other issues. Details: ${error.message}`);
-      }
-      throw new Error(`Failed to generate plan: ${error.message}`);
+    const errorInfo = handleApiError(error, 'generateWebsitePlanStream');
+    if (errorInfo.code === 'ABORTED') {
+      throw error; // Re-throw abort errors
     }
-    throw new Error("An unknown error occurred while generating the plan.");
+    throw new Error(formatErrorMessage(errorInfo));
   }
 }
 
@@ -92,7 +85,7 @@ export async function generateWebsiteFromReportWithPlanStream(
     contents: prompt 
   };
   
-  console.log("Attempting to stream website HTML..."); // For debugging
+  logger.debug('Starting website HTML generation stream');
   try {
     // Fix: Pass AbortSignal directly within the first argument object
     const streamRequest = signal ? { ...requestParams, signal } : requestParams;
@@ -102,31 +95,19 @@ export async function generateWebsiteFromReportWithPlanStream(
     for await (const chunk of responseStream) {
       const chunkText = chunk.text; 
       if (chunkText) { 
-        // console.log("HTML Stream Chunk Text (service):", `"${chunkText}" (Length: ${chunkText.length})`); // For debugging
         accumulatedText += chunkText;
         onChunk(chunkText); 
-      } else {
-        // console.log("HTML Stream (service): Received chunk without text or empty text."); // For debugging
       }
     }
-    // console.log("HTML Stream Complete (service). Accumulated Text Length:", accumulatedText.length); // For debugging
+    logger.debug('HTML stream completed', { length: accumulatedText.length });
     onComplete(accumulatedText);
 
   } catch (error) {
-    console.error("Error in generateWebsiteFromReportWithPlanStream:", error);
-    if (error instanceof Error) {
-      if (error.name === 'AbortError') {
-        throw error; 
-      }
-      if (error.message.includes("API key") || error.message.includes("API_KEY")) {
-         throw new Error("Invalid or missing Gemini API Key for website generation.");
-      }
-      if (error.message.includes("finishReason") || error.message.includes("SAFETY")) {
-        throw new Error(`AI model error (website): Content restrictions or other issues. Details: ${error.message}`);
-      }
-      throw new Error(`Failed to generate website from plan: ${error.message}`);
+    const errorInfo = handleApiError(error, 'generateWebsiteFromReportWithPlanStream');
+    if (errorInfo.code === 'ABORTED') {
+      throw error; // Re-throw abort errors
     }
-    throw new Error("An unknown error occurred while generating the website from plan.");
+    throw new Error(formatErrorMessage(errorInfo));
   }
 }
 
@@ -178,7 +159,7 @@ export class GeminiChatSession {
       }
       onComplete(accumulatedText);
     } catch (error) {
-      console.error("Error in Gemini chat stream:", error);
+      logger.error("Error in Gemini chat stream:", error);
       throw error;
     }
   }
@@ -230,7 +211,7 @@ export class GeminiPlanChatSession {
       }
       onComplete(accumulatedText);
     } catch (error) {
-      console.error("Error in Gemini plan chat stream:", error);
+      logger.error("Error in Gemini plan chat stream:", error);
       throw error;
     }
   }

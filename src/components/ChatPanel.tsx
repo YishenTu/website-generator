@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, UserType } from '../types/types';
 import { ModelSelector } from './ModelSelector';
 import { getDefaultModel } from '../services/aiService';
+import { PaperAirplaneIcon, StopIcon } from './icons';
 
 interface ChatPanelProps {
   messages: ChatMessage[];
@@ -13,19 +14,6 @@ interface ChatPanelProps {
   isChatAvailable?: boolean;
   title?: string;
 }
-
-const PaperAirplaneIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
-    <path d="M3.105 3.105a.75.75 0 0 1 .815-.31L18.38 7.24a.75.75 0 0 1 0 1.32l-14.46 4.445a.75.75 0 0 1-.815-.31L.055 9.445a.75.75 0 0 1 .229-1.009L3.105 3.105Z" />
-    <path d="M4.215 9.25a.75.75 0 0 1 .229-1.009L10.5 3.105a.75.75 0 0 1 .815.31L18.38 7.24a.75.75 0 0 1 0 1.32l-14.46 4.445a.75.75 0 0 1-.815-.31L.055 9.445a.75.75 0 0 1 .229-1.009l3.93-3.93Z" />
-  </svg>
-);
-
-const StopIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
-    <path fillRule="evenodd" d="M2 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5zm2 0a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5z" clipRule="evenodd" />
-  </svg>
-);
 
 export const ChatPanel: React.FC<ChatPanelProps> = ({ 
   messages, 

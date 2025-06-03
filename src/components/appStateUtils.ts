@@ -1,6 +1,7 @@
 import React from 'react';
-import { ActiveTab } from "../types/types";
+import { ActiveTab, ChatMessage } from "../types/types";
 import type { AppStage } from "../App";
+import type { ChatSession } from "../services/aiService";
 
 /**
  * 应用状态管理工具函数
@@ -24,8 +25,8 @@ export const abortAllOperations = (abortControllers: (AbortController | null)[])
 export interface ResetAppStateConfig {
   setGeneratedPlan: React.Dispatch<React.SetStateAction<string | null>>;
   setGeneratedHtml: React.Dispatch<React.SetStateAction<string | null>>;
-  setChatMessages: React.Dispatch<React.SetStateAction<any[]>>;
-  setPlanChatMessages: React.Dispatch<React.SetStateAction<any[]>>;
+  setChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
+  setPlanChatMessages: React.Dispatch<React.SetStateAction<ChatMessage[]>>;
   setAppStage: React.Dispatch<React.SetStateAction<AppStage>>;
   setError: React.Dispatch<React.SetStateAction<string | null>>;
   setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
@@ -34,8 +35,8 @@ export interface ResetAppStateConfig {
   setIsFullPreviewActive: React.Dispatch<React.SetStateAction<boolean>>;
   setIsRefineMode: React.Dispatch<React.SetStateAction<boolean>>;
   setActiveTab: React.Dispatch<React.SetStateAction<ActiveTab>>;
-  chatSessionRef: React.MutableRefObject<any>;
-  planChatSessionRef: React.MutableRefObject<any>;
+  chatSessionRef: React.MutableRefObject<ChatSession | null>;
+  planChatSessionRef: React.MutableRefObject<ChatSession | null>;
   abortControllerRef: React.MutableRefObject<AbortController | null>;
   planAbortControllerRef: React.MutableRefObject<AbortController | null>;
 }

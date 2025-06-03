@@ -1,5 +1,6 @@
 import React from 'react';
 import { ModelSelector } from './ModelSelector';
+import { SparklesIcon, StopIcon, ArrowPathIcon } from './icons';
 import type { AppStage } from '../App'; // Import AppStage type
 
 interface ReportInputFormProps {
@@ -14,26 +15,6 @@ interface ReportInputFormProps {
   selectedModel: string; // 模型ID字符串
   onModelChange: (model: string) => void; // 模型ID回调
 }
-
-// Consider moving icons to a shared file if they grow
-const SparklesIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
-    <path fillRule="evenodd" d="M10.868 2.884c-.321-.772-1.415-.772-1.736 0l-1.83 4.401-4.753.381c-.833.067-1.171 1.107-.536 1.651l3.62 3.102-1.106 4.637c-.194.813.691 1.456 1.405 1.02L10 15.591l4.069 2.485c.713.436 1.598-.207 1.404-1.02l-1.106-4.637 3.62-3.102c.635-.544.297-1.584-.536-1.65l-4.752-.382-1.831-4.401Z" clipRule="evenodd" />
-  </svg>
-);
-
-const StopIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
-    <path fillRule="evenodd" d="M2 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V5zm2 0a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V5z" clipRule="evenodd" />
-  </svg>
-);
-
-const ArrowPathIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" {...props}>
-    <path fillRule="evenodd" d="M15.312 5.312a.75.75 0 0 1 0 1.061l-2.47 2.47L15.312 11.312a.75.75 0 1 1-1.061 1.061l-2.47-2.47-2.47 2.47a.75.75 0 1 1-1.061-1.061l2.47-2.47-2.47-2.47a.75.75 0 1 1 1.061-1.061l2.47 2.47 2.47-2.47a.75.75 0 0 1 1.061 0Zm-3.903 6.034a.75.75 0 0 1-1.061-1.06L8.25 12.382V7.5a.75.75 0 0 1 1.5 0v4.132l1.597-1.597a.75.75 0 0 1 1.06 1.06Z" clipRule="evenodd" />
-    <path d="M10 3.5A6.5 6.5 0 0 1 10 16.5a.75.75 0 0 1 0-1.5A5 5 0 1 0 5.375 7.3a.75.75 0 0 1-1.442-.436A6.5 6.5 0 0 1 10 3.5Z" />
-  </svg>
-);
 
 export const ReportInputForm: React.FC<ReportInputFormProps> = ({
   reportText,

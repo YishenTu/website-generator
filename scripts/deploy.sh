@@ -212,9 +212,6 @@ show_deployment_info() {
     echo "🌐 应用访问地址: http://localhost:8080"
     echo "🔍 健康检查: http://localhost:8080/health"
     echo
-    echo "🤖 支持的AI模型:"
-    [ ! -z "$GEMINI_API_KEY" ] && [ "$GEMINI_API_KEY" != "your_api_key_here" ] && echo "  ✅ Gemini 2.5 Pro (Google)"
-    [ ! -z "$OPENROUTER_API_KEY" ] && [ "$OPENROUTER_API_KEY" != "your_api_key_here" ] && echo "  ✅ Claude 3.5 Sonnet (Anthropic)"
     echo
     echo "📋 常用命令:"
     echo "  查看日志: docker-compose -f docker/docker-compose.yml logs -f"

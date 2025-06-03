@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ALL_MODELS, MODELS_BY_PROVIDER, getModelInfo } from '../services/aiService';
+import { CpuChipIcon, ChevronDownIcon, ExpandIcon, CollapseIcon } from './icons';
 
 // 简化后的接口：只支持字符串模型ID
 interface ModelSelectorProps {
@@ -8,30 +9,6 @@ interface ModelSelectorProps {
   disabled?: boolean;
   size?: 'small' | 'normal';
 }
-
-const CpuChipIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-6-3.75h3.75m-3.75 0V21m0-12.75h3.75m-3.75 0V3m0 18V9m12-5.25v12m0 0V3m0 18h-1.5M21 3h-1.5m-7.5 15.75h3.75M10.5 21V3m3.75 0v3.75" />
-  </svg>
-);
-
-const ChevronDownIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-  </svg>
-);
-
-const ExpandIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M12 17.25h8.25" />
-  </svg>
-);
-
-const CollapseIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
-  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" {...props}>
-    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 9h16.5m-16.5 6.75h16.5" />
-  </svg>
-);
 
 export const ModelSelector: React.FC<ModelSelectorProps> = ({
   selectedModel,

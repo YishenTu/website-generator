@@ -44,7 +44,13 @@ The plan should be structured and easy to understand. Please outline the followi
 4.  **Styling & Visual Notes (Tailwind CSS based):**
     *   Suggest a color palette (e.g., "Primary: Sky Blue, Accent: Slate Gray, Background: Dark Slate").
     *   Font style recommendations (e.g., "Clean sans-serif for body, slightly bolder sans-serif for headings").
-    *   Notes on card/section appearance (e.g., "Rounded corners, subtle shadows for depth, clear visual hierarchy for text").`;
+    *   Notes on card/section appearance (e.g., "Rounded corners, subtle shadows for depth, clear visual hierarchy for text").
+
+5.  **Data Visualization & Interactive Features Planning:**
+    *   **Chart and Graph Requirements:** If the report contains statistical data, metrics, or numerical comparisons, specify which sections would benefit from charts or graphs (e.g., "统计数据展示部分需要柱状图", "趋势分析需要折线图").
+    *   **Visual Enhancement Needs:** Identify sections that would benefit from icons to improve visual hierarchy and content presentation (e.g., "功能特性部分需要图标增强", "导航元素需要视觉图标").
+    *   **Interactivity Requirements:** Specify if any sections should include interactive elements like hover effects, expandable content, or user engagement features (e.g., "卡片需要悬停效果", "数据图表需要交互功能").
+    *   **Professional Component Needs:** Indicate if the content requires enhanced UI components for better presentation quality (e.g., "需要专业级按钮和表单组件", "需要高质量卡片组件").`;
 
 const PLAN_OUTPUT_FORMAT_INSTRUCTIONS = `
 **Output Format and Language Instructions:**
@@ -83,7 +89,7 @@ const CODE_CORE_TASK_AND_PLAN_ADHERENCE = `
 
 const CODE_LAYOUT_CONTENT_AND_STYLING = `
 2.  **Layout and Content Presentation (as per Plan):**
-    *   Primary approach should be a “Linear App Style” layout with sections flowing vertically down the page. Use bento grid layouts only when the plan specifically suggests it or when content naturally fits this format (e.g., statistics, features, comparisons).
+    *   Primary approach should be a "Linear App Style" layout with sections flowing vertically down the page. Use bento grid layouts only when the plan specifically suggests it or when content naturally fits this format (e.g., statistics, features, comparisons).
     *   For linear sections, use full-width or contained layouts with clear vertical progression.
     *   For bento grid sections (when appropriate), use Tailwind's grid utilities (e.g., \`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6\`) or flexbox to create them.
     *   Each section must correspond to a section outlined in the plan.
@@ -108,7 +114,27 @@ const CODE_PAGE_AESTHETICS_AND_STRUCTURE = `
     *   Individual sections/elements within this main container must also have generous internal padding (e.g., \`p-4\`, \`p-6\`, \`p-8\`) and ensure content doesn't touch their edges.
     *   Ensure responsiveness. Linear sections should stack naturally, and bento grid sections (if used) must adapt gracefully.
     *   Include HTML boilerplate: \`<!DOCTYPE html>\`, \`<html>\` with appropriate lang attribute based on content language (e.g., \`lang="zh"\` for Chinese, \`lang="en"\` for English), \`<head>\` with \`<title>\`, \`<meta charset="UTF-8">\`, \`<meta name="viewport" content="width=device-width, initial-scale=1.0">\`.
-    *   Embed Tailwind CSS via CDN: \`<script src="https://cdn.tailwindcss.com"></script>\`.`;
+    *   Embed Tailwind CSS via CDN: \`<script src="https://cdn.tailwindcss.com"></script>\`.
+    *   **Optimized Resource Loading Strategy:**
+        * **Essential Libraries Only:** Only include external libraries that are specifically needed for the content in the report
+        * **Icon Libraries (Load Conditionally):** 
+          - Font Awesome: \`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">\` (only if icons are needed)
+          - OR Lucide Icons (lighter alternative): Use inline SVG icons when possible to reduce external dependencies
+        * **Chart Libraries (Load Only When Needed):**
+          - Chart.js: \`<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>\` (only if the report contains statistical data requiring charts)
+          - Use HTML/CSS solutions for simple data presentations instead of heavy chart libraries when possible
+        * **Performance Optimizations:**
+          - Add preconnect hints: \`<link rel="preconnect" href="https://cdn.tailwindcss.com">\`
+          - Use defer/async loading for non-critical scripts
+          - Minimize external dependencies - prefer Tailwind CSS built-in solutions
+        * **Component Strategy:**
+          - Use Tailwind CSS classes for styling instead of external UI libraries when possible
+          - Create custom components using Tailwind utilities rather than importing heavy frameworks
+          - Only include Preline UI if specifically needed: \`<link rel="stylesheet" href="https://preline.co/assets/css/main.min.css">\` and \`<script src="https://preline.co/assets/js/hs-ui.bundle.js"></script>\`
+        * **Loading Performance:**
+          - Add resource hints in head section
+          - Implement graceful loading states
+          - Ensure content is visible even if external resources fail to load`;
 
 const CODE_ADVANCED_INTERACTIVITY_AND_EXCELLENCE = `
 **Advanced Interactivity & Excellence Standards:**
