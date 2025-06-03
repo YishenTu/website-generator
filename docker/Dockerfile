@@ -8,8 +8,10 @@ WORKDIR /app
 # 复制package文件
 COPY package*.json ./
 
-# 安装依赖（包括开发依赖，构建时需要）
-RUN npm ci
+# 清理并安装依赖，确保重新下载适合当前平台的esbuild二进制文件
+RUN npm cache clean --force && \
+    npm ci && \
+    npx esbuild --version
 
 # 复制源代码
 COPY . .

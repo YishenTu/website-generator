@@ -30,6 +30,7 @@
 - 帮你创建.env文件
 - 构建和启动容器
 - 检查应用健康状态
+- 解决常见的构建问题（如esbuild版本冲突）
 
 #### 3. 开始使用
 打开浏览器访问：**http://localhost:8080**
@@ -120,8 +121,7 @@ ai-website-generator-from-report/
 ├── docker/                # Docker相关文件
 │   ├── Dockerfile         # Docker镜像构建文件
 │   ├── docker-compose.yml # Docker Compose配置
-│   ├── nginx.conf         # Nginx配置文件
-│   └── .dockerignore      # Docker忽略文件
+│   └── nginx.conf         # Nginx配置文件
 ├── scripts/               # 脚本文件
 │   └── deploy.sh          # 自动部署脚本
 ├── dist/                  # 构建输出目录
@@ -131,6 +131,7 @@ ai-website-generator-from-report/
 ├── package-lock.json      # 依赖版本锁定文件
 ├── tsconfig.json          # TypeScript配置
 ├── vite.config.ts         # Vite构建配置
+├── .dockerignore          # Docker忽略文件
 ├── .gitignore             # Git忽略文件
 ├── metadata.json          # 项目元数据
 └── README.md              # 项目说明文档
@@ -141,16 +142,42 @@ ai-website-generator-from-report/
 ### 前端技术
 - **React 19**: React框架
 - **TypeScript**: 类型安全的JavaScript
-- **Vite**: 快速的构建工具
+- **Vite 6**: 快速的现代化构建工具
 
 ### AI集成
 - **Google Gemini API**
 - **OpenRouter API**
 
 ### 部署技术
-- **Docker**
-- **Nginx**
-- **Docker Compose**
+- **Docker**: 容器化部署
+- **Nginx**: 高性能Web服务器
+- **Docker Compose**: 容器编排
+
+## 部署与运维
+
+### Docker部署优化
+- **自动依赖解决**: 部署脚本自动解决esbuild版本冲突等常见问题
+- **多阶段构建**: 使用多阶段Docker构建，减小镜像体积
+- **健康检查**: 内置健康检查机制，确保服务可用性
+- **配置管理**: 通过环境变量管理配置，支持不同环境部署
+
+### 常用管理命令
+```bash
+# 查看应用日志
+docker-compose -f docker/docker-compose.yml logs -f
+
+# 重启应用
+docker-compose -f docker/docker-compose.yml restart
+
+# 停止应用
+docker-compose -f docker/docker-compose.yml down
+
+# 重新部署
+./scripts/deploy.sh
+
+# 健康检查
+curl http://localhost:8080/health
+```
 
 ## 安全注意事项
 
@@ -174,9 +201,40 @@ ai-website-generator-from-report/
    - 实施适当的数据备份策略
    - 遵循数据保护法规
 
+## 故障排除
+
+### 常见问题
+
+#### Docker构建失败
+- **问题**: esbuild版本冲突错误
+- **解决方案**: 运行 `./scripts/deploy.sh` 脚本，会自动清理缓存并重新安装依赖
+
+#### API密钥错误
+- **问题**: 401 Unauthorized 错误
+- **解决方案**: 检查 `.env.local` 文件中的API密钥是否正确配置
+
+#### 端口占用
+- **问题**: 8080端口被占用
+- **解决方案**: 停止占用端口的服务，或修改 `docker-compose.yml` 中的端口映射
+
 ## 更新日志
 
-### v1.2.2 (最新)
+### v1.2.3 (最新)
+- **Docker部署优化**：
+  - 解决esbuild版本冲突问题，优化Docker构建流程
+  - 清理冗余的.dockerignore文件，简化配置管理
+  - 改进Dockerfile，添加缓存清理和依赖重建机制
+  - 升级到Vite 6.2.0，提升构建性能和稳定性
+- **部署改进**：
+  - 增强部署脚本的错误处理和状态检查
+  - 添加自动健康检查和服务状态验证
+  - 优化构建上下文配置，减少镜像体积
+- **文档更新**：
+  - 完善故障排除指南和常见问题解答
+  - 添加详细的运维管理命令说明
+  - 更新文件结构说明，反映最新的项目架构
+
+### v1.2.2
 - **代码质量优化**：
   - 创建统一的样式常量系统，消除重复的Tailwind CSS类定义
   - 实现生产环境日志系统，自动禁用调试日志
