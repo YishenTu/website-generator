@@ -116,10 +116,10 @@ export async function generateWebsiteFromReportWithPlanStream(
 export class GeminiChatSession {
   private chatSession: Chat;
 
-  constructor(ai: GoogleGenAI, initialHtml: string, modelName?: string) {
+  constructor(ai: GoogleGenAI, initialHtml: string, reportText: string, planText: string, modelName?: string) {
     // 构造Gemini API格式的聊天历史
     const chatHistory = [
-      { role: "user", parts: [{ text: getHtmlChatInitialMessage(initialHtml) }] },
+      { role: "user", parts: [{ text: getHtmlChatInitialMessage(initialHtml, reportText, planText) }] },
       { role: "model", parts: [{ text: initialHtml }] }
     ];
     
@@ -168,10 +168,10 @@ export class GeminiChatSession {
 export class GeminiPlanChatSession {
   private chatSession: Chat;
 
-  constructor(ai: GoogleGenAI, initialPlan: string, modelName?: string) {
+  constructor(ai: GoogleGenAI, initialPlan: string, reportText: string, modelName?: string) {
     // 构造Gemini API格式的聊天历史
     const chatHistory = [
-      { role: "user", parts: [{ text: getPlanChatInitialMessage(initialPlan) }] },
+      { role: "user", parts: [{ text: getPlanChatInitialMessage(initialPlan, reportText) }] },
       { role: "model", parts: [{ text: initialPlan }] }
     ];
     

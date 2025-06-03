@@ -173,7 +173,7 @@ export class OpenRouterChatSession {
   private apiKey: string;
   private modelName: string;
 
-  constructor(initialHtml: string, modelName?: string) {
+  constructor(initialHtml: string, reportText: string, planText: string, modelName?: string) {
     this.apiKey = getEnvVar('OPENROUTER_API_KEY') || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
@@ -189,7 +189,7 @@ export class OpenRouterChatSession {
       },
       {
         role: 'user',
-        content: getHtmlChatInitialMessage(initialHtml)
+        content: getHtmlChatInitialMessage(initialHtml, reportText, planText)
       },
       {
         role: 'assistant',
@@ -235,7 +235,7 @@ export class OpenRouterPlanChatSession {
   private apiKey: string;
   private modelName: string;
 
-  constructor(initialPlan: string, modelName?: string) {
+  constructor(initialPlan: string, reportText: string, modelName?: string) {
     this.apiKey = getEnvVar('OPENROUTER_API_KEY') || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
@@ -251,7 +251,7 @@ export class OpenRouterPlanChatSession {
       },
       {
         role: 'user',
-        content: getPlanChatInitialMessage(initialPlan)
+        content: getPlanChatInitialMessage(initialPlan, reportText)
       },
       {
         role: 'assistant',

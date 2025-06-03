@@ -36,20 +36,24 @@ The plan should be structured and easy to understand. Please outline the followi
         *   A bullet-point summary of the key information or data points from the report that should be highlighted in this section. Keep it concise.
 
 3.  **Proposed Layout Structure:**
-    *   Describe the primary layout approach. For example:
-        *   "A linear app-style layout with a prominent hero section followed by sequential content sections that flow naturally down the page."
-        *   "A vertical narrative structure with full-width sections, complemented by bento grid layouts for specific content types that have multiple related items (such as statistics, features, or comparison data)."
-        *   **Important: Bento grid layout usage rules - Only use bento grid when content can naturally be broken down into at least 2 related items per row. Avoid creating single large boxes for entire sections, or one box per section.**
+    *   **Must adopt the following design style combination:**
+        *   **Primary Layout Style: "Linear App Style"** - Page structure starting with a prominent hero section followed by sequential content sections that flow naturally down the page
+        *   **Supporting Layout Element: "Bento Grid"** - Use grid layouts in appropriate content areas to showcase related item collections (such as statistics, features, comparison data, etc.)
+        *   **Design Aesthetic: "Glassmorphism"** - Overall adoption of glassmorphism design style to create a modern, elegant visual effect
+    *   **Bento Grid Usage Rules - Important:** Only use grid layouts when content can naturally be broken down into at least 2 related items per row. Avoid creating single large boxes for entire sections or one box per section.
 
 4.  **Styling & Visual Notes (Tailwind CSS based):**
-    *   Suggest a color palette (e.g., "Primary: Sky Blue, Accent: Slate Gray, Background: Dark Slate").
-    *   Font style recommendations (e.g., "Clean sans-serif for body, slightly bolder sans-serif for headings").
-    *   Notes on card/section appearance (e.g., "Rounded corners, subtle shadows for depth, clear visual hierarchy for text").
-    *   **Glassmorphism Style Requirements:** Consider implementing glassmorphism design elements where appropriate:
+    *   **Required Design Style Characteristics:**
+        *   **Linear App Style Features:** Clear vertical flow structure, distinct content hierarchy, modern application interface feel
+        *   **Bento Grid Features:** Flexible grid layouts for related content groupings, responsive grid adaptation for different screen sizes
+        *   **Glassmorphism Features:** Semi-transparent backgrounds, frosted glass effects, layered visual hierarchy, modern glass aesthetics
+    *   Color palette recommendations (e.g., "Primary: Sky Blue, Accent: Slate Gray, Background: Dark Slate")
+    *   Font style recommendations (e.g., "Clean sans-serif for body, slightly bolder sans-serif for headings")
+    *   **Glassmorphism Implementation Requirements - Must Include:**
         -   Semi-transparent backgrounds with backdrop blur effects (e.g., \`bg-white/10 backdrop-blur-md\`)
         -   Subtle borders and shadows for depth (e.g., \`border border-white/20 shadow-xl\`)
         -   Layered visual hierarchy with glass-like card components
-        -   Modern, clean aesthetic with frosted glass appearance for key UI elements
+        -   Key UI elements with frosted glass appearance, creating modern, clean aesthetic effects
 
 5.  **Interactive Features Planning:**
     *   **Chart and Graph Requirements:** Specify which sections would benefit from charts or graphs for statistical data (e.g., "Statistical data section needs bar charts", "Trend analysis needs line charts").
@@ -88,13 +92,18 @@ The website should present the information in a modern, engaging format that tel
 const CODE_CORE_TASK_AND_PLAN_ADHERENCE = `
 **Core Task & Requirements (Guided by the Plan):**
 
-1.  **Adhere to the Plan:** The generated HTML structure, content summarization, sectioning, layout, and styling cues MUST be derived from the "Website Plan to Follow". The original report is for detailed content extraction where the plan refers to it.`;
+1.  **Adhere to the Plan:** The generated HTML structure, content summarization, sectioning, layout, and styling cues MUST be derived from the "Website Plan to Follow". The original report is for detailed content extraction where the plan refers to it.
+
+2.  **Language Requirements Priority:** 
+    -   **CRITICAL:** If the plan contains any explicit language instructions (such as "使用英文输出", "英文网页", "use English", "English output", etc.), these MUST override any automatic language detection from the report.
+    -   Pay special attention to language directives in the plan and follow them exactly.
+    -   The language instructions in the plan take absolute precedence over report language detection.`;
 
 const CODE_LAYOUT_CONTENT_AND_STYLING = `
-2.  **Layout and Content Presentation (as per Plan):**
+3.  **Layout and Content Presentation (as per Plan):**
     *   **Primary Layout Approach:** Use "Linear App Style" layout with sections flowing vertically down the page as the main structure.
     *   **Section Separation Methods - CRITICAL:**
-        -   **AVOID:** Large wrapper boxes or containers that encompass entire sections as single blocks
+        -   **AVOID:** DO NOT USE large wrapper boxes or containers that encompass entire sections as single blocks
         -   **PREFERRED:** Use natural content flow with visual separators such as:
             *   Subtle background color changes between sections (\`bg-slate-50\`, \`bg-white\`, \`bg-gray-100\`)
             *   Spacing-based separation using margins and padding (\`mt-12 mb-8\`, \`py-16\`)
@@ -111,7 +120,7 @@ const CODE_LAYOUT_CONTENT_AND_STYLING = `
     *   **Spacing:** Ensure generous internal padding (e.g., \`p-6\` or \`p-8\`) and use Tailwind's spacing utilities for proper vertical and horizontal spacing between elements.`;
 
 const CODE_PAGE_AESTHETICS_AND_STRUCTURE = `
-3.  **Overall Page Aesthetics & Structure (as per Plan):**
+4.  **Overall Page Aesthetics & Structure (as per Plan):**
     *   **Design Philosophy:** Modern, clean, professional, and engaging, reflecting the theme from the plan. Consider glassmorphism design patterns for enhanced visual appeal.
     *   **Hero Section:** Start with a visually distinct hero section featuring the main title and compelling introduction, or ensure significant top margin if no distinct hero.
     *   **Responsive Layout Strategy:**
@@ -128,7 +137,8 @@ const CODE_PAGE_AESTHETICS_AND_STRUCTURE = `
         -   **Performance:** Add preconnect hints and use defer/async loading for non-critical scripts`;
 
 const CODE_ADVANCED_INTERACTIVITY_AND_EXCELLENCE = `
-4.  **Advanced Interactivity & Excellence Standards:**
+5.  **Advanced Interactivity & Excellence Standards:**
+    *   DO NOT hold back, give me the best you can do.
     *   Include thoughtful details like hover states, transitions, and micro-interactions using Tailwind CSS classes
     *   Apply design principles: hierarchy, contrast, balance, and movement
     *   Use smooth transitions (\`transition-all duration-300 ease-in-out\`) and hover effects (\`hover:shadow-lg hover:scale-105\`)
@@ -244,6 +254,9 @@ export const generateWebsitePromptWithPlan = (reportText: string, planText: stri
 ${CODE_GENERATION_ROLE}
 ${getLanguageSpecificInstructions(reportText)}
 
+**CRITICAL LANGUAGE OVERRIDE INSTRUCTIONS:**
+**If the plan below contains any explicit language instructions specifying the output language, those instructions MUST override the detected language above and take absolute precedence.**
+
 **Website Plan to Follow:**
 ---
 ${planText}
@@ -272,14 +285,32 @@ ${CHAT_SYSTEM_FOCUS_AND_INTEGRITY}
 
 export const getPlanChatSystemInstruction = (): string => PLAN_CHAT_SYSTEM_INSTRUCTION;
 
-export const getHtmlChatInitialMessage = (initialHtml: string): string => `
-I have a website generated from a report and a plan. Here's the initial HTML. I will give you instructions to modify it. Your responses should only be the complete, updated HTML code. Initial HTML:
+export const getHtmlChatInitialMessage = (initialHtml: string, reportText: string, planText: string): string => `
+I have a website generated from a report and a plan using the following complete generation context:
 
-${initialHtml}`;
+**ORIGINAL GENERATION PROMPT:**
+---
+${generateWebsitePromptWithPlan(reportText, planText)}
+---
 
-export const getPlanChatInitialMessage = (initialPlan: string): string => `
-I have a website design plan generated from a report. Here's the plan. I will give you instructions to modify it. Your responses should only be the complete, updated plan text. Initial Plan:
+**GENERATED INITIAL HTML:**
+---
+${initialHtml}
+---
 
-${initialPlan}`;
+I will give you instructions to modify this HTML. Your responses should only be the complete, updated HTML code. You have access to the full generation context above to understand the original requirements and constraints.`;
 
+export const getPlanChatInitialMessage = (initialPlan: string, reportText: string): string => `
+I have a website design plan generated from a report using the following complete generation context:
 
+**ORIGINAL PLAN GENERATION PROMPT:**
+---
+${generateWebsitePlanPrompt(reportText)}
+---
+
+**GENERATED INITIAL PLAN:**
+---
+${initialPlan}
+---
+
+I will give you instructions to modify this plan. Your responses should only be the complete, updated plan text. You have access to the full generation context above to understand the original requirements and constraints.`;

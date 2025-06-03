@@ -138,12 +138,14 @@ export async function generateWebsiteFromPlan(
 export function createHtmlChatSession(
   modelId: string,
   ai: GoogleGenAI,
-  initialHtml: string
+  initialHtml: string,
+  reportText: string,
+  planText: string
 ): ChatSession {
   return dispatchToModel<ChatSession>(
     modelId,
-    () => new GeminiChatSession(ai, initialHtml, modelId),
-    () => new OpenRouterChatSession(initialHtml, modelId)
+    () => new GeminiChatSession(ai, initialHtml, reportText, planText, modelId),
+    () => new OpenRouterChatSession(initialHtml, reportText, planText, modelId)
   );
 }
 
@@ -151,12 +153,13 @@ export function createHtmlChatSession(
 export function createPlanChatSession(
   modelId: string,
   ai: GoogleGenAI,
-  initialPlan: string
+  initialPlan: string,
+  reportText: string
 ): ChatSession {
   return dispatchToModel<ChatSession>(
     modelId,
-    () => new GeminiPlanChatSession(ai, initialPlan, modelId),
-    () => new OpenRouterPlanChatSession(initialPlan, modelId)
+    () => new GeminiPlanChatSession(ai, initialPlan, reportText, modelId),
+    () => new OpenRouterPlanChatSession(initialPlan, reportText, modelId)
   );
 }
 

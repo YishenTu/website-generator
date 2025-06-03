@@ -76,6 +76,9 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   const [chatModel, setChatModel] = useState<string>(getDefaultModel('gemini'));
   const [planChatModel, setPlanChatModel] = useState<string>(getDefaultModel('gemini'));
   
+  // 添加状态来跟踪最后使用的plan文本（可能是用户编辑过的）
+  const [lastUsedPlanText, setLastUsedPlanText] = useState<string>('');
+  
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isChatLoading, setIsChatLoading] = useState<boolean>(false);
   const [isPlanChatLoading, setIsPlanChatLoading] = useState<boolean>(false);
@@ -161,17 +164,20 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   const initializePlanChatSession = useCallback((planText: string, model?: string) => {
     const targetModel = model || planChatModel;
     try {
-      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText);
+      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText, reportText);
       setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated. How would you like to modify it?", isHtml: false }]);
     } catch (error) {
       logger.error("Failed to initialize plan chat session:", error);
       setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated successfully! Note: Chat functionality is not available due to initialization error.", isHtml: false }]);
     }
-  }, [ai, planChatModel]);
+  }, [ai, planChatModel, reportText]);
 
   // HTML generation from plan
   const handleGenerateHtmlFromPlan = useCallback(async (currentPlanText: string) => {
     setError(null);
+    
+    // 保存当前使用的plan文本（可能是用户编辑过的）
+    setLastUsedPlanText(currentPlanText);
     
     const validation = validateModelApiKeys(htmlModel);
     if (!validation.isValid) {
@@ -209,7 +215,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
           setGeneratedHtml(cleanedInitialHtml);
 
           try {
-            chatSessionRef.current = createHtmlChatSession(chatModel, ai, cleanedInitialHtml);
+            chatSessionRef.current = createHtmlChatSession(chatModel, ai, cleanedInitialHtml, reportText, currentPlanText);
             setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Initial website generated. How would you like to refine it?", isHtml: false }]);
           } catch (chatError) {
             logger.error("Failed to initialize chat session:", chatError);
@@ -370,9 +376,9 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     setChatModel(model);
     chatSessionRef.current = null;
     
-    if (generatedHtml) {
+    if (generatedHtml && reportText && lastUsedPlanText) {
       try {
-        chatSessionRef.current = createHtmlChatSession(model, ai, generatedHtml);
+        chatSessionRef.current = createHtmlChatSession(model, ai, generatedHtml, reportText, lastUsedPlanText);
         setChatMessages((prev: ChatMessage[]) => [
           ...prev,
           { 
@@ -387,7 +393,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
         setError(`Failed to initialize chat with ${getModelDisplayName(model)}`);
       }
     }
-  }, [chatModel, generatedHtml, ai]);
+  }, [chatModel, generatedHtml, ai, reportText, lastUsedPlanText]);
 
   const handlePlanChatModelChange = useCallback((model: string) => {
     if (model === planChatModel) return;
