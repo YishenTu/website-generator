@@ -93,6 +93,14 @@ const CODE_CORE_TASK_AND_PLAN_ADHERENCE = `
 const CODE_LAYOUT_CONTENT_AND_STYLING = `
 2.  **Layout and Content Presentation (as per Plan):**
     *   **Primary Layout Approach:** Use "Linear App Style" layout with sections flowing vertically down the page as the main structure.
+    *   **Section Separation Methods - CRITICAL:**
+        -   **AVOID:** Large wrapper boxes or containers that encompass entire sections as single blocks
+        -   **PREFERRED:** Use natural content flow with visual separators such as:
+            *   Subtle background color changes between sections (\`bg-slate-50\`, \`bg-white\`, \`bg-gray-100\`)
+            *   Spacing-based separation using margins and padding (\`mt-12 mb-8\`, \`py-16\`)
+            *   Horizontal dividers or visual breaks (\`border-t border-gray-200\`)
+            *   Typography hierarchy to distinguish section boundaries
+        -   **Content Grouping:** When multiple related items exist, use smaller grouped cards or inline arrangements rather than one large encompassing container
     *   **Bento Grid Usage Rules - CRITICAL:**
         -   Use bento grid layouts ONLY when content naturally fits into multiple related items that can display at least 2 items per row
         -   Perfect for: statistics collections, feature comparisons, team members, product showcases, or data points that benefit from side-by-side presentation
