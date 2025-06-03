@@ -4,6 +4,7 @@ import { LoadingSpinner } from './LoadingSpinner';
 import { TabButton } from './TabButton';
 import { CodeEditor } from './CodeEditor';
 import { PreviewLoader } from './PreviewLoader';
+import { getModelInfo } from '../services/aiService';
 import { useDebounce } from '../hooks/useDebounce';
 import { 
   DocumentDuplicateIcon, 
@@ -31,6 +32,8 @@ interface OutputDisplayProps {
   appStage: AppStage;
   className?: string;
   onHtmlContentChange?: (newHtml: string) => void; // New prop for editable code view
+  // 新增属性用于 streaming 状态
+  streamingModel?: string; // 当前使用的模型 ID
 }
 
 export const OutputDisplay: React.FC<OutputDisplayProps> = ({
@@ -46,6 +49,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
   appStage,
   className = "", 
   onHtmlContentChange,
+  streamingModel,
 }) => {
   // 添加iframe加载状态
   const [isIframeLoading, setIsIframeLoading] = useState(true);
@@ -236,12 +240,17 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             onClick={() => onTabChange(ActiveTab.Code)}
             disabled={htmlContent === null || (isLoading && appStage !== 'htmlReady')} // Disable if no content or loading non-HTML
           />
-           {isLoading && appStage === 'htmlReady' && htmlContent !== null && (
+           {isLoading && appStage === 'htmlReady' && (
             <div className="ml-auto flex items-center px-3">
-              <LoadingSpinner className={combineStyles(ICON_SIZES.sm, 'text-sky-400')} />
-              <span className={combineStyles('ml-2', TEXT_STYLES.muted)}>
-                {isIframeLoading ? UI_TEXT.LOADING_PREVIEW : 'Streaming...'}
+              <LoadingSpinner className={combineStyles(ICON_SIZES.sm, 'text-emerald-400')} />
+              <span className={combineStyles('ml-2', TEXT_STYLES.muted, 'text-emerald-300')}>
+                {htmlContent !== null && isIframeLoading ? UI_TEXT.LOADING_PREVIEW : '实时生成中...'}
               </span>
+              {streamingModel && (
+                <span className={combineStyles('ml-2 text-xs px-2 py-1 bg-emerald-600/20 text-emerald-400 rounded-md font-mono')}>
+                  {getModelInfo(streamingModel)?.name}
+                </span>
+              )}
             </div>
           )}
         </div>
@@ -296,12 +305,27 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             </div>
         )}
 
-        {/* iframe加载状态指示 - 使用PreviewLoader组件 */}
+        {        /* 错误状态指示 - 使用PreviewLoader组件 */}
         {activeTab === ActiveTab.Preview && optimizedHtmlContent && !showMainSpinner && (
           <PreviewLoader 
-            isLoading={isIframeLoading} 
+            isLoading={false} 
             hasError={iframeError} 
             onRetry={handleRetry}
+            isStreaming={isLoading && appStage === 'htmlReady'}
+            streamingModel={streamingModel ? getModelInfo(streamingModel)?.name : undefined}
+            showStreamingStatus={isLoading && appStage === 'htmlReady'}
+          />
+        )}
+        
+        {/* 代码生成初期的 streaming 状态 - 当还没有任何内容时 */}
+        {activeTab === ActiveTab.Preview && !optimizedHtmlContent && isLoading && appStage === 'htmlReady' && !showMainSpinner && (
+          <PreviewLoader 
+            isLoading={false} 
+            hasError={false} 
+            onRetry={() => {}}
+            isStreaming={true}
+            streamingModel={streamingModel ? getModelInfo(streamingModel)?.name : undefined}
+            showStreamingStatus={true}
           />
         )}
 

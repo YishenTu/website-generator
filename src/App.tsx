@@ -410,6 +410,7 @@ const App: React.FC = () => {
                   appStage={appStage}
                   onHtmlContentChange={handleHtmlContentChange}
                   className={LAYOUT_STYLES.fullHeight}
+                  streamingModel={htmlModel}
                 />
               )}
             </div>

@@ -1,7 +1,7 @@
 // ==============================================
 // AI Website Generator - Prompt Templates
 // ==============================================
-// 按功能组织的prompt模板：Plan Generation, Code Generation, Chat
+// Prompt templates organized by function: Plan Generation, Code Generation, Chat
 
 // --- Common Output Formatting Instructions ---
 
@@ -38,19 +38,23 @@ The plan should be structured and easy to understand. Please outline the followi
 3.  **Proposed Layout Structure:**
     *   Describe the primary layout approach. For example:
         *   "A linear app-style layout with a prominent hero section followed by sequential content sections that flow naturally down the page."
-        *   "A vertical narrative structure with full-width sections, complemented by bento grid layouts where content naturally fits (such as statistics, features, or comparison data)."
-        *   Mention if some sections should use bento grid styling when the content type benefits from it (e.g., multiple data points, feature comparisons, or visual elements).
+        *   "A vertical narrative structure with full-width sections, complemented by bento grid layouts for specific content types that have multiple related items (such as statistics, features, or comparison data)."
+        *   **Important: Bento grid layout usage rules - Only use bento grid when content can naturally be broken down into at least 2 related items per row. Avoid creating single large boxes for entire sections, or one box per section.**
 
 4.  **Styling & Visual Notes (Tailwind CSS based):**
     *   Suggest a color palette (e.g., "Primary: Sky Blue, Accent: Slate Gray, Background: Dark Slate").
     *   Font style recommendations (e.g., "Clean sans-serif for body, slightly bolder sans-serif for headings").
     *   Notes on card/section appearance (e.g., "Rounded corners, subtle shadows for depth, clear visual hierarchy for text").
+    *   **Glassmorphism Style Requirements:** Consider implementing glassmorphism design elements where appropriate:
+        -   Semi-transparent backgrounds with backdrop blur effects (e.g., \`bg-white/10 backdrop-blur-md\`)
+        -   Subtle borders and shadows for depth (e.g., \`border border-white/20 shadow-xl\`)
+        -   Layered visual hierarchy with glass-like card components
+        -   Modern, clean aesthetic with frosted glass appearance for key UI elements
 
-5.  **Data Visualization & Interactive Features Planning:**
-    *   **Chart and Graph Requirements:** If the report contains statistical data, metrics, or numerical comparisons, specify which sections would benefit from charts or graphs (e.g., "统计数据展示部分需要柱状图", "趋势分析需要折线图").
-    *   **Visual Enhancement Needs:** Identify sections that would benefit from icons to improve visual hierarchy and content presentation (e.g., "功能特性部分需要图标增强", "导航元素需要视觉图标").
-    *   **Interactivity Requirements:** Specify if any sections should include interactive elements like hover effects, expandable content, or user engagement features (e.g., "卡片需要悬停效果", "数据图表需要交互功能").
-    *   **Professional Component Needs:** Indicate if the content requires enhanced UI components for better presentation quality (e.g., "需要专业级按钮和表单组件", "需要高质量卡片组件").`;
+5.  **Interactive Features Planning:**
+    *   **Chart and Graph Requirements:** Specify which sections would benefit from charts or graphs for statistical data (e.g., "Statistical data section needs bar charts", "Trend analysis needs line charts").
+    *   **Visual Enhancement Needs:** Identify sections that need icons for visual hierarchy (e.g., "Feature section needs icon enhancement").
+    *   **Interactivity Requirements:** Specify interactive elements like hover effects or expandable content (e.g., "Cards need hover effects").`;
 
 const PLAN_OUTPUT_FORMAT_INSTRUCTIONS = `
 **Output Format and Language Instructions:**
@@ -78,76 +82,50 @@ The website should present the information in a modern, engaging format that tel
 - The webpage content language should match the language of the original report, regardless of the plan's language
 - If the report is in Chinese, generate the webpage in Chinese
 - If the report is in English, generate the webpage in English
-- If the report is in other languages, use that language for the webpage
-- Unless the user specifically requests to use a particular language, always follow the report's language
+- Unless the user specifically requests a particular language, always follow the report's language
 - For multi-language reports, use the primary/dominant language of the report`;
 
 const CODE_CORE_TASK_AND_PLAN_ADHERENCE = `
 **Core Task & Requirements (Guided by the Plan):**
 
-1.  **Adhere to the Plan:** The generated HTML structure, content summarization, sectioning, layout (e.g., Bento Grid as specified in the plan), and styling cues MUST be derived from the "Website Plan to Follow". The original report is for detailed content extraction where the plan refers to it.`;
+1.  **Adhere to the Plan:** The generated HTML structure, content summarization, sectioning, layout, and styling cues MUST be derived from the "Website Plan to Follow". The original report is for detailed content extraction where the plan refers to it.`;
 
 const CODE_LAYOUT_CONTENT_AND_STYLING = `
 2.  **Layout and Content Presentation (as per Plan):**
-    *   Primary approach should be a "Linear App Style" layout with sections flowing vertically down the page. Use bento grid layouts only when the plan specifically suggests it or when content naturally fits this format (e.g., statistics, features, comparisons).
-    *   For linear sections, use full-width or contained layouts with clear vertical progression.
-    *   For bento grid sections (when appropriate), use Tailwind's grid utilities (e.g., \`grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6\`) or flexbox to create them.
-    *   Each section must correspond to a section outlined in the plan.
-    *   Present content clearly and engagingly, using information from the report but guided by the plan's summaries.
-    *   Use strong, clear headings for each section (e.g., \`<h2 class="text-xl lg:text-2xl font-semibold text-sky-300 mb-3">\`).
-    *   Use appropriate content formatting: bullet points for lists, paragraphs for narrative content, and structured layouts for data presentation.
-
-3.  **Section Styling (Tailwind CSS, as per Plan):**
-    *   Style each section to be visually distinct and polished, using Tailwind classes for backgrounds, padding, rounded corners, shadows, typography, and borders, as suggested or implied by the plan's styling notes.
-    *   For linear sections, use appropriate spacing and visual separation between sections.
-    *   For bento grid sections (when used), style each card to be visually cohesive with the overall design.
-    *   Ensure excellent readability and visual hierarchy throughout.
-    *   Crucially, within each section, ensure ample internal padding (e.g., \`p-6\` or \`p-8\`) and use Tailwind's spacing utilities (like \`space-y-4\` on a container for vertical spacing between child elements, or \`mb-3\`, \`mt-2\` on individual elements) to create generous vertical and horizontal spacing between headings, paragraphs, lists, and other content elements. Sections should feel airy and uncluttered, not packed with content edge-to-edge or with elements too close together.`;
+    *   **Primary Layout Approach:** Use "Linear App Style" layout with sections flowing vertically down the page as the main structure.
+    *   **Bento Grid Usage Rules - CRITICAL:**
+        -   Use bento grid layouts ONLY when content naturally fits into multiple related items that can display at least 2 items per row
+        -   Perfect for: statistics collections, feature comparisons, team members, product showcases, or data points that benefit from side-by-side presentation
+        -   AVOID: Creating bento grids for single large content blocks, using one grid item per section, or forcing unrelated content into grid format
+        -   Implementation: Use Tailwind's grid utilities (e.g., \`grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6\`) only when you have 2+ items per row
+    *   **Content Structure:** Each section must correspond to a section outlined in the plan with clear headings and well-organized content presentation.
+    *   **Typography:** Use strong, clear headings (e.g., \`<h2 class="text-xl lg:text-2xl font-semibold text-sky-300 mb-3">\`) and appropriate content formatting.
+    *   **Spacing:** Ensure generous internal padding (e.g., \`p-6\` or \`p-8\`) and use Tailwind's spacing utilities for proper vertical and horizontal spacing between elements.`;
 
 const CODE_PAGE_AESTHETICS_AND_STRUCTURE = `
-**Overall Page Aesthetics & Structure (as per Plan):**
-    *   The overall design should be modern, clean, professional, and engaging, reflecting the theme from the plan.
-    *   **Hero Section (If appropriate and guided by the Plan):** Strongly consider starting the page with a visually distinct hero section. This section should typically feature the main title and a brief, compelling introductory sentence or tagline derived from the plan or report. It should set the tone for the entire page.
-    *   The page should start with a clear, prominent title for the entire showcase, derived from the plan or report (often as part of the Hero section). If a distinct hero section is NOT used, ensure the first content element on the page still has significant top margin (e.g., \`mt-8\` or \`mt-12\`) to create visual separation from the browser's top edge.
-    *   **Negative Space:** Ensure generous negative space ('whitespace') around the main content. The primary content block within the \`<main>\` element should not exceed 80% of the viewport width on larger screens (e.g., 1280px and wider), providing MANDATORY at least 10% empty space on each side.
-    *   Use a main container for consistent padding/centering: e.g., \`<body class="bg-slate-900 text-slate-100 antialiased p-4 sm:p-6 md:p-8 min-h-screen flex flex-col items-center">\` and \`<main class="w-full max-w-5xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">\`. Using classes like \`max-w-5xl\` (or \`max-w-4xl\` for even more whitespace) along with \`mx-auto\` and internal padding like \`px-4 sm:px-6 lg:px-8\` on this main container is CRUCIAL.
-    *   Individual sections/elements within this main container must also have generous internal padding (e.g., \`p-4\`, \`p-6\`, \`p-8\`) and ensure content doesn't touch their edges.
-    *   Ensure responsiveness. Linear sections should stack naturally, and bento grid sections (if used) must adapt gracefully.
-    *   Include HTML boilerplate: \`<!DOCTYPE html>\`, \`<html>\` with appropriate lang attribute based on content language (e.g., \`lang="zh"\` for Chinese, \`lang="en"\` for English), \`<head>\` with \`<title>\`, \`<meta charset="UTF-8">\`, \`<meta name="viewport" content="width=device-width, initial-scale=1.0">\`.
-    *   Embed Tailwind CSS via CDN: \`<script src="https://cdn.tailwindcss.com"></script>\`.
-    *   **Optimized Resource Loading Strategy:**
-        * **Essential Libraries Only:** Only include external libraries that are specifically needed for the content in the report
-        * **Icon Libraries (Load Conditionally):** 
-          - Font Awesome: \`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">\` (only if icons are needed)
-          - OR Lucide Icons (lighter alternative): Use inline SVG icons when possible to reduce external dependencies
-        * **Chart Libraries (Load Only When Needed):**
-          - Chart.js: \`<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>\` (only if the report contains statistical data requiring charts)
-          - Use HTML/CSS solutions for simple data presentations instead of heavy chart libraries when possible
-        * **Performance Optimizations:**
-          - Add preconnect hints: \`<link rel="preconnect" href="https://cdn.tailwindcss.com">\`
-          - Use defer/async loading for non-critical scripts
-          - Minimize external dependencies - prefer Tailwind CSS built-in solutions
-        * **Component Strategy:**
-          - Use Tailwind CSS classes for styling instead of external UI libraries when possible
-          - Create custom components using Tailwind utilities rather than importing heavy frameworks
-          - Only include Preline UI if specifically needed: \`<link rel="stylesheet" href="https://preline.co/assets/css/main.min.css">\` and \`<script src="https://preline.co/assets/js/hs-ui.bundle.js"></script>\`
-        * **Loading Performance:**
-          - Add resource hints in head section
-          - Implement graceful loading states
-          - Ensure content is visible even if external resources fail to load`;
+3.  **Overall Page Aesthetics & Structure (as per Plan):**
+    *   **Design Philosophy:** Modern, clean, professional, and engaging, reflecting the theme from the plan. Consider glassmorphism design patterns for enhanced visual appeal.
+    *   **Hero Section:** Start with a visually distinct hero section featuring the main title and compelling introduction, or ensure significant top margin if no distinct hero.
+    *   **Responsive Layout Strategy:**
+        -   **Negative Space Management:** Main content should not exceed 80% viewport width on large screens, providing at least 10% empty space on each side
+        -   **Container Structure:** Use \`<main class="w-full max-w-5xl lg:max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">\` for consistent centering and spacing
+        -   **Mobile Responsiveness:** Ensure linear sections stack naturally and any grid layouts adapt gracefully
+        -   **Glassmorphism Implementation:** When specified in the plan, implement glass-like UI elements using Tailwind classes such as \`bg-white/10 backdrop-blur-md border border-white/20\` for cards and containers
+    *   **HTML Boilerplate:** Include proper DOCTYPE, html lang attribute, head section with title, meta tags, and viewport settings.
+    *   **Resource Loading Strategy:**
+        -   **Tailwind CSS:** \`<script src="https://cdn.tailwindcss.com"></script>\`
+        -   **Conditional Libraries:** Only include external libraries when specifically needed:
+            *   Font Awesome: \`<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">\` (for icons)
+            *   Chart.js: \`<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>\` (for statistical data visualization)
+        -   **Performance:** Add preconnect hints and use defer/async loading for non-critical scripts`;
 
 const CODE_ADVANCED_INTERACTIVITY_AND_EXCELLENCE = `
-**Advanced Interactivity & Excellence Standards:**
-    *   Don't hold back. Give it your all.
-    *   Include as many relevant features and interactions as possible.
-    *   Add thoughtful details like hover states, transitions, and micro-interactions.
-    *   Create an impressive demonstration showcasing web development capabilities.
-    *   Apply design principles: hierarchy, contrast, balance, and movement.
-    *   Use Tailwind CSS classes for smooth transitions (e.g., \`transition-all duration-300 ease-in-out\`).
-    *   Implement hover effects on cards and interactive elements (e.g., \`hover:shadow-lg hover:scale-105\`).
-    *   Add visual feedback for interactive elements (e.g., \`hover:bg-opacity-80 cursor-pointer\`).
-    *   Create depth and dimension with layered shadows and gradients where appropriate.
-    *   Ensure consistent animation timing and easing functions across all interactive elements.`;
+4.  **Advanced Interactivity & Excellence Standards:**
+    *   Include thoughtful details like hover states, transitions, and micro-interactions using Tailwind CSS classes
+    *   Apply design principles: hierarchy, contrast, balance, and movement
+    *   Use smooth transitions (\`transition-all duration-300 ease-in-out\`) and hover effects (\`hover:shadow-lg hover:scale-105\`)
+    *   Create depth with layered shadows and gradients where appropriate
+    *   Ensure consistent animation timing across all interactive elements`;
 
 const CODE_GENERATION_OUTPUT_HEADER = `
 Generated Showcase Webpage HTML (Based on Report and Plan):`;
