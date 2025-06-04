@@ -1,6 +1,8 @@
 import React, { useRef, useEffect } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { AppStages } from "./components/AppStages";
+import { OutputDisplay } from "./components/OutputDisplay";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ArrowPathIcon } from './components/icons';
 import { copyHtmlToClipboard, downloadHtmlFile } from './components/fileUtils';
 import { ActiveTab } from './types/types';
@@ -51,6 +53,8 @@ const App: React.FC = () => {
     setReportText,
     setPlanModel,
     setHtmlModel,
+    setChatModel,
+    setPlanChatModel,
     setActiveTab,
     setIsFullPreviewActive,
     setIsRefineMode,

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense } fr
 import { ActiveTab } from '../types/types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { TabButton } from './TabButton';
-const CodeEditor = React.lazy(() => import('./CodeEditor'));
+const CodeEditor = React.lazy(() => import('./CodeEditor').then(module => ({ default: module.CodeEditor })));
 import { PreviewLoader } from './PreviewLoader';
 import { getModelInfo } from '../services/aiService';
 import { useDebounce } from '../hooks/useDebounce';

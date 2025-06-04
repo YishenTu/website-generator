@@ -43,11 +43,11 @@ async function makeGenericStreamRequest(
   signal?: AbortSignal,
   errorContext: string = "OpenAI"
 ): Promise<void> {
-  const apiKey = getEnvVar("OPENAI_API_KEY");
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    throw new Error(`OpenAI API key is not configured. Please ensure the ${ENV_VARS.OPENAI_API_KEY} environment variable is set.`);
+    throw new Error("OpenAI API key is not configured. Please ensure the OPENAI_API_KEY environment variable is set.");
   }
-  await makeApiStreamRequest(OPENAI_API_URL, apiKey, requestBody, onChunk, onComplete, signal, errorContext);
+  await makeApiStreamRequest("https://api.openai.com/v1/chat/completions", apiKey, requestBody, onChunk, onComplete, signal, errorContext);
 }
 
 // --- Base Stream Request Function ---
@@ -122,9 +122,8 @@ export class OpenAIChatSession {
   private messages: OpenAIMessage[] = [];
   private apiKey: string;
   private modelName: string;
-
   constructor(initialHtml: string, reportText: string, planText: string, modelName?: string) {
-    this.apiKey = getEnvVar('OPENAI_API_KEY') || '';
+    this.apiKey = process.env.OPENAI_API_KEY || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
     if (!this.apiKey) {
@@ -184,9 +183,8 @@ export class OpenAIPlanChatSession {
   private messages: OpenAIMessage[] = [];
   private apiKey: string;
   private modelName: string;
-
   constructor(initialPlan: string, reportText: string, modelName?: string) {
-    this.apiKey = getEnvVar('OPENAI_API_KEY') || '';
+    this.apiKey = process.env.OPENAI_API_KEY || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
     if (!this.apiKey) {
