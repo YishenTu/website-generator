@@ -62,17 +62,24 @@ check_env_file() {
         else
             print_success "GEMINI_API_KEY 已配置"
         fi
-        
+
         # 检查 OpenRouter API key
         if [ -z "$OPENROUTER_API_KEY" ] || [ "$OPENROUTER_API_KEY" = "your_api_key_here" ]; then
             print_warning "OPENROUTER_API_KEY 未设置或无效"
         else
             print_success "OPENROUTER_API_KEY 已配置"
         fi
+
+        # 检查 OpenAI API key
+        if [ -z "$OPENAI_API_KEY" ] || [ "$OPENAI_API_KEY" = "your_api_key_here" ]; then
+            print_warning "OPENAI_API_KEY 未设置或无效"
+        else
+            print_success "OPENAI_API_KEY 已配置"
+        fi
         
         # 至少需要一个API密钥
-        if ([ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your_api_key_here" ]) && ([ -z "$OPENROUTER_API_KEY" ] || [ "$OPENROUTER_API_KEY" = "your_api_key_here" ]); then
-            print_error "请在 .env.local 文件中至少设置一个有效的 API 密钥（GEMINI_API_KEY 或 OPENROUTER_API_KEY）"
+        if ([ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your_api_key_here" ]) && ([ -z "$OPENROUTER_API_KEY" ] || [ "$OPENROUTER_API_KEY" = "your_api_key_here" ]) && ([ -z "$OPENAI_API_KEY" ] || [ "$OPENAI_API_KEY" = "your_api_key_here" ]); then
+            print_error "请在 .env.local 文件中至少设置一个有效的 API 密钥（GEMINI_API_KEY、OPENROUTER_API_KEY 或 OPENAI_API_KEY）"
             exit 1
         fi
         
@@ -88,14 +95,16 @@ check_env_file() {
         echo "示例："
         echo "GEMINI_API_KEY=your_gemini_api_key_here"
         echo "OPENROUTER_API_KEY=your_openrouter_api_key_here"
+        echo "OPENAI_API_KEY=your_openai_api_key_here"
         echo
         read -p "创建 .env.local 文件 (开发推荐) 还是 .env 文件? (local/env): " file_choice
         
         if [ "$file_choice" = "local" ]; then
             read -p "请输入你的 Gemini API 密钥 (可选，回车跳过): " gemini_key
             read -p "请输入你的 OpenRouter API 密钥 (可选，回车跳过): " openrouter_key
+            read -p "请输入你的 OpenAI API 密钥 (可选，回车跳过): " openai_key
             
-            if [ -z "$gemini_key" ] && [ -z "$openrouter_key" ]; then
+            if [ -z "$gemini_key" ] && [ -z "$openrouter_key" ] && [ -z "$openai_key" ]; then
                 print_error "至少需要提供一个 API 密钥"
                 exit 1
             fi
@@ -103,13 +112,15 @@ check_env_file() {
             {
                 [ ! -z "$gemini_key" ] && echo "GEMINI_API_KEY=$gemini_key"
                 [ ! -z "$openrouter_key" ] && echo "OPENROUTER_API_KEY=$openrouter_key"
+                [ ! -z "$openai_key" ] && echo "OPENAI_API_KEY=$openai_key"
             } > .env.local
             print_success ".env.local 文件已创建"
         else
             read -p "请输入你的 Gemini API 密钥 (可选，回车跳过): " gemini_key
             read -p "请输入你的 OpenRouter API 密钥 (可选，回车跳过): " openrouter_key
+            read -p "请输入你的 OpenAI API 密钥 (可选，回车跳过): " openai_key
             
-            if [ -z "$gemini_key" ] && [ -z "$openrouter_key" ]; then
+            if [ -z "$gemini_key" ] && [ -z "$openrouter_key" ] && [ -z "$openai_key" ]; then
                 print_error "至少需要提供一个 API 密钥"
                 exit 1
             fi
@@ -117,6 +128,7 @@ check_env_file() {
             {
                 [ ! -z "$gemini_key" ] && echo "GEMINI_API_KEY=$gemini_key"
                 [ ! -z "$openrouter_key" ] && echo "OPENROUTER_API_KEY=$openrouter_key"
+                [ ! -z "$openai_key" ] && echo "OPENAI_API_KEY=$openai_key"
             } > .env
             print_success ".env 文件已创建"
         fi
@@ -137,10 +149,17 @@ check_env_file() {
         else
             print_success "OPENROUTER_API_KEY 已配置"
         fi
+
+        # 检查 OpenAI API key
+        if [ -z "$OPENAI_API_KEY" ] || [ "$OPENAI_API_KEY" = "your_api_key_here" ]; then
+            print_warning "OPENAI_API_KEY 未设置或无效"
+        else
+            print_success "OPENAI_API_KEY 已配置"
+        fi
         
         # 至少需要一个API密钥
-        if ([ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your_api_key_here" ]) && ([ -z "$OPENROUTER_API_KEY" ] || [ "$OPENROUTER_API_KEY" = "your_api_key_here" ]); then
-            print_error "请在 .env 文件中至少设置一个有效的 API 密钥（GEMINI_API_KEY 或 OPENROUTER_API_KEY）"
+        if ([ -z "$GEMINI_API_KEY" ] || [ "$GEMINI_API_KEY" = "your_api_key_here" ]) && ([ -z "$OPENROUTER_API_KEY" ] || [ "$OPENROUTER_API_KEY" = "your_api_key_here" ]) && ([ -z "$OPENAI_API_KEY" ] || [ "$OPENAI_API_KEY" = "your_api_key_here" ]); then
+            print_error "请在 .env 文件中至少设置一个有效的 API 密钥（GEMINI_API_KEY、OPENROUTER_API_KEY 或 OPENAI_API_KEY）"
             exit 1
         fi
         
@@ -193,6 +212,9 @@ build_and_start() {
     fi
     if [ ! -z "$OPENROUTER_API_KEY" ]; then
         print_message "OPENROUTER_API_KEY 已设置"
+    fi
+    if [ ! -z "$OPENAI_API_KEY" ]; then
+        print_message "OPENAI_API_KEY 已设置"
     fi
     
     docker-compose -f docker/docker-compose.yml build --no-cache

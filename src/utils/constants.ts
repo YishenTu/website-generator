@@ -64,6 +64,7 @@ export const ERROR_MESSAGES = {
 export const ENV_VARS = {
   GEMINI_API_KEY: 'GEMINI_API_KEY',
   OPENROUTER_API_KEY: 'OPENROUTER_API_KEY',
+  OPENAI_API_KEY: 'OPENAI_API_KEY',
 } as const;
 
 // 动画延迟值
