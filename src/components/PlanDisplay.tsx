@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { ModelSelector } from './ModelSelector';
 import { LoadingSpinner } from './LoadingSpinner';
 import { getDefaultModel } from '../services/aiService';
+import { isProviderAvailable } from '../utils/envValidator';
 import { CheckCircleIcon, PencilSquareIcon } from './icons';
 
 interface PlanDisplayProps {
@@ -27,7 +28,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
   isLoadingHtml,
   showGenerateButton = true, 
   isCompactView = false,
-  htmlModel = getDefaultModel('gemini'),
+  htmlModel = getDefaultModel(isProviderAvailable('gemini') ? 'gemini' : 'openrouter'),
   onHtmlModelChange,
   onToggleRefine,
   showRefineButton,

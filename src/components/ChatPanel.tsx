@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { ChatMessage, UserType } from '../types/types';
 import { ModelSelector } from './ModelSelector';
 import { getDefaultModel } from '../services/aiService';
+import { isProviderAvailable } from '../utils/envValidator';
 import { PaperAirplaneIcon, StopIcon } from './icons';
 
 interface ChatPanelProps {
@@ -20,7 +21,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
   onSendMessage, 
   isLoading, 
   onStop, 
-  chatModel = getDefaultModel('gemini'),
+  chatModel = getDefaultModel(isProviderAvailable('gemini') ? 'gemini' : 'openrouter'),
   onChatModelChange,
   isChatAvailable = true,
   title

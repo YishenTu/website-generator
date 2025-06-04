@@ -15,6 +15,7 @@ import { ActiveTab, ChatMessage, UserType } from '../types/types';
 import type { AppStage } from '../App';
 import { createLogger } from '../utils/logger';
 import { ERROR_MESSAGES } from '../utils/constants';
+import { getAvailableProviders } from '../utils/envValidator';
 
 const logger = createLogger('useWebsiteGeneration');
 
@@ -67,14 +68,24 @@ export interface UseWebsiteGenerationReturn {
 }
 
 export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebsiteGenerationReturn {
+  // Determine available providers to select sensible defaults
+  const availableProviders = getAvailableProviders();
+  const geminiAvailable = availableProviders.includes('gemini');
+  const openrouterAvailable = availableProviders.includes('openrouter');
+
+  // Choose defaults based on available API keys
+  const defaultPlanProvider = geminiAvailable ? 'gemini' : 'openrouter';
+  const defaultHtmlProvider = openrouterAvailable ? 'openrouter' : 'gemini';
+  const defaultChatProvider = geminiAvailable ? 'gemini' : openrouterAvailable ? 'openrouter' : 'gemini';
+
   // State management
   const [reportText, setReportText] = useState<string>('');
   const [generatedPlan, setGeneratedPlan] = useState<string | null>(null);
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
-  const [planModel, setPlanModel] = useState<string>(getDefaultModel('gemini'));
-  const [htmlModel, setHtmlModel] = useState<string>(getDefaultModel('openrouter'));
-  const [chatModel, setChatModel] = useState<string>(getDefaultModel('gemini'));
-  const [planChatModel, setPlanChatModel] = useState<string>(getDefaultModel('gemini'));
+  const [planModel, setPlanModel] = useState<string>(getDefaultModel(defaultPlanProvider));
+  const [htmlModel, setHtmlModel] = useState<string>(getDefaultModel(defaultHtmlProvider));
+  const [chatModel, setChatModel] = useState<string>(getDefaultModel(defaultChatProvider));
+  const [planChatModel, setPlanChatModel] = useState<string>(getDefaultModel(defaultPlanProvider));
   
   // 添加状态来跟踪最后使用的plan文本（可能是用户编辑过的）
   const [lastUsedPlanText, setLastUsedPlanText] = useState<string>('');
