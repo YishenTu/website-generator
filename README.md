@@ -20,6 +20,7 @@
 #### 1. 获取API密钥
 - **Gemini API**: 访问 [Google AI Studio](https://aistudio.google.com/app/apikey) 获取 Gemini API密钥
 - **OpenRouter API** (可选): 访问 [OpenRouter](https://openrouter.ai/) 获取API密钥以使用更多AI模型
+- **OpenAI API** (可选): 访问 [OpenAI](https://platform.openai.com/) 获取API密钥
 
 #### 2. 运行自动部署脚本
 ```bash
@@ -47,6 +48,7 @@
    ```bash
    GEMINI_API_KEY=your_gemini_api_key
    OPENROUTER_API_KEY=your_openrouter_api_key  # 可选
+   OPENAI_API_KEY=your_openai_api_key  # 可选
    ```
 3. 运行应用:
    ```bash
@@ -63,7 +65,7 @@
 ### 多AI模型支持
 - **Gemini**: Gemini 2.5 Pro
 - **Claude**: Claude 4 Sonnet
-- **其他模型**: 通过 OpenRouter 支持更多AI模型
+- **其他模型**: 通过 OpenRouter 或 OpenAI 支持更多AI模型
 
 ### 智能聊天优化
 - **实时对话**: 与AI实时交流，优化生成效果
@@ -147,6 +149,7 @@ ai-website-generator-from-report/
 ### AI集成
 - **Google Gemini API**
 - **OpenRouter API**
+- **OpenAI API**
 
 ### 部署技术
 - **Docker**: 容器化部署

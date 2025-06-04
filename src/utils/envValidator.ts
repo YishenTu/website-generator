@@ -36,10 +36,16 @@ export function validateEnvironmentVariables(): EnvValidationResult {
     result.warnings.push(`${ENV_VARS.OPENROUTER_API_KEY} is not set. OpenRouter models will not be available.`);
   }
 
+  // 检查 OpenAI API Key
+  const openaiKey = getEnvVar('OPENAI_API_KEY');
+  if (!openaiKey || openaiKey.trim() === '') {
+    result.warnings.push(`${ENV_VARS.OPENAI_API_KEY} is not set. OpenAI models will not be available.`);
+  }
+
   // 至少需要一个API密钥
-  if (!geminiKey && !openrouterKey) {
+  if (!geminiKey && !openrouterKey && !openaiKey) {
     result.isValid = false;
-    result.missingVars.push('At least one API key (Gemini or OpenRouter)');
+    result.missingVars.push('At least one API key (Gemini, OpenRouter or OpenAI)');
     logger.error('No API keys configured. At least one API key is required.');
   }
 
@@ -51,6 +57,9 @@ export function validateEnvironmentVariables(): EnvValidationResult {
     }
     if (openrouterKey === 'your_openrouter_api_key_here' || openrouterKey === 'your_api_key_here') {
       result.warnings.push('OpenRouter API key appears to be a placeholder value.');
+    }
+    if (openaiKey === 'your_openai_api_key_here' || openaiKey === 'your_api_key_here') {
+      result.warnings.push('OpenAI API key appears to be a placeholder value.');
     }
   }
 
@@ -82,6 +91,10 @@ export function getAvailableProviders(): string[] {
   if (getEnvVar('OPENROUTER_API_KEY')) {
     providers.push('openrouter');
   }
+
+  if (getEnvVar('OPENAI_API_KEY')) {
+    providers.push('openai');
+  }
   
   return providers;
 }
@@ -91,13 +104,15 @@ export function getAvailableProviders(): string[] {
  * @param provider 提供商名称
  * @returns 是否可用
  */
-export function isProviderAvailable(provider: 'gemini' | 'openrouter'): boolean {
+export function isProviderAvailable(provider: 'gemini' | 'openrouter' | 'openai'): boolean {
   switch (provider) {
     case 'gemini':
       return !!getEnvVar('GEMINI_API_KEY');
     case 'openrouter':
       return !!getEnvVar('OPENROUTER_API_KEY');
+    case 'openai':
+      return !!getEnvVar('OPENAI_API_KEY');
     default:
       return false;
   }
-} 
+}

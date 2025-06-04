@@ -7,9 +7,11 @@ services:
       args:
         - GEMINI_API_KEY=${GEMINI_API_KEY}
         - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+        - OPENAI_API_KEY=${OPENAI_API_KEY}
     environment:
       - GEMINI_API_KEY=${GEMINI_API_KEY}
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
     container_name: ai-website-generator
     ports:
       - "8080:80"  # 将容器的80端口映射到主机的8080端口

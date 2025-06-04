@@ -13,6 +13,13 @@ import {
   OpenRouterPlanChatSession,
   OPENROUTER_MODELS
 } from "./openrouterService";
+import {
+  generateWebsitePlanStreamOpenAI,
+  generateWebsiteFromReportWithPlanStreamOpenAI,
+  OpenAIChatSession,
+  OpenAIPlanChatSession,
+  OPENAI_MODELS
+} from "./openaiService";
 import { ENV_VARS } from "../utils/constants";
 import { ERROR_MESSAGES } from '../utils/constants';
 import { logger } from '../utils/logger';
@@ -22,7 +29,7 @@ import { getEnvVar } from '../utils/env';
 export interface ModelInfo {
   id: string;
   name: string;
-  provider: 'gemini' | 'openrouter';
+  provider: 'gemini' | 'openrouter' | 'openai';
 }
 
 // 统一的模型列表
@@ -38,13 +45,20 @@ export const ALL_MODELS: ModelInfo[] = [
     id: model.id,
     name: model.name,
     provider: 'openrouter' as const
+  })),
+  // OpenAI 模型
+  ...OPENAI_MODELS.map(model => ({
+    id: model.id,
+    name: model.name,
+    provider: 'openai' as const
   }))
 ];
 
 // 按提供商分组的模型 - 重用ALL_MODELS避免重复映射
 export const MODELS_BY_PROVIDER = {
   gemini: ALL_MODELS.filter(model => model.provider === 'gemini'),
-  openrouter: ALL_MODELS.filter(model => model.provider === 'openrouter')
+  openrouter: ALL_MODELS.filter(model => model.provider === 'openrouter'),
+  openai: ALL_MODELS.filter(model => model.provider === 'openai')
 };
 
 // 获取模型信息
@@ -64,10 +78,18 @@ export function isOpenRouterModel(modelId: string): boolean {
   return modelInfo?.provider === 'openrouter';
 }
 
+// 检查模型是否是OpenAI模型
+export function isOpenAIModel(modelId: string): boolean {
+  const modelInfo = getModelInfo(modelId);
+  return modelInfo?.provider === 'openai';
+}
+
 // 获取默认模型
-export function getDefaultModel(provider: 'gemini' | 'openrouter'): string {
+export function getDefaultModel(provider: 'gemini' | 'openrouter' | 'openai'): string {
   if (provider === 'gemini') {
     return GEMINI_MODELS[0].id;
+  } else if (provider === 'openai') {
+    return OPENAI_MODELS[0].id;
   } else {
     return OPENROUTER_MODELS[0].id;
   }
@@ -87,7 +109,8 @@ export interface ChatSession {
 function dispatchToModel<T>(
   modelId: string,
   geminiHandler: () => T,
-  openrouterHandler: () => T
+  openrouterHandler: () => T,
+  openaiHandler: () => T
 ): T {
   const modelInfo = getModelInfo(modelId);
   if (!modelInfo) {
@@ -96,8 +119,10 @@ function dispatchToModel<T>(
 
   if (modelInfo.provider === 'gemini') {
     return geminiHandler();
-  } else {
+  } else if (modelInfo.provider === 'openrouter') {
     return openrouterHandler();
+  } else {
+    return openaiHandler();
   }
 }
 
@@ -113,7 +138,8 @@ export async function generateWebsitePlan(
   return dispatchToModel(
     modelId,
     () => generateWebsitePlanStream(ai, reportText, onChunk, onComplete, signal, modelId),
-    () => generateWebsitePlanStreamOpenRouter(reportText, onChunk, onComplete, signal, modelId)
+    () => generateWebsitePlanStreamOpenRouter(reportText, onChunk, onComplete, signal, modelId),
+    () => generateWebsitePlanStreamOpenAI(reportText, onChunk, onComplete, signal, modelId)
   );
 }
 
@@ -130,7 +156,8 @@ export async function generateWebsiteFromPlan(
   return dispatchToModel(
     modelId,
     () => generateWebsiteFromReportWithPlanStream(ai, reportText, planText, onChunk, onComplete, signal, modelId),
-    () => generateWebsiteFromReportWithPlanStreamOpenRouter(reportText, planText, onChunk, onComplete, signal, modelId)
+    () => generateWebsiteFromReportWithPlanStreamOpenRouter(reportText, planText, onChunk, onComplete, signal, modelId),
+    () => generateWebsiteFromReportWithPlanStreamOpenAI(reportText, planText, onChunk, onComplete, signal, modelId)
   );
 }
 
@@ -145,7 +172,8 @@ export function createHtmlChatSession(
   return dispatchToModel<ChatSession>(
     modelId,
     () => new GeminiChatSession(ai, initialHtml, reportText, planText, modelId),
-    () => new OpenRouterChatSession(initialHtml, reportText, planText, modelId)
+    () => new OpenRouterChatSession(initialHtml, reportText, planText, modelId),
+    () => new OpenAIChatSession(initialHtml, reportText, planText, modelId)
   );
 }
 
@@ -159,7 +187,8 @@ export function createPlanChatSession(
   return dispatchToModel<ChatSession>(
     modelId,
     () => new GeminiPlanChatSession(ai, initialPlan, reportText, modelId),
-    () => new OpenRouterPlanChatSession(initialPlan, reportText, modelId)
+    () => new OpenRouterPlanChatSession(initialPlan, reportText, modelId),
+    () => new OpenAIPlanChatSession(initialPlan, reportText, modelId)
   );
 }
 
@@ -170,8 +199,18 @@ export function validateModelApiKeys(modelId: string): { isValid: boolean; missi
     return { isValid: false, missingKey: 'UNKNOWN_MODEL' };
   }
 
-  const apiKey = modelInfo.provider === 'gemini' ? getEnvVar('GEMINI_API_KEY') : getEnvVar('OPENROUTER_API_KEY');
-  const keyName = modelInfo.provider === 'gemini' ? ENV_VARS.GEMINI_API_KEY : ENV_VARS.OPENROUTER_API_KEY;
+  let apiKey: string | undefined;
+  let keyName: string;
+  if (modelInfo.provider === 'gemini') {
+    apiKey = getEnvVar('GEMINI_API_KEY');
+    keyName = ENV_VARS.GEMINI_API_KEY;
+  } else if (modelInfo.provider === 'openrouter') {
+    apiKey = getEnvVar('OPENROUTER_API_KEY');
+    keyName = ENV_VARS.OPENROUTER_API_KEY;
+  } else {
+    apiKey = getEnvVar('OPENAI_API_KEY');
+    keyName = ENV_VARS.OPENAI_API_KEY;
+  }
   
   return {
     isValid: !!apiKey,
