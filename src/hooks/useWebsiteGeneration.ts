@@ -1,4 +1,5 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
+import { useBufferedUpdater } from './useBufferedUpdater';
 import { GoogleGenAI } from "@google/genai";
 import { 
   generateWebsitePlan, 
@@ -109,6 +110,9 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   const abortControllerRef = useRef<AbortController | null>(null);
   const planAbortControllerRef = useRef<AbortController | null>(null);
 
+  const htmlBuffer = useBufferedUpdater<string | null>(setGeneratedHtml);
+  const planBuffer = useBufferedUpdater<string | null>(setGeneratedPlan);
+
   // Plan generation
   const handleGeneratePlan = useCallback(async () => {
     setError(null);
@@ -139,21 +143,25 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     setIsRefineMode(false);
     setAppStage('planPending');
 
+    let streamingPlan = '';
+
     try {
       await generateWebsitePlan(
         planModel,
         ai,
         reportText,
         (chunk: string) => {
-          setGeneratedPlan((prev: string | null) => (prev || '') + chunk);
+          streamingPlan += chunk;
+          planBuffer.update(streamingPlan);
         },
         (finalPlan: string) => {
           const cleanedPlan = cleanTextOutput(finalPlan);
+          planBuffer.flush();
           setGeneratedPlan(cleanedPlan);
           setIsLoading(false);
           abortControllerRef.current = null;
           setAppStage('planReady');
-          
+
           initializePlanChatSession(cleanedPlan);
         },
         signal
@@ -212,6 +220,8 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     setActiveTab(ActiveTab.Code);
     setAppStage('htmlReady');
 
+    let streamingHtml = '';
+
     try {
       await generateWebsiteFromPlan(
         htmlModel,
@@ -219,10 +229,12 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
         reportText,
         currentPlanText,
         (chunk: string) => {
-          setGeneratedHtml((prev: string | null) => (prev || '') + chunk);
+          streamingHtml += chunk;
+          htmlBuffer.update(streamingHtml);
         },
         (finalHtml: string) => {
           const cleanedInitialHtml = cleanTextOutput(finalHtml);
+          htmlBuffer.flush();
           setGeneratedHtml(cleanedInitialHtml);
 
           try {
@@ -286,10 +298,11 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
             throw new DOMException('The user aborted a request.', 'AbortError');
           }
           streamingHtml += chunk;
-          setGeneratedHtml(streamingHtml);
+          htmlBuffer.update(streamingHtml);
         },
         (finalText: string) => {
           const finalCleanedHtmlFromChat = cleanTextOutput(finalText);
+          htmlBuffer.flush();
           setGeneratedHtml(finalCleanedHtmlFromChat);
         },
         signal
@@ -350,10 +363,11 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
             throw new DOMException('The user aborted a request.', 'AbortError');
           }
           streamingPlan += chunk;
-          setGeneratedPlan(streamingPlan);
+          planBuffer.update(streamingPlan);
         },
         (finalText: string) => {
           const finalCleanedPlanFromChat = cleanTextOutput(finalText);
+          planBuffer.flush();
           setGeneratedPlan(finalCleanedPlanFromChat);
         },
         signal

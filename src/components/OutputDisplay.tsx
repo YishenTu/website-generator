@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense } from 'react';
 import { ActiveTab } from '../types/types';
 import { LoadingSpinner } from './LoadingSpinner';
 import { TabButton } from './TabButton';
-import { CodeEditor } from './CodeEditor';
+const CodeEditor = React.lazy(() => import('./CodeEditor'));
 import { PreviewLoader } from './PreviewLoader';
 import { getModelInfo } from '../services/aiService';
 import { useDebounce } from '../hooks/useDebounce';
@@ -351,12 +351,14 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
               />
             )}
             {activeTab === ActiveTab.Code && (
-              <CodeEditor
-                value={htmlContent || ''}
-                onChange={onHtmlContentChange}
-                readOnly={!onHtmlContentChange || isFullPreviewActive}
-                className="w-full h-full"
-              />
+              <Suspense fallback={<LoadingSpinner className="mx-auto" />}>
+                <CodeEditor
+                  value={htmlContent || ''}
+                  onChange={onHtmlContentChange}
+                  readOnly={!onHtmlContentChange || isFullPreviewActive}
+                  className="w-full h-full"
+                />
+              </Suspense>
             )}
           </>
         ) : null}

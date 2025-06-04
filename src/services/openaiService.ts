@@ -6,12 +6,7 @@ import {
   getHtmlChatInitialMessage,
   getPlanChatInitialMessage
 } from "../templates/promptTemplates";
-import { handleApiError, formatErrorMessage } from "../utils/errorHandler";
-import { handleStreamResponse } from "../utils/streamHandler";
-import { ENV_VARS } from "../utils/constants";
-import { getEnvVar } from "../utils/env";
-
-const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
+import { makeApiStreamRequest } from "./streamRequest";
 
 // 可选择的OpenAI模型列表
 export const OPENAI_MODELS = [
@@ -48,47 +43,11 @@ async function makeGenericStreamRequest(
   signal?: AbortSignal,
   errorContext: string = "OpenAI"
 ): Promise<void> {
-  const apiKey = getEnvVar('OPENAI_API_KEY');
-  
+  const apiKey = getEnvVar("OPENAI_API_KEY");
   if (!apiKey) {
     throw new Error(`OpenAI API key is not configured. Please ensure the ${ENV_VARS.OPENAI_API_KEY} environment variable is set.`);
   }
-
-  try {
-    const response = await fetch(OPENAI_API_URL, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${apiKey}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': window.location.origin,
-        'X-Title': 'AI Website Generator'
-      },
-      body: JSON.stringify(requestBody),
-      signal
-    });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      throw new Error(`OpenAI API error: ${response.status} - ${errorText}`);
-    }
-
-    const reader = response.body?.getReader();
-    if (!reader) {
-      throw new Error('Failed to get response reader');
-    }
-
-    await handleStreamResponse(reader, {
-      onChunk,
-      onComplete,
-      signal
-    });
-  } catch (error) {
-    const errorInfo = handleApiError(error, `${errorContext} stream request`);
-    if (errorInfo.code === 'ABORTED') {
-      throw error; // Re-throw abort errors
-    }
-    throw new Error(formatErrorMessage(errorInfo));
-  }
+  await makeApiStreamRequest(OPENAI_API_URL, apiKey, requestBody, onChunk, onComplete, signal, errorContext);
 }
 
 // --- Base Stream Request Function ---
