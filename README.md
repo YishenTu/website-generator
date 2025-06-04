@@ -106,6 +106,7 @@ ai-website-generator-from-report/
 │   ├── services/          # 服务层代码
 │   │   ├── aiService.ts            # AI服务统一接口
 │   │   ├── geminiService.ts        # Gemini API服务
+│   │   ├── openaiService.ts        # OpenAI API服务
 │   │   └── openrouterService.ts    # OpenRouter API服务
 │   ├── templates/         # 模板文件
 │   │   └── promptTemplates.ts      # AI提示词模板
@@ -164,24 +165,6 @@ ai-website-generator-from-report/
 - **健康检查**: 内置健康检查机制，确保服务可用性
 - **配置管理**: 通过环境变量管理配置，支持不同环境部署
 
-### 常用管理命令
-```bash
-# 查看应用日志
-docker-compose -f docker/docker-compose.yml logs -f
-
-# 重启应用
-docker-compose -f docker/docker-compose.yml restart
-
-# 停止应用
-docker-compose -f docker/docker-compose.yml down
-
-# 重新部署
-./scripts/deploy.sh
-
-# 健康检查
-curl http://localhost:8080/health
-```
-
 ## 安全注意事项
 
 1. **API密钥安全**: 
@@ -222,7 +205,20 @@ curl http://localhost:8080/health
 
 ## 更新日志
 
-### v1.2.3 (最新)
+### v1.2.4 (最新)
+- **OpenAI集成优化**：
+  - 新增完整的OpenAI API支持，扩展AI模型选择范围
+  - 更新OpenAI模型列表，集成最新的GPT-4.1模型
+  - 移除不必要的日志记录导入，提升代码整洁性和准确性
+- **核心功能改进**：
+  - 修复基于可用API密钥自动选择默认模型的逻辑bug
+  - 优化HTML输出格式，确保生成的网页包含完整的DOCTYPE声明
+  - 修复TypeScript配置选项，提升代码质量检查
+- **项目治理**：
+  - 添加MIT开源许可证，明确项目使用条款
+  - 规范commit message格式，提升开发协作效率
+
+### v1.2.3
 - **Docker部署优化**：
   - 解决esbuild版本冲突问题，优化Docker构建流程
   - 清理冗余的.dockerignore文件，简化配置管理
