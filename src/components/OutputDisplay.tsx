@@ -170,8 +170,8 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
       });`;
       headElement.appendChild(scriptElement);
       
-      // 序列化回HTML字符串
-      return doc.documentElement.outerHTML;
+      // 序列化回HTML字符串并添加 DOCTYPE
+      return `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
       
     } catch (error) {
       // 如果DOMParser失败，降级到原始内容
