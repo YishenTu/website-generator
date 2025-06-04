@@ -88,6 +88,7 @@ ai-website-generator-from-report/
 │   ├── components/         # React组件和工具函数
 │   │   ├── icons/                  # 图标组件目录
 │   │   │   └── index.tsx           # 统一的图标导出文件
+│   │   ├── AppStages.tsx           # 应用阶段管理组件
 │   │   ├── ChatPanel.tsx           # 聊天面板组件
 │   │   ├── CodeEditor.tsx          # 代码编辑器组件
 │   │   ├── ErrorBoundary.tsx       # 错误边界组件
@@ -103,18 +104,21 @@ ai-website-generator-from-report/
 │   │   └── textUtils.ts            # 文本处理工具函数
 │   ├── hooks/             # 自定义React Hooks
 │   │   ├── useDebounce.ts          # 防抖动Hook
+│   │   ├── useBufferedUpdater.ts   # 缓冲更新Hook
 │   │   └── useWebsiteGeneration.ts # 网站生成业务逻辑Hook
 │   ├── services/          # 服务层代码
 │   │   ├── aiService.ts            # AI服务统一接口
 │   │   ├── geminiService.ts        # Gemini API服务
 │   │   ├── openaiService.ts        # OpenAI API服务
-│   │   └── openrouterService.ts    # OpenRouter API服务
+│   │   ├── openrouterService.ts    # OpenRouter API服务
+│   │   └── streamRequest.ts        # 流请求处理服务
 │   ├── templates/         # 模板文件
 │   │   └── promptTemplates.ts      # AI提示词模板
 │   ├── types/             # 类型定义
 │   │   └── types.ts                # TypeScript类型定义
 │   ├── utils/             # 工具函数
 │   │   ├── constants.ts            # 应用常量定义
+│   │   ├── env.ts                  # 环境变量工具
 │   │   ├── envValidator.ts         # 环境变量验证工具
 │   │   ├── errorHandler.ts         # 统一错误处理工具
 │   │   ├── logger.ts               # 结构化日志工具
@@ -144,19 +148,29 @@ ai-website-generator-from-report/
 ## 技术栈
 
 ### 前端技术
-- **React 19**: React框架
-- **TypeScript**: 类型安全的JavaScript
-- **Vite 6**: 快速的现代化构建工具
+- **React 19**: 最新React框架，支持并发特性
+- **TypeScript 5.7**: 类型安全的JavaScript，增强开发体验
+- **Vite 6.2**: 快速的现代化构建工具，支持HMR热重载
+- **Tailwind CSS**: 实用优先的CSS框架，快速构建现代UI
+- **React Syntax Highlighter**: 代码高亮显示组件
+- **CodeMirror**: 专业的代码编辑器组件
 
 ### AI集成
-- **Google Gemini API**
-- **OpenRouter API**
-- **OpenAI API**
+- **Google Gemini API**: Gemini 2.5 Pro模型
+- **OpenRouter API**: 提供多种AI模型接入
+- **OpenAI API**: GPT-4.1等OpenAI模型
+
+### 核心功能
+- **React.lazy**: 组件懒加载，优化首屏性能
+- **React Suspense**: 异步组件加载边界
+- **Error Boundary**: 错误边界处理，增强应用稳定性
+- **Custom Hooks**: 自定义Hook管理业务逻辑
+- **Stream API**: 实时流式数据处理
 
 ### 部署技术
-- **Docker**: 容器化部署
+- **Docker**: 容器化部署，确保环境一致性
 - **Nginx**: 高性能Web服务器
-- **Docker Compose**: 容器编排
+- **Docker Compose**: 容器编排和服务管理
 
 ## 部署与运维
 
@@ -188,25 +202,17 @@ ai-website-generator-from-report/
    - 实施适当的数据备份策略
    - 遵循数据保护法规
 
-## 故障排除
-
-### 常见问题
-
-#### Docker构建失败
-- **问题**: esbuild版本冲突错误
-- **解决方案**: 运行 `./scripts/deploy.sh` 脚本，会自动清理缓存并重新安装依赖
-
-#### API密钥错误
-- **问题**: 401 Unauthorized 错误
-- **解决方案**: 检查 `.env.local` 文件中的API密钥是否正确配置
-
-#### 端口占用
-- **问题**: 8080端口被占用
-- **解决方案**: 停止占用端口的服务，或修改 `docker-compose.yml` 中的端口映射
-
 ## 更新日志
 
-### v1.2.4 (最新)
+### v1.2.4 (最新) - 2025-01-23
+- **组件优化**：
+  - 完善错误边界组件，提供更好的错误恢复机制
+  - 优化懒加载组件导入方式，提升首屏加载性能
+  - 修复组件间prop传递问题，确保功能正常运行
+- **开发体验改进**：
+  - 修复所有TypeScript类型错误，提升开发时的类型安全
+  - 完善组件导入导出，避免运行时错误
+  - 优化HMR热重载兼容性，提升开发效率
 - **OpenAI集成优化**：
   - 新增完整的OpenAI API支持，扩展AI模型选择范围
   - 更新OpenAI模型列表，集成最新的GPT-4.1模型

@@ -75,8 +75,6 @@ export const AppStages: React.FC<Props> = ({
   handleSendPlanChatMessage,
   setPlanModel,
   setHtmlModel,
-  setChatModel,
-  setPlanChatModel,
   setActiveTab,
   initializePlanChatSession,
   isChatAvailable,
