@@ -65,6 +65,7 @@
 ### 多AI模型支持
 - **Gemini**: Gemini 2.5 Pro
 - **Claude**: Claude 4 Sonnet
+- **ChatGPT**: GPT-4.1
 - **其他模型**: 通过 OpenRouter 或 OpenAI 支持更多AI模型
 
 ### 智能聊天优化
