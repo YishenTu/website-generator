@@ -8,7 +8,6 @@ import {
 } from "../templates/promptTemplates";
 import { handleApiError, formatErrorMessage } from "../utils/errorHandler";
 import { handleStreamResponse } from "../utils/streamHandler";
-import { createLogger } from "../utils/logger";
 import { ENV_VARS } from "../utils/constants";
 import { getEnvVar } from "../utils/env";
 
@@ -21,12 +20,8 @@ export const OPENAI_MODELS = [
     name: 'GPT-4o'
   },
   {
-    id: 'gpt-4-turbo',
-    name: 'GPT-4 Turbo'
-  },
-  {
-    id: 'gpt-3.5-turbo',
-    name: 'GPT-3.5 Turbo'
+    id: 'gpt-4.1',
+    name: 'GPT-4.1'
   }
 ] as const;
 
