@@ -13,12 +13,14 @@ interface PreviewLoaderProps {
 }
 
 export const PreviewLoader: React.FC<PreviewLoaderProps> = React.memo(({ 
+  isLoading,
   hasError, 
   onRetry,
   isStreaming = false,
   streamingModel,
   showStreamingStatus = false
 }) => {
+  // Streaming stage - when HTML is being generated
   if (showStreamingStatus && isStreaming) {
     return (
       <div className={combineStyles(
@@ -70,7 +72,29 @@ export const PreviewLoader: React.FC<PreviewLoaderProps> = React.memo(({
     );
   }
 
-  // 只显示错误状态，移除 loading preview 提示
+  // Preview loading stage - when iframe is loading the generated HTML
+  if (isLoading && !isStreaming) {
+    return (
+      <div className={combineStyles(
+        CONTAINER_STYLES.absolute,
+        CONTAINER_STYLES.inset0,
+        CONTAINER_STYLES.flexCenter,
+        'bg-slate-800 bg-opacity-75 z-20 rounded-b-md backdrop-blur-sm'
+      )}>
+        <div className="text-center">
+          <LoadingSpinner className={combineStyles(ICON_SIZES.lg, 'text-sky-400 mx-auto')} />
+          <p className={combineStyles('mt-3', TEXT_STYLES.paragraph, 'font-medium text-sky-300')}>
+            Loading preview...
+          </p>
+          <p className={combineStyles(TEXT_STYLES.mutedXs, 'text-slate-400')}>
+            Rendering your website
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Error stage
   if (!hasError) return null;
 
   return (

@@ -244,7 +244,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             <div className="ml-auto flex items-center px-3">
               <LoadingSpinner className={combineStyles(ICON_SIZES.sm, 'text-emerald-400')} />
               <span className={combineStyles('ml-2', TEXT_STYLES.muted, 'text-emerald-300')}>
-                {htmlContent !== null && isIframeLoading ? UI_TEXT.LOADING_PREVIEW : '实时生成中...'}
+                Streaming...
               </span>
               {streamingModel && (
                 <span className={combineStyles('ml-2 text-xs px-2 py-1 bg-emerald-600/20 text-emerald-400 rounded-md font-mono')}>
@@ -305,10 +305,10 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             </div>
         )}
 
-        {        /* 错误状态指示 - 使用PreviewLoader组件 */}
+        {        /* PreviewLoader组件 - 处理iframe加载、streaming和错误状态 */}
         {activeTab === ActiveTab.Preview && optimizedHtmlContent && !showMainSpinner && (
           <PreviewLoader 
-            isLoading={false} 
+            isLoading={isIframeLoading} 
             hasError={iframeError} 
             onRetry={handleRetry}
             isStreaming={isLoading && appStage === 'htmlReady'}
