@@ -9,6 +9,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - `npm run build` - Build production version to `dist/`
 - `npm run preview` - Preview production build
 
+### TypeScript Configuration
+- Uses TypeScript 5.7 with strict mode enabled
+- Path aliases configured: `@/*` maps to project root
+- Includes strict linting options: noUnusedLocals, noUnusedParameters, noFallthroughCasesInSwitch, noUncheckedIndexedAccess
+
 ### Docker
 - `./scripts/deploy.sh` - Automated deployment with Docker (checks environment, creates .env, builds, and starts containers)
 - `docker-compose up -d` - Start containers in background
