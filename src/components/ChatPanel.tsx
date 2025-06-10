@@ -16,7 +16,7 @@ interface ChatPanelProps {
   title?: string;
 }
 
-export const ChatPanel: React.FC<ChatPanelProps> = ({ 
+export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({ 
   messages, 
   onSendMessage, 
   isLoading, 
@@ -120,4 +120,4 @@ export const ChatPanel: React.FC<ChatPanelProps> = ({
       </form>
     </div>
   );
-};
+});

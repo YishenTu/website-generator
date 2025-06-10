@@ -1,6 +1,8 @@
-import React, { useState } from 'react';
-import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
-import { vscDarkPlus } from 'react-syntax-highlighter/dist/esm/styles/prism';
+import React, { useState, useEffect, useRef } from 'react';
+import CodeMirror from '@uiw/react-codemirror';
+import { html } from '@codemirror/lang-html';
+import { oneDark } from '@codemirror/theme-one-dark';
+import { EditorView } from '@codemirror/view';
 import { PencilIcon, EyeIcon } from './icons';
 
 interface CodeEditorProps {
@@ -8,35 +10,36 @@ interface CodeEditorProps {
   onChange?: (value: string) => void;
   readOnly?: boolean;
   className?: string;
+  autoScrollToBottom?: boolean;
 }
 
 export const CodeEditor: React.FC<CodeEditorProps> = ({
   value,
   onChange,
   readOnly = false,
-  className = ""
+  className = "",
+  autoScrollToBottom = false
 }) => {
   const [isEditing, setIsEditing] = useState(false);
+  const canEdit = !readOnly && !!onChange;
+  const editorRef = useRef<EditorView | null>(null);
 
-  const customStyle = {
-    ...vscDarkPlus,
-    'pre[class*="language-"]': {
-      ...vscDarkPlus['pre[class*="language-"]'],
-      background: '#0f172a', // slate-900
-      margin: 0,
-      padding: '12px',
-      fontSize: '14px',
-      lineHeight: '1.5',
-    },
-    'code[class*="language-"]': {
-      ...vscDarkPlus['code[class*="language-"]'],
-      background: 'transparent',
-      fontSize: '14px',
-      lineHeight: '1.5',
+  // Auto-scroll to bottom when content changes and autoScrollToBottom is enabled
+  useEffect(() => {
+    if (autoScrollToBottom && editorRef.current && value) {
+      const view = editorRef.current;
+      // Use requestAnimationFrame to ensure the DOM has updated
+      requestAnimationFrame(() => {
+        const lastLine = view.state.doc.lines;
+        if (lastLine > 0) {
+          view.dispatch({
+            selection: { anchor: view.state.doc.length },
+            effects: EditorView.scrollIntoView(view.state.doc.length)
+          });
+        }
+      });
     }
-  };
-
-  const canEdit = !readOnly && onChange;
+  }, [value, autoScrollToBottom]);
 
   return (
     <div className={`relative h-full ${className}`}>
@@ -60,36 +63,52 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
         </div>
       )}
 
-      {isEditing && canEdit ? (
-        <textarea
+      <div className="h-full overflow-auto">
+        <CodeMirror
           value={value}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-full h-full p-3 font-mono text-sm bg-slate-900 text-slate-300 border border-slate-700 rounded-md resize-none focus:outline-none focus:ring-1 focus:ring-sky-600 custom-scrollbar"
-          aria-label="编辑HTML代码"
+          onChange={(val) => {
+            if (isEditing && canEdit && onChange) {
+              onChange(val);
+            }
+          }}
+          onCreateEditor={(view) => {
+            editorRef.current = view;
+          }}
+          editable={isEditing && canEdit}
+          readOnly={!isEditing || readOnly || !onChange}
+          extensions={[
+            html(),
+            EditorView.theme({
+              '.cm-scroller': {
+                overflow: 'auto',
+                maxHeight: '100%'
+              },
+              '.cm-content': {
+                padding: '12px'
+              }
+            })
+          ]}
+          theme={oneDark}
+          basicSetup={{
+            lineNumbers: true,
+            foldGutter: true,
+            dropCursor: false,
+            allowMultipleSelections: false,
+            indentOnInput: true,
+            bracketMatching: true,
+            closeBrackets: true,
+            autocompletion: true,
+            highlightSelectionMatches: false,
+            searchKeymap: false,
+            scrollPastEnd: true
+          }}
+          style={{
+            height: '100%',
+            fontSize: '14px',
+            lineHeight: '1.5'
+          }}
         />
-      ) : (
-        <div className="h-full overflow-auto custom-scrollbar">
-          <SyntaxHighlighter
-            language="html"
-            style={customStyle}
-            customStyle={{
-              height: '100%',
-              margin: 0,
-              background: '#0f172a',
-            }}
-            wrapLongLines={true}
-            showLineNumbers={true}
-            lineNumberStyle={{
-              color: '#64748b',
-              fontSize: '12px',
-              paddingRight: '12px',
-              minWidth: '40px',
-            }}
-          >
-            {value}
-          </SyntaxHighlighter>
-        </div>
-      )}
+      </div>
     </div>
   );
 }; 

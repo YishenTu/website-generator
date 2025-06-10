@@ -20,8 +20,7 @@ import {
   OpenAIPlanChatSession,
   OPENAI_MODELS
 } from "./openaiService";
-import { ENV_VARS } from "../utils/constants";
-import { ERROR_MESSAGES } from '../utils/constants';
+import { ENV_VARS, ERROR_MESSAGES } from "../utils/constants";
 import { logger } from '../utils/logger';
 import { getEnvVar } from '../utils/env';
 

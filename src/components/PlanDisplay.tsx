@@ -22,7 +22,7 @@ interface PlanDisplayProps {
 }
 
 
-export const PlanDisplay: React.FC<PlanDisplayProps> = ({
+export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
   planText,
   onProceedToHtml,
   onReviseReportAndPlan,
@@ -212,4 +212,4 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
       </div>
     </div>
   );
-};
+});

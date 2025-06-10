@@ -9,6 +9,30 @@ export default defineConfig(({ mode }) => {
       build: {
         outDir: 'dist',
         sourcemap: true,
+        rollupOptions: {
+          output: {
+            manualChunks: {
+              // Vendor libraries
+              'vendor-react': ['react', 'react-dom'],
+              'vendor-codemirror': ['@uiw/react-codemirror', '@codemirror/lang-html', '@codemirror/theme-one-dark'],
+              
+              // AI services
+              'ai-services': [
+                'src/services/geminiService.ts',
+                'src/services/openaiService.ts', 
+                'src/services/openrouterService.ts'
+              ],
+              
+              // Heavy utilities
+              'utils': [
+                'src/utils/streamHandler.ts',
+                'src/utils/errorHandler.ts',
+                'src/utils/logger.ts'
+              ]
+            }
+          }
+        },
+        chunkSizeWarningLimit: 1000
       },
       server: {
         port: 3000,

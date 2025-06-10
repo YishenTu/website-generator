@@ -1,7 +1,7 @@
-import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ActiveTab } from '../types/types';
 import { TabButton } from './TabButton';
-const CodeEditor = React.lazy(() => import('./CodeEditor').then(module => ({ default: module.CodeEditor })));
+import { CodeEditor } from './CodeEditor';
 import { PreviewLoader } from './PreviewLoader';
 import { GenerationStatus } from './GenerationStatus';
 import { getModelInfo } from '../services/aiService';
@@ -36,7 +36,7 @@ interface OutputDisplayProps {
   streamingModel?: string; // 当前使用的模型 ID
 }
 
-export const OutputDisplay: React.FC<OutputDisplayProps> = ({
+export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
   htmlContent,
   isLoading,
   error,
@@ -313,14 +313,13 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
               />
             )}
             {activeTab === ActiveTab.Code && (
-              <Suspense fallback={<div />}>
-                <CodeEditor
-                  value={htmlContent || ''}
-                  onChange={onHtmlContentChange}
-                  readOnly={!onHtmlContentChange || isFullPreviewActive}
-                  className="w-full h-full"
-                />
-              </Suspense>
+              <CodeEditor
+                value={htmlContent || ''}
+                onChange={onHtmlContentChange}
+                readOnly={!onHtmlContentChange || isFullPreviewActive}
+                className="w-full h-full"
+                autoScrollToBottom={isLoading && appStage === 'htmlPending'}
+              />
             )}
           </>
         ) : null}
@@ -376,4 +375,4 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
       )}
     </div>
   );
-};
+});
