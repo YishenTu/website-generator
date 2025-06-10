@@ -43,6 +43,7 @@ export interface UseWebsiteGenerationReturn {
   isRefineMode: boolean;
   chatMessages: ChatMessage[];
   planChatMessages: ChatMessage[];
+  maxThinking: boolean;
   
   // Actions
   setReportText: (text: string) => void;
@@ -54,8 +55,9 @@ export interface UseWebsiteGenerationReturn {
   setIsFullPreviewActive: (active: boolean) => void;
   setIsRefineMode: (active: boolean) => void;
   setGeneratedHtml: (html: string | null) => void;
+  setMaxThinking: (enabled: boolean) => void;
   handleGeneratePlan: () => Promise<void>;
-  handleGenerateHtmlFromPlan: (planText: string) => Promise<void>;
+  handleGenerateHtmlFromPlan: (planText: string, maxThinking?: boolean) => Promise<void>;
   handleSendChatMessage: (message: string) => Promise<void>;
   handleSendPlanChatMessage: (message: string) => Promise<void>;
   handleChatModelChange: (model: string) => void;
@@ -103,6 +105,9 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   
   const [chatMessages, setChatMessages] = useState<ChatMessage[]>([]);
   const [planChatMessages, setPlanChatMessages] = useState<ChatMessage[]>([]);
+  
+  // 新增：思考预算状态
+  const [maxThinking, setMaxThinking] = useState<boolean>(false);
   
   // Refs
   const chatSessionRef = useRef<ChatSession | null>(null);
@@ -164,7 +169,8 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
 
           initializePlanChatSession(cleanedPlan);
         },
-        signal
+        signal,
+        maxThinking
       );
     } catch (err) {
       if (err instanceof Error) {
@@ -177,7 +183,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
       setGeneratedPlan(null);
       abortControllerRef.current = null;
     }
-  }, [reportText, planModel, ai]);
+  }, [reportText, planModel, ai, maxThinking]);
 
   // Initialize plan chat session
   const initializePlanChatSession = useCallback((planText: string, model?: string) => {
@@ -192,7 +198,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   }, [ai, planChatModel, reportText]);
 
   // HTML generation from plan
-  const handleGenerateHtmlFromPlan = useCallback(async (currentPlanText: string) => {
+  const handleGenerateHtmlFromPlan = useCallback(async (currentPlanText: string, maxThinking?: boolean) => {
     setError(null);
     
     // 保存当前使用的plan文本（可能是用户编辑过的）
@@ -249,7 +255,8 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
           setIsLoading(false);
           abortControllerRef.current = null;
         },
-        signal
+        signal,
+        maxThinking
       );
     } catch (err) {
       if (err instanceof Error) {
@@ -506,6 +513,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     isRefineMode,
     chatMessages,
     planChatMessages,
+    maxThinking,
     
     // Actions
     setReportText,
@@ -517,6 +525,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     setIsFullPreviewActive,
     setIsRefineMode,
     setGeneratedHtml,
+    setMaxThinking,
     handleGeneratePlan,
     handleGenerateHtmlFromPlan,
     handleSendChatMessage,

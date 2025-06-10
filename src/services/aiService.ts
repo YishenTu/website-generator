@@ -133,11 +133,12 @@ export async function generateWebsitePlan(
   reportText: string,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  maxThinking: boolean = false
 ): Promise<void> {
   return dispatchToModel(
     modelId,
-    () => generateWebsitePlanStream(ai, reportText, onChunk, onComplete, signal, modelId),
+    () => generateWebsitePlanStream(ai, reportText, onChunk, onComplete, signal, modelId, maxThinking),
     () => generateWebsitePlanStreamOpenRouter(reportText, onChunk, onComplete, signal, modelId),
     () => generateWebsitePlanStreamOpenAI(reportText, onChunk, onComplete, signal, modelId)
   );
@@ -151,11 +152,12 @@ export async function generateWebsiteFromPlan(
   planText: string,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
-  signal?: AbortSignal
+  signal?: AbortSignal,
+  maxThinking: boolean = false
 ): Promise<void> {
   return dispatchToModel(
     modelId,
-    () => generateWebsiteFromReportWithPlanStream(ai, reportText, planText, onChunk, onComplete, signal, modelId),
+    () => generateWebsiteFromReportWithPlanStream(ai, reportText, planText, onChunk, onComplete, signal, modelId, maxThinking),
     () => generateWebsiteFromReportWithPlanStreamOpenRouter(reportText, planText, onChunk, onComplete, signal, modelId),
     () => generateWebsiteFromReportWithPlanStreamOpenAI(reportText, planText, onChunk, onComplete, signal, modelId)
   );

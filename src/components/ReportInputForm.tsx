@@ -1,6 +1,8 @@
 import React from 'react';
 import { ModelSelector } from './ModelSelector';
+import { ThinkingBudgetToggle } from './ThinkingBudgetToggle';
 import { SparklesIcon, StopIcon, ArrowPathIcon } from './icons';
+import { isGeminiModel } from '../services/aiService';
 import type { AppStage } from '../App'; // Import AppStage type
 
 interface ReportInputFormProps {
@@ -14,6 +16,8 @@ interface ReportInputFormProps {
   appStage: AppStage;
   selectedModel: string; // 模型ID字符串
   onModelChange: (model: string) => void; // 模型ID回调
+  maxThinking?: boolean; // 新增：是否启用最大思考预算
+  onMaxThinkingChange?: (enabled: boolean) => void; // 新增：思考预算开关回调
 }
 
 export const ReportInputForm: React.FC<ReportInputFormProps> = ({
@@ -27,6 +31,8 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
   appStage,
   selectedModel,
   onModelChange,
+  maxThinking = false,
+  onMaxThinkingChange,
 }) => {
   let buttonText = "Generate Plan";
   let ButtonIcon = SparklesIcon;
@@ -62,6 +68,7 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
   }
   
   const isTextareaDisabled = isLoading || appStage === 'planPending' || appStage === 'htmlPending';
+  const showThinkingToggle = isGeminiModel(selectedModel) && onMaxThinkingChange;
 
   return (
     <div className="flex flex-col bg-slate-800 p-4 rounded-lg shadow-lg h-full">
@@ -75,28 +82,48 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
         aria-label="Report text input"
         aria-disabled={isTextareaDisabled}
       />
-      <div className="mt-4 flex items-center gap-3 flex-shrink-0">
-        <button
-          onClick={buttonAction}
-          className={`flex-1 font-semibold py-1.5 px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm
-            ${isLoading 
-              ? 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500' 
-              : 'bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500 disabled:bg-slate-600'
-            }
-          `}
-          disabled={!isLoading && appStage === 'initial' && !reportText.trim()}
-          aria-label={buttonAriaLabel}
-        >
-          <ButtonIcon className="w-5 h-5 mr-2" />
-          {buttonText}
-        </button>
-        <div className="flex items-center gap-2">
-          <ModelSelector
-            selectedModel={selectedModel}
-            onModelChange={onModelChange}
-            disabled={isLoading}
-            size="small"
-          />
+      <div className="mt-4 flex-shrink-0">
+        {/* 单行布局：生成按钮 -> 思考预算开关 -> 模型选择器 */}
+        <div className="flex items-center gap-3">
+          {/* 生成按钮 */}
+          <button
+            onClick={buttonAction}
+            className={`flex-1 font-semibold py-2 px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm
+              ${isLoading 
+                ? 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500' 
+                : 'bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500 disabled:bg-slate-600'
+              }
+            `}
+            disabled={!isLoading && appStage === 'initial' && !reportText.trim()}
+            aria-label={buttonAriaLabel}
+          >
+            <ButtonIcon className="w-5 h-5 mr-2" />
+            {buttonText}
+            {maxThinking && showThinkingToggle && (
+              <span className="ml-2 text-xs bg-sky-700 px-2 py-1 rounded-full">
+                Max
+              </span>
+            )}
+          </button>
+          
+          {/* 思考预算开关 */}
+          {showThinkingToggle && (
+            <ThinkingBudgetToggle
+              enabled={maxThinking}
+              onToggle={onMaxThinkingChange!}
+              disabled={isLoading}
+            />
+          )}
+          
+          {/* 模型选择器 */}
+          <div className="flex items-center">
+            <ModelSelector
+              selectedModel={selectedModel}
+              onModelChange={onModelChange}
+              disabled={isLoading}
+              size="small"
+            />
+          </div>
         </div>
       </div>
     </div>

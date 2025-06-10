@@ -24,9 +24,10 @@ interface Props {
   activeTab: ActiveTab;
   chatMessages: ChatMessage[];
   planChatMessages: ChatMessage[];
+  maxThinking: boolean;
   setReportText: (text: string) => void;
   handleGeneratePlan: () => Promise<void>;
-  handleGenerateHtmlFromPlan: (planText: string) => Promise<void>;
+  handleGenerateHtmlFromPlan: (planText: string, maxThinking?: boolean) => Promise<void>;
   handleStartNewSession: () => void;
   handleResetToInitial: () => void;
   handleStopGeneration: () => void;
@@ -37,6 +38,7 @@ interface Props {
   setChatModel: (model: string) => void;
   setPlanChatModel: (model: string) => void;
   setActiveTab: (tab: ActiveTab) => void;
+  setMaxThinking: (enabled: boolean) => void;
   initializePlanChatSession: (plan: string) => void;
   isChatAvailable: () => boolean;
   isPlanChatAvailable: () => boolean;
@@ -65,6 +67,7 @@ export const AppStages: React.FC<Props> = ({
   activeTab,
   chatMessages,
   planChatMessages,
+  maxThinking,
   setReportText,
   handleGeneratePlan,
   handleGenerateHtmlFromPlan,
@@ -76,6 +79,7 @@ export const AppStages: React.FC<Props> = ({
   setPlanModel,
   setHtmlModel,
   setActiveTab,
+  setMaxThinking,
   initializePlanChatSession,
   isChatAvailable,
   isPlanChatAvailable,
@@ -100,6 +104,8 @@ export const AppStages: React.FC<Props> = ({
         appStage={appStage}
         selectedModel={planModel}
         onModelChange={setPlanModel}
+        maxThinking={maxThinking}
+        onMaxThinkingChange={setMaxThinking}
       />
     </div>
   );
@@ -118,6 +124,8 @@ export const AppStages: React.FC<Props> = ({
           appStage={appStage}
           selectedModel={planModel}
           onModelChange={setPlanModel}
+          maxThinking={maxThinking}
+          onMaxThinkingChange={setMaxThinking}
         />
       </div>
       <div className={CONTAINER_STYLES.section}>
@@ -131,6 +139,8 @@ export const AppStages: React.FC<Props> = ({
           isCompactView={false}
           htmlModel={htmlModel}
           onHtmlModelChange={setHtmlModel}
+          maxThinking={maxThinking}
+          setMaxThinking={setMaxThinking}
         />
       </div>
     </>
@@ -152,6 +162,8 @@ export const AppStages: React.FC<Props> = ({
               appStage={appStage}
               selectedModel={planModel}
               onModelChange={setPlanModel}
+              maxThinking={maxThinking}
+              onMaxThinkingChange={setMaxThinking}
             />
           </div>
           <div className={combineStyles('md:col-span-2', CONTAINER_STYLES.section)}>
@@ -167,6 +179,8 @@ export const AppStages: React.FC<Props> = ({
               onHtmlModelChange={setHtmlModel}
               onToggleRefine={() => setIsRefineMode(false)}
               showRefineButton={true}
+              maxThinking={maxThinking}
+              setMaxThinking={setMaxThinking}
             />
           </div>
           <div className={combineStyles('md:col-span-1', CONTAINER_STYLES.section)}>
@@ -201,6 +215,8 @@ export const AppStages: React.FC<Props> = ({
             appStage={appStage}
             selectedModel={planModel}
             onModelChange={setPlanModel}
+            maxThinking={maxThinking}
+            onMaxThinkingChange={setMaxThinking}
           />
         </div>
         <div className={CONTAINER_STYLES.section}>
@@ -221,6 +237,8 @@ export const AppStages: React.FC<Props> = ({
               }
             }}
             showRefineButton={true}
+            maxThinking={maxThinking}
+            setMaxThinking={setMaxThinking}
           />
         </div>
       </>
@@ -263,6 +281,8 @@ export const AppStages: React.FC<Props> = ({
           appStage={appStage}
           selectedModel={planModel}
           onModelChange={setPlanModel}
+          maxThinking={maxThinking}
+          onMaxThinkingChange={setMaxThinking}
         />
       </div>
     </>

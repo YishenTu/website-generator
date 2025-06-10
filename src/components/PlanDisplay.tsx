@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { ModelSelector } from './ModelSelector';
 import { LoadingSpinner } from './LoadingSpinner';
+import { ThinkingBudgetToggle } from './ThinkingBudgetToggle';
 import { getDefaultModel } from '../services/aiService';
 import { isProviderAvailable } from '../utils/envValidator';
 import { CheckCircleIcon, PencilSquareIcon } from './icons';
 
 interface PlanDisplayProps {
   planText: string;
-  onProceedToHtml: (editedPlan: string) => void;
+  onProceedToHtml: (editedPlan: string, maxThinking?: boolean) => void;
   onReviseReportAndPlan: () => void;
   isAppLoading: boolean; // True if app is generally loading (e.g., plan streaming in)
   isLoadingHtml: boolean; // True if this component's action (generating HTML from plan) is loading
@@ -17,6 +18,8 @@ interface PlanDisplayProps {
   onHtmlModelChange?: (model: string) => void; // 模型ID回调
   onToggleRefine?: () => void;
   showRefineButton?: boolean;
+  maxThinking?: boolean;
+  setMaxThinking?: (enabled: boolean) => void;
 }
 
 
@@ -32,6 +35,8 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
   onHtmlModelChange,
   onToggleRefine,
   showRefineButton,
+  maxThinking,
+  setMaxThinking,
 }) => {
   const [editablePlanText, setEditablePlanText] = useState<string>(planText);
   const [hasManualEdit, setHasManualEdit] = useState<boolean>(false); // 跟踪用户是否手动编辑过
@@ -75,7 +80,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
 
   const handleProceed = () => {
     if (!isAppLoading && !isLoadingHtml) {
-      onProceedToHtml(editablePlanText);
+      onProceedToHtml(editablePlanText, maxThinking);
     }
   };
 
@@ -170,7 +175,20 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
                 <CheckCircleIcon className="w-5 h-5 mr-2" />
               )}
               {isLoadingHtml ? 'Generating Website...' : 'Generate Website from Plan'}
+              {maxThinking && htmlModel.startsWith('gemini') && (
+                <span className="ml-2 text-xs bg-green-800 px-2 py-1 rounded-full">
+                  Max
+                </span>
+              )}
             </button>
+            
+            {htmlModel.startsWith('gemini') && setMaxThinking && (
+              <ThinkingBudgetToggle
+                enabled={maxThinking || false}
+                onToggle={setMaxThinking}
+                disabled={isAppLoading || isLoadingHtml}
+              />
+            )}
             
             {onHtmlModelChange && (
               <div className="flex items-center gap-2">

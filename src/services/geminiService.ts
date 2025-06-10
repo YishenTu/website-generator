@@ -1,4 +1,4 @@
-import { GoogleGenAI, GenerateContentParameters, Chat } from "@google/genai";
+import { GoogleGenAI, Chat } from "@google/genai";
 import { 
   generateWebsitePlanPrompt, 
   generateWebsitePromptWithPlan,
@@ -28,22 +28,49 @@ export const GEMINI_MODELS = [
 // 默认模型
 const DEFAULT_MODEL = GEMINI_MODELS[0].id;
 
+// 思考预算配置 - 设置为最大值以获得最佳推理能力
+const getMaxThinkingBudget = (modelName: string): number => {
+  if (modelName.includes('flash')) {
+    return 24576; // Gemini 2.5 Flash 最大思考预算
+  } else if (modelName.includes('pro')) {
+    return 32768; // Gemini 2.5 Pro 最大思考预算
+  }
+  return 32768; // 默认使用 Pro 的最大值
+};
+
+// 创建生成配置，包含思考预算 - 仅用于内容生成
+const createGenerationConfig = (modelName: string) => ({
+  thinkingConfig: {
+    thinking_budget: getMaxThinkingBudget(modelName)
+  }
+});
+
 export async function generateWebsitePlanStream(
   ai: GoogleGenAI,
   reportText: string,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  maxThinking: boolean = false
 ): Promise<void> {
   const prompt = generateWebsitePlanPrompt(reportText);
+  const model = modelName || DEFAULT_MODEL;
   
-  const requestParams: GenerateContentParameters = { 
-    model: modelName || DEFAULT_MODEL, 
-    contents: prompt 
+  const requestParams = maxThinking ? { 
+    model: model, 
+    contents: prompt,
+    generationConfig: createGenerationConfig(model)
+  } : {
+    model: model, 
+    contents: prompt
   };
 
-  logger.debug('Starting plan generation stream');
+  logger.debug(`Starting plan generation stream${maxThinking ? ' with maximum thinking budget' : ''}`, { 
+    model, 
+    maxThinking,
+    ...(maxThinking && { thinkingBudget: getMaxThinkingBudget(model) })
+  });
   try {
     // Fix: Pass AbortSignal directly within the first argument object
     const streamRequest = signal ? { ...requestParams, signal } : requestParams;
@@ -76,16 +103,26 @@ export async function generateWebsiteFromReportWithPlanStream(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  maxThinking: boolean = false
 ): Promise<void> {
   const prompt = generateWebsitePromptWithPlan(reportText, planText);
+  const model = modelName || DEFAULT_MODEL;
 
-  const requestParams: GenerateContentParameters = { 
-    model: modelName || DEFAULT_MODEL, 
-    contents: prompt 
+  const requestParams = maxThinking ? { 
+    model: model, 
+    contents: prompt,
+    generationConfig: createGenerationConfig(model)
+  } : {
+    model: model, 
+    contents: prompt
   };
   
-  logger.debug('Starting website HTML generation stream');
+  logger.debug(`Starting website HTML generation stream${maxThinking ? ' with maximum thinking budget' : ''}`, { 
+    model, 
+    maxThinking,
+    ...(maxThinking && { thinkingBudget: getMaxThinkingBudget(model) })
+  });
   try {
     // Fix: Pass AbortSignal directly within the first argument object
     const streamRequest = signal ? { ...requestParams, signal } : requestParams;
@@ -117,6 +154,7 @@ export class GeminiChatSession {
   private chatSession: Chat;
 
   constructor(ai: GoogleGenAI, initialHtml: string, reportText: string, planText: string, modelName?: string) {
+    const model = modelName || DEFAULT_MODEL;
     // 构造Gemini API格式的聊天历史
     const chatHistory = [
       { role: "user", parts: [{ text: getHtmlChatInitialMessage(initialHtml, reportText, planText) }] },
@@ -124,10 +162,14 @@ export class GeminiChatSession {
     ];
     
     this.chatSession = ai.chats.create({
-      model: modelName || DEFAULT_MODEL,
-      config: { systemInstruction: getChatSystemInstruction() },
+      model: model,
+      config: { 
+        systemInstruction: getChatSystemInstruction()
+      },
       history: chatHistory,
     });
+
+    logger.debug('Created Gemini chat session', { model });
   }
 
   async sendMessageStream(
@@ -169,6 +211,7 @@ export class GeminiPlanChatSession {
   private chatSession: Chat;
 
   constructor(ai: GoogleGenAI, initialPlan: string, reportText: string, modelName?: string) {
+    const model = modelName || DEFAULT_MODEL;
     // 构造Gemini API格式的聊天历史
     const chatHistory = [
       { role: "user", parts: [{ text: getPlanChatInitialMessage(initialPlan, reportText) }] },
@@ -176,10 +219,14 @@ export class GeminiPlanChatSession {
     ];
     
     this.chatSession = ai.chats.create({
-      model: modelName || DEFAULT_MODEL,
-      config: { systemInstruction: getPlanChatSystemInstruction() },
+      model: model,
+      config: { 
+        systemInstruction: getPlanChatSystemInstruction()
+      },
       history: chatHistory,
     });
+
+    logger.debug('Created Gemini plan chat session', { model });
   }
 
   async sendMessageStream(

@@ -48,6 +48,7 @@ const App: React.FC = () => {
     isRefineMode,
     chatMessages,
     planChatMessages,
+    maxThinking,
     
     // Actions
     setReportText,
@@ -71,6 +72,7 @@ const App: React.FC = () => {
     initializePlanChatSession,
     isChatAvailable,
     isPlanChatAvailable,
+    setMaxThinking,
   } = useWebsiteGeneration({ ai });
 
   // Handle copy and download actions
@@ -203,6 +205,7 @@ const App: React.FC = () => {
           activeTab={activeTab}
           chatMessages={chatMessages}
           planChatMessages={planChatMessages}
+          maxThinking={maxThinking}
           setReportText={setReportText}
           handleGeneratePlan={handleGeneratePlan}
           handleGenerateHtmlFromPlan={handleGenerateHtmlFromPlan}
@@ -216,6 +219,7 @@ const App: React.FC = () => {
           setChatModel={setChatModel}
           setPlanChatModel={setPlanChatModel}
           setActiveTab={setActiveTab}
+          setMaxThinking={setMaxThinking}
           initializePlanChatSession={initializePlanChatSession}
           isChatAvailable={isChatAvailable}
           isPlanChatAvailable={isPlanChatAvailable}
