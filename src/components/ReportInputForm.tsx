@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useState, useCallback } from 'react';
 import { ModelSelector } from './ModelSelector';
 import { ThinkingBudgetToggle } from './ThinkingBudgetToggle';
 import { SparklesIcon, StopIcon, ArrowPathIcon } from './icons';
 import { supportsThinking } from '../services/aiService';
+import { validateReportText, formatCharacterCount, isApproachingLimit, VALIDATION_LIMITS } from '../utils/inputValidation';
 import type { AppStage } from '../App'; // Import AppStage type
 
 interface ReportInputFormProps {
@@ -34,6 +35,29 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
   maxThinking = false,
   onMaxThinkingChange,
 }) => {
+  // Validation state
+  const [validationError, setValidationError] = useState<string>('');
+  
+  // Handle text change with validation
+  const handleTextChange = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const text = e.target.value;
+    const validation = validateReportText(text);
+    
+    if (validation.isValid) {
+      setValidationError('');
+      onReportChange(validation.sanitizedText || text);
+    } else {
+      setValidationError(validation.error || '');
+      onReportChange(text); // Still update to show user input
+    }
+  }, [onReportChange]);
+
+  // Check if button should be disabled
+  const isGenerationDisabled = !reportText.trim() || 
+    reportText.length < VALIDATION_LIMITS.REPORT_TEXT_MIN || 
+    reportText.length > VALIDATION_LIMITS.REPORT_TEXT_MAX ||
+    isLoading;
+
   let buttonText = "Generate Plan";
   let ButtonIcon = SparklesIcon;
   let buttonAction = onGeneratePlan;
@@ -73,15 +97,47 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
   return (
     <div className="flex flex-col bg-slate-800 p-4 rounded-lg shadow-lg h-full">
       <h2 className="text-xl font-semibold text-sky-400 mb-3 flex-shrink-0">Text Input</h2>
-      <textarea
-        value={reportText}
-        onChange={(e) => onReportChange(e.target.value)}
-        placeholder="Paste your text here..."
-        className="w-full p-3 bg-slate-700 text-slate-200 border border-slate-600 rounded-md resize-none focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-sm leading-relaxed flex-grow min-h-0 custom-scrollbar"
-        disabled={isTextareaDisabled}
-        aria-label="Report text input"
-        aria-disabled={isTextareaDisabled}
-      />
+      <div className="flex-grow min-h-0 flex flex-col">
+        <textarea
+          value={reportText}
+          onChange={handleTextChange}
+          placeholder={`Paste your text here... (minimum ${VALIDATION_LIMITS.REPORT_TEXT_MIN} characters)`}
+          className={`w-full p-3 bg-slate-700 text-slate-200 border rounded-md resize-none focus:ring-2 focus:border-sky-500 text-sm leading-relaxed flex-grow min-h-0 custom-scrollbar ${
+            validationError 
+              ? 'border-red-500 focus:ring-red-500' 
+              : isApproachingLimit(reportText.length, VALIDATION_LIMITS.REPORT_TEXT_MAX)
+                ? 'border-yellow-500 focus:ring-yellow-500'
+                : 'border-slate-600 focus:ring-sky-500'
+          }`}
+          disabled={isTextareaDisabled}
+          aria-label="Report text input"
+          aria-disabled={isTextareaDisabled}
+          aria-invalid={!!validationError}
+          aria-describedby={validationError ? "validation-error" : "char-count"}
+        />
+        
+        {/* Character count and validation */}
+        <div className="flex justify-between items-center mt-2 text-xs">
+          <span 
+            id="char-count"
+            className={`${
+              isApproachingLimit(reportText.length, VALIDATION_LIMITS.REPORT_TEXT_MAX)
+                ? 'text-yellow-400'
+                : reportText.length > VALIDATION_LIMITS.REPORT_TEXT_MAX
+                  ? 'text-red-400'
+                  : 'text-slate-400'
+            }`}
+          >
+            {formatCharacterCount(reportText.length, VALIDATION_LIMITS.REPORT_TEXT_MAX)}
+          </span>
+          
+          {validationError && (
+            <span id="validation-error" className="text-red-400 text-right max-w-xs truncate">
+              {validationError}
+            </span>
+          )}
+        </div>
+      </div>
       <div className="mt-4 flex-shrink-0">
         {/* 单行布局：生成按钮 -> 思考预算开关 -> 模型选择器 */}
         <div className="flex items-center gap-3">
@@ -94,7 +150,7 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
                 : 'bg-sky-600 hover:bg-sky-700 text-white focus:ring-sky-500 disabled:bg-slate-600'
               }
             `}
-            disabled={!isLoading && appStage === 'initial' && !reportText.trim()}
+            disabled={!isLoading && appStage === 'initial' && isGenerationDisabled}
             aria-label={buttonAriaLabel}
           >
             <ButtonIcon className="w-5 h-5 mr-2" />

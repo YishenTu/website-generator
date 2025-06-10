@@ -1,8 +1,9 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { GoogleGenAI } from "@google/genai";
 import { AppStages } from "./components/AppStages";
 import { OutputDisplay } from "./components/OutputDisplay";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { AppProvider, type AppContextType } from './contexts/AppContext';
 import { ArrowPathIcon } from './components/icons';
 import { copyHtmlToClipboard, downloadHtmlFile } from './components/fileUtils';
 import { ActiveTab } from './types/types';
@@ -75,8 +76,8 @@ const App: React.FC = () => {
     setMaxThinking,
   } = useWebsiteGeneration({ ai });
 
-  // Handle copy and download actions
-  const handleCopyCode = async () => {
+  // Memoized action handlers
+  const handleCopyCode = useCallback(async () => {
     if (generatedHtml) {
       const success = await copyHtmlToClipboard(generatedHtml);
       if (success) {
@@ -85,23 +86,86 @@ const App: React.FC = () => {
         alert(UI_TEXT.COPY_FAILED);
       }
     }
-  };
+  }, [generatedHtml]);
 
-  const handleDownloadHtml = () => {
+  const handleDownloadHtml = useCallback(() => {
     if (generatedHtml) {
       downloadHtmlFile(generatedHtml, FILE.DEFAULT_HTML_NAME);
     }
-  };
+  }, [generatedHtml]);
 
-  const toggleFullPreview = () => {
+  const toggleFullPreview = useCallback(() => {
     if (generatedHtml) {
       setIsFullPreviewActive(!isFullPreviewActive);
     }
-  };
+  }, [generatedHtml, isFullPreviewActive, setIsFullPreviewActive]);
   
-  const handleHtmlContentChange = (newHtml: string) => {
+  const handleHtmlContentChange = useCallback((newHtml: string) => {
     setGeneratedHtml(newHtml);
-  };
+  }, [setGeneratedHtml]);
+
+  // Memoized context value
+  const contextValue = useMemo((): AppContextType => ({
+    state: {
+      appStage,
+      isRefineMode,
+      reportText,
+      generatedPlan,
+      generatedHtml,
+      planModel,
+      htmlModel,
+      chatModel,
+      planChatModel,
+      isLoading,
+      isChatLoading,
+      isPlanChatLoading,
+      activeTab,
+      chatMessages,
+      planChatMessages,
+      maxThinking
+    },
+    actions: {
+      setReportText,
+      handleGeneratePlan,
+      handleGenerateHtmlFromPlan,
+      handleStartNewSession,
+      handleResetToInitial,
+      handleStopGeneration,
+      handleSendChatMessage,
+      handleSendPlanChatMessage,
+      setPlanModel,
+      setHtmlModel,
+      setChatModel,
+      setPlanChatModel,
+      setActiveTab,
+      setMaxThinking,
+      initializePlanChatSession,
+      isChatAvailable,
+      isPlanChatAvailable,
+      handlePlanChatModelChange,
+      handleChatModelChange,
+      onCopyCode: handleCopyCode,
+      onDownloadHtml: handleDownloadHtml,
+      onToggleFullPreview: toggleFullPreview,
+      onHtmlContentChange: handleHtmlContentChange,
+      setIsRefineMode
+    }
+  }), [
+    // State dependencies
+    appStage, isRefineMode, reportText, generatedPlan, generatedHtml,
+    planModel, htmlModel, chatModel, planChatModel,
+    isLoading, isChatLoading, isPlanChatLoading,
+    activeTab, chatMessages, planChatMessages, maxThinking,
+    // Action dependencies
+    setReportText, handleGeneratePlan, handleGenerateHtmlFromPlan,
+    handleStartNewSession, handleResetToInitial, handleStopGeneration,
+    handleSendChatMessage, handleSendPlanChatMessage,
+    setPlanModel, setHtmlModel, setChatModel, setPlanChatModel,
+    setActiveTab, setMaxThinking, initializePlanChatSession,
+    isChatAvailable, isPlanChatAvailable, handlePlanChatModelChange,
+    handleChatModelChange, handleCopyCode, handleDownloadHtml,
+    toggleFullPreview, handleHtmlContentChange, setIsRefineMode
+  ]);
 
   // Handle ESC key for full preview
   useEffect(() => {
@@ -134,106 +198,69 @@ const App: React.FC = () => {
   // Full preview mode
   if (isFullPreviewActive && generatedHtml) {
     return (
-      <OutputDisplay
-        htmlContent={generatedHtml}
-        isLoading={false}
-        error={null}
-        activeTab={ActiveTab.Preview}
-        onTabChange={() => {}}
-        onCopyCode={handleCopyCode}
-        onDownloadHtml={handleDownloadHtml}
-        onToggleFullPreview={toggleFullPreview}
-        isFullPreviewActive={true}
-        appStage={appStage}
-        onHtmlContentChange={handleHtmlContentChange}
-        className="h-full w-full"
-      />
+      <AppProvider value={contextValue}>
+        <OutputDisplay
+          htmlContent={generatedHtml}
+          isLoading={false}
+          error={null}
+          activeTab={ActiveTab.Preview}
+          onTabChange={() => {}}
+          onCopyCode={handleCopyCode}
+          onDownloadHtml={handleDownloadHtml}
+          onToggleFullPreview={toggleFullPreview}
+          isFullPreviewActive={true}
+          appStage={appStage}
+          onHtmlContentChange={handleHtmlContentChange}
+          className="h-full w-full"
+        />
+      </AppProvider>
     );
   }
 
   // Main app layout
   return (
-    <div className={combineStyles(LAYOUT_STYLES.flexCol, 'h-screen p-4 md:p-6 bg-slate-900 text-slate-100 overflow-hidden')}>
-      {/* Header */}
-      <header className={combineStyles('mb-4 md:mb-6', LAYOUT_STYLES.flexShrink0, LAYOUT_STYLES.relative)}>
-        <h1 className="text-3xl md:text-4xl font-bold text-sky-500 text-center">
-          {UI_TEXT.APP_TITLE}
-        </h1>
-        <p className="text-slate-400 text-center mt-1 text-sm md:text-base">
-          {UI_TEXT.APP_SUBTITLE}
-        </p>
-        {appStage === 'htmlReady' && (
-          <button
-            onClick={handleStartNewSession}
-            className={combineStyles(
-              'absolute top-0 right-0',
-              LAYOUT_STYLES.flexCenter,
-              BUTTON_STYLES.base,
-              BUTTON_STYLES.primary,
-              BUTTON_STYLES.smallButton,
-              'py-2 px-3'
-            )}
-            aria-label="Start a new session"
-            disabled={isLoading || isChatLoading}
-          >
-            <ArrowPathIcon className={combineStyles(ICON_SIZES.xs, 'mr-1.5')} /> New Session
-          </button>
+    <AppProvider value={contextValue}>
+      <div className={combineStyles(LAYOUT_STYLES.flexCol, 'h-screen p-4 md:p-6 bg-slate-900 text-slate-100 overflow-hidden')}>
+        {/* Header */}
+        <header className={combineStyles('mb-4 md:mb-6', LAYOUT_STYLES.flexShrink0, LAYOUT_STYLES.relative)}>
+          <h1 className="text-3xl md:text-4xl font-bold text-sky-500 text-center">
+            {UI_TEXT.APP_TITLE}
+          </h1>
+          <p className="text-slate-400 text-center mt-1 text-sm md:text-base">
+            {UI_TEXT.APP_SUBTITLE}
+          </p>
+          {appStage === 'htmlReady' && (
+            <button
+              onClick={handleStartNewSession}
+              className={combineStyles(
+                'absolute top-0 right-0',
+                LAYOUT_STYLES.flexCenter,
+                BUTTON_STYLES.base,
+                BUTTON_STYLES.primary,
+                BUTTON_STYLES.smallButton,
+                'py-2 px-3'
+              )}
+              aria-label="Start a new session"
+              disabled={isLoading || isChatLoading}
+            >
+              <ArrowPathIcon className={combineStyles(ICON_SIZES.xs, 'mr-1.5')} /> New Session
+            </button>
+          )}
+        </header>
+
+        {/* Error display */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/70 text-red-200 border border-red-700 rounded-md text-center text-sm shadow-lg" role="alert">
+            {error}
+          </div>
         )}
-      </header>
-
-      {/* Error display */}
-      {error && (
-        <div className="mb-4 p-3 bg-red-900/70 text-red-200 border border-red-700 rounded-md text-center text-sm shadow-lg" role="alert">
-          {error}
-        </div>
-      )}
-      {/* Main content grid */}
-      <main className={combineStyles(LAYOUT_STYLES.flexGrow, 'grid', getMainGridClasses(), appStage === 'initial' ? 'place-items-start justify-center' : '')}>
-        <AppStages
-          appStage={appStage}
-          isRefineMode={isRefineMode}
-          reportText={reportText}
-          generatedPlan={generatedPlan}
-          generatedHtml={generatedHtml}
-          planModel={planModel}
-          htmlModel={htmlModel}
-          chatModel={chatModel}
-          planChatModel={planChatModel}
-          isLoading={isLoading}
-          isChatLoading={isChatLoading}
-          isPlanChatLoading={isPlanChatLoading}
-          activeTab={activeTab}
-          chatMessages={chatMessages}
-          planChatMessages={planChatMessages}
-          maxThinking={maxThinking}
-          setReportText={setReportText}
-          handleGeneratePlan={handleGeneratePlan}
-          handleGenerateHtmlFromPlan={handleGenerateHtmlFromPlan}
-          handleStartNewSession={handleStartNewSession}
-          handleResetToInitial={handleResetToInitial}
-          handleStopGeneration={handleStopGeneration}
-          handleSendChatMessage={handleSendChatMessage}
-          handleSendPlanChatMessage={handleSendPlanChatMessage}
-          setPlanModel={setPlanModel}
-          setHtmlModel={setHtmlModel}
-          setChatModel={setChatModel}
-          setPlanChatModel={setPlanChatModel}
-          setActiveTab={setActiveTab}
-          setMaxThinking={setMaxThinking}
-          initializePlanChatSession={initializePlanChatSession}
-          isChatAvailable={isChatAvailable}
-          isPlanChatAvailable={isPlanChatAvailable}
-          handlePlanChatModelChange={handlePlanChatModelChange}
-          handleChatModelChange={handleChatModelChange}
-          onCopyCode={handleCopyCode}
-          onDownloadHtml={handleDownloadHtml}
-          onToggleFullPreview={toggleFullPreview}
-          onHtmlContentChange={handleHtmlContentChange}
-          setIsRefineMode={setIsRefineMode}
-        />
-      </main>
-
-    </div>
+        
+        {/* Main content grid */}
+        <main className={combineStyles(LAYOUT_STYLES.flexGrow, 'grid', getMainGridClasses(), appStage === 'initial' ? 'place-items-start justify-center' : '')}>
+          <AppStages />
+        </main>
+      </div>
+    </AppProvider>
   );
 };
 
