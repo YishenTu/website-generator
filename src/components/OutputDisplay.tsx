@@ -283,7 +283,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
                 onChange={onHtmlContentChange}
                 readOnly={!onHtmlContentChange || isFullPreviewActive}
                 className="w-full h-full"
-                autoScrollToBottom={isLoading && appStage === 'htmlPending'}
+                autoScrollToBottom={false}
               />
             )}
           </>
@@ -302,13 +302,13 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             <button
               onClick={onToggleFullPreview}
               disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
-              className={combineStyles(
-                'flex-1',
-                BUTTON_STYLES.base,
-                BUTTON_STYLES.blue,
-                BUTTON_STYLES.disabled,
-                BUTTON_STYLES.smallButton
-              )}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+                appStage === 'htmlPending'
+                  ? 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+                  : htmlContent && !error && appStage === 'htmlReady'
+                    ? 'glass-card border border-sky-400/50 text-sky-400 hover:shadow-lg hover:shadow-sky-500/20'
+                    : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+              } ${(!htmlContent || !!error || isLoading || appStage === 'htmlPending') ? 'opacity-50 cursor-not-allowed' : ''}`}
               aria-label="Full Preview"
             >
               <ArrowTopRightOnSquareIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
@@ -317,13 +317,13 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             <button
               onClick={onCopyCode}
               disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
-              className={combineStyles(
-                'flex-1',
-                BUTTON_STYLES.base,
-                BUTTON_STYLES.primary,
-                BUTTON_STYLES.disabled,
-                BUTTON_STYLES.smallButton
-              )}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+                appStage === 'htmlPending'
+                  ? 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+                  : htmlContent && !error && appStage === 'htmlReady'
+                    ? 'glass-card border border-sky-400/50 text-sky-400 hover:shadow-lg hover:shadow-sky-500/20'
+                    : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+              } ${(!htmlContent || !!error || isLoading || appStage === 'htmlPending') ? 'opacity-50 cursor-not-allowed' : ''}`}
               aria-label="Copy HTML code"
             >
               <DocumentDuplicateIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
@@ -332,13 +332,13 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             <button
               onClick={onDownloadHtml}
               disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
-              className={combineStyles(
-                'flex-1',
-                BUTTON_STYLES.base,
-                BUTTON_STYLES.success,
-                BUTTON_STYLES.disabled,
-                BUTTON_STYLES.smallButton
-              )}
+              className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+                appStage === 'htmlPending'
+                  ? 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+                  : htmlContent && !error && appStage === 'htmlReady'
+                    ? 'glass-card border border-sky-400/50 text-sky-400 hover:shadow-lg hover:shadow-sky-500/20'
+                    : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+              } ${(!htmlContent || !!error || isLoading || appStage === 'htmlPending') ? 'opacity-50 cursor-not-allowed' : ''}`}
               aria-label="Download HTML file"
             >
               <ArrowDownTrayIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />

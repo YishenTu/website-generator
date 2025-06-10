@@ -21,17 +21,13 @@ export const ThinkingBudgetToggle: React.FC<ThinkingBudgetToggleProps> = ({
     <button
       onClick={handleClick}
       disabled={disabled}
-      className={`
-        px-3 py-1.5 text-sm font-medium rounded-lg transition-all duration-200 backdrop-blur-md border
-        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-black
-        ${enabled 
-          ? 'bg-sky-600/80 text-white hover:bg-sky-700/90 focus:ring-sky-500 border-sky-500/30 shadow-lg shadow-sky-500/20' 
-          : 'glass-input text-white/70 hover:bg-white/10 focus:ring-white/30 border-white/20'
+      className={`px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg
+        ${
+          enabled
+            ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
+            : 'text-white bg-slate-800/30 backdrop-blur-md border border-white/15 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border-white/15'
         }
-        ${disabled 
-          ? 'opacity-50 cursor-not-allowed hover:bg-white/5' 
-          : 'cursor-pointer'
-        }
+        ${disabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:border-transparent hover:text-white/70' : ''}
       `}
       aria-pressed={enabled}
       title={enabled ? "Disable Max Thinking" : "Enable Max Thinking"}

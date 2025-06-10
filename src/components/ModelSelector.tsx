@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { ALL_MODELS, MODELS_BY_PROVIDER, getModelInfo } from '../services/aiService';
 import { CpuChipIcon, ExpandIcon, CollapseIcon } from './icons';
 
@@ -8,18 +9,24 @@ interface ModelSelectorProps {
   onModelChange: (modelId: string) => void; // 模型ID回调
   disabled?: boolean;
   size?: 'small' | 'normal';
+  expandDirection?: 'up' | 'down'; // 展开方向，默认向上
 }
 
 export const ModelSelector: React.FC<ModelSelectorProps> = ({
   selectedModel,
   onModelChange,
   disabled = false,
-  size = 'normal'
+  size = 'normal',
+  expandDirection = 'up'
 }) => {
   const [expandedProviders, setExpandedProviders] = useState<Record<string, boolean>>({
     gemini: true,
     openrouter: true
   });
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+  const buttonRef = useRef<HTMLButtonElement>(null);
+  const [position, setPosition] = useState({ top: 0, left: 0, width: 0 });
 
   const toggleProvider = (provider: string) => {
     setExpandedProviders(prev => ({
@@ -32,27 +39,121 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   const handleModelChange = (modelId: string) => {
     if (disabled) return;
     onModelChange(modelId);
+    if (size === 'small') {
+      setIsOpen(false);
+    }
   };
 
+  // 计算下拉菜单位置
+  const calculatePosition = () => {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      
+      let top, left;
+      if (expandDirection === 'up') {
+        top = rect.top + scrollTop - 280; // 减去菜单高度
+      } else {
+        top = rect.bottom + scrollTop + 4; // 向下展开
+      }
+      
+      left = rect.left + scrollLeft;
+      
+      setPosition({
+        top,
+        left,
+        width: Math.max(rect.width, 200)
+      });
+    }
+  };
+
+  // 监听窗口滚动和resize事件，更新位置
+  useEffect(() => {
+    const updatePosition = () => {
+      if (isOpen && size === 'small') {
+        calculatePosition();
+      }
+    };
+
+    if (isOpen && size === 'small') {
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+      return () => {
+        window.removeEventListener('scroll', updatePosition, true);
+        window.removeEventListener('resize', updatePosition);
+      };
+    }
+  }, [isOpen, size]);
+
+  // 点击外部关闭下拉菜单
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node) &&
+          buttonRef.current && !buttonRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+
+    if (isOpen && size === 'small') {
+      calculatePosition();
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [isOpen, size, expandDirection]);
+
   if (size === 'small') {
+    const selectedModelInfo = getModelInfo(selectedModel);
+    
+    const dropdownMenu = isOpen && !disabled && (
+      <div 
+        ref={dropdownRef}
+        className="fixed min-w-[200px] max-h-60 overflow-y-auto bg-black border border-white/20 rounded-lg shadow-xl shadow-black/50"
+        style={{ 
+          top: `${position.top}px`,
+          left: `${position.left}px`,
+          width: `${position.width}px`,
+          zIndex: 999999
+        }}
+      >
+        {Object.entries(MODELS_BY_PROVIDER).map(([provider, models]) => (
+          <div key={provider}>
+            <div className="px-3 py-2 text-xs font-medium text-white/90 bg-slate-800 border-b border-white/20">
+              {provider === 'gemini' ? 'Google Gemini' : provider === 'openrouter' ? 'OpenRouter' : provider === 'openai' ? 'ChatGPT' : provider.charAt(0).toUpperCase() + provider.slice(1)}
+            </div>
+            {models.map((model) => (
+              <button
+                key={model.id}
+                onClick={() => handleModelChange(model.id)}
+                className={`w-full text-left px-3 py-2 text-sm hover:bg-white/20 transition-all duration-200 border-b border-white/5 last:border-b-0 ${
+                  selectedModel === model.id 
+                    ? 'bg-transparent text-sky-400 border-sky-400/50 border-l-2 border-r-2' 
+                    : 'text-white/80'
+                }`}
+              >
+                <div className="truncate">{model.name}</div>
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    );
+    
     return (
       <div className="relative inline-block">
-        <select
-          value={selectedModel}
-          onChange={(e) => handleModelChange(e.target.value)}
+        <button
+          ref={buttonRef}
+          onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
-          className="appearance-none glass-input text-slate-200 border border-white/20 rounded-lg py-1.5 px-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-center backdrop-blur-md transition-all duration-200"
+          className="appearance-none glass-input text-slate-200 border border-white/20 rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-center backdrop-blur-md transition-all duration-200 min-w-[120px] flex items-center justify-between"
         >
-          {Object.entries(MODELS_BY_PROVIDER).map(([provider, models]) => (
-            <optgroup key={provider} label={provider.charAt(0).toUpperCase() + provider.slice(1)}>
-              {models.map((model) => (
-                <option key={model.id} value={model.id}>
-                  {model.name}
-                </option>
-              ))}
-            </optgroup>
-          ))}
-        </select>
+          <span className="truncate">
+            {selectedModelInfo?.name || selectedModel}
+          </span>
+          <ExpandIcon className={`w-3 h-3 ml-1 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        </button>
+        
+        {dropdownMenu && createPortal(dropdownMenu, document.body)}
       </div>
     );
   }

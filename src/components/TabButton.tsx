@@ -16,7 +16,7 @@ export const TabButton: React.FC<TabButtonProps> = React.memo(({ label, isActive
         ${
           isActive
             ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
-            : 'text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border hover:border-white/15'
+            : 'text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15'
         }
         ${disabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:border-transparent hover:text-white/70' : ''}
       `}
@@ -51,7 +51,7 @@ export const TabActionButton: React.FC<TabActionButtonProps> = React.memo(({
         ${
           isActive
             ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
-            : 'text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border hover:border-white/15'
+            : 'text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15'
         }
         ${disabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:border-transparent hover:text-white/70' : ''}
         ${className}

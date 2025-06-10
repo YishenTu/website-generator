@@ -114,7 +114,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           {hasManualEdit && !isAppLoading && !isLoadingHtml && (
             <button
               onClick={handleResetToOriginal}
-              className="bg-gray-600/80 hover:bg-gray-700/90 text-white font-medium py-1.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-black text-xs backdrop-blur-md border border-gray-500/30"
+              className="px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15"
               aria-label="Reset to original plan"
               title="重置到原始plan"
             >
@@ -127,7 +127,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           {showRefineButton && onToggleRefine && !isAppLoading && (
             <button
               onClick={onToggleRefine}
-              className="bg-purple-600/80 hover:bg-purple-700/90 text-white font-medium py-1.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-black text-sm backdrop-blur-md border border-purple-500/30"
+              className="px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15"
               aria-label="Toggle refine mode"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1.5">
@@ -163,7 +163,11 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           <button
             onClick={handleProceed}
             disabled={generateButtonDisabled}
-            className={`flex-1 bg-green-600/80 hover:bg-green-700/90 disabled:bg-white/10 disabled:border-white/10 disabled:opacity-50 text-white font-semibold ${buttonPy} px-4 rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-black text-sm backdrop-blur-md border border-green-500/30 hover:border-green-400/50 shadow-lg transition-all duration-200`}
+            className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+              !generateButtonDisabled
+                ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
+                : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+            } ${generateButtonDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border-white/15'}`}
             aria-label="Generate website from this plan"
           >
             <CheckCircleIcon className="w-5 h-5 mr-2" />

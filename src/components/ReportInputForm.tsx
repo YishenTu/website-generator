@@ -107,7 +107,11 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
           {/* 生成按钮 */}
           <button
             onClick={onGeneratePlan}
-            className="flex-1 bg-sky-600/80 hover:bg-sky-700/90 disabled:bg-white/10 disabled:border-white/10 disabled:opacity-50 text-white font-semibold py-1.5 px-4 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-black text-sm backdrop-blur-md border border-sky-500/30 hover:border-sky-400/50 shadow-lg"
+            className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+              !isGenerationDisabled
+                ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
+                : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+            } ${isGenerationDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border-white/15'}`}
             disabled={isGenerationDisabled}
             aria-label="Generate website plan from report"
           >

@@ -67,6 +67,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
               onModelChange={onChatModelChange}
               disabled={isInputDisabled}
               size="small"
+              expandDirection="down"
             />
           </div>
         ) : (
