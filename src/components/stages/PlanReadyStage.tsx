@@ -45,9 +45,6 @@ export const PlanReadyStage: React.FC = React.memo(() => {
             reportText={reportText}
             onReportChange={setReportText}
             onGeneratePlan={handleGeneratePlan}
-            onStartNewSession={handleStartNewSession}
-            onRevisePlan={handleResetToInitial}
-            onStop={handleStopGeneration}
             isLoading={isLoading}
             appStage={appStage}
             selectedModel={planModel}
@@ -98,9 +95,6 @@ export const PlanReadyStage: React.FC = React.memo(() => {
           reportText={reportText}
           onReportChange={setReportText}
           onGeneratePlan={handleGeneratePlan}
-          onStartNewSession={handleStartNewSession}
-          onRevisePlan={handleResetToInitial}
-          onStop={handleStopGeneration}
           isLoading={isLoading}
           appStage={appStage}
           selectedModel={planModel}

@@ -99,7 +99,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   const [error, setError] = useState<string | null>(null);
   
   const [appStage, setAppStage] = useState<AppStage>('initial');
-  const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.Preview);
+  const [activeTab, setActiveTab] = useState<ActiveTab>(ActiveTab.Input);
   const [isFullPreviewActive, setIsFullPreviewActive] = useState<boolean>(false);
   const [isRefineMode, setIsRefineMode] = useState<boolean>(false);
   
@@ -146,6 +146,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     planChatSessionRef.current = null;
     setIsFullPreviewActive(false);
     setIsRefineMode(false);
+    setActiveTab(ActiveTab.Plan);
     setAppStage('planPending');
 
     let streamingPlan = '';
@@ -224,7 +225,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     setChatMessages([]);
     chatSessionRef.current = null;
     setActiveTab(ActiveTab.Code);
-    setAppStage('htmlReady');
+    setAppStage('htmlPending');
 
     let streamingHtml = '';
 
@@ -242,6 +243,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
           const cleanedInitialHtml = cleanTextOutput(finalHtml);
           htmlBuffer.flush();
           setGeneratedHtml(cleanedInitialHtml);
+          setAppStage('htmlReady');
 
           try {
             chatSessionRef.current = createHtmlChatSession(chatModel, ai, cleanedInitialHtml, reportText, currentPlanText);
@@ -475,9 +477,18 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   }, []);
   
   const handleStartNewSession = useCallback(() => {
-    setReportText('');
-    handleResetToInitial();
-  }, [handleResetToInitial]);
+    // Show confirmation dialog
+    const confirmed = window.confirm(
+      'Are you sure you want to start a new session? This will clear all current content including the report, plan, and generated website.'
+    );
+    
+    if (confirmed) {
+      setReportText('');
+      handleResetToInitial();
+      // Ensure we switch to Input tab after reset
+      setActiveTab(ActiveTab.Input);
+    }
+  }, [handleResetToInitial, setActiveTab]);
 
   const isChatAvailable = () => !!chatSessionRef.current;
   const isPlanChatAvailable = () => !!planChatSessionRef.current;

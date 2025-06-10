@@ -1,6 +1,8 @@
 export enum ActiveTab {
-  Preview = 'preview',
+  Input = 'input',
+  Plan = 'plan',
   Code = 'code',
+  Preview = 'preview',
 }
 
 export enum UserType {

@@ -54,9 +54,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
   return (
     <div className="flex flex-col bg-slate-800 p-4 rounded-lg shadow-lg h-full">
       <div className="flex flex-col items-center mb-3 flex-shrink-0">
-        <h2 className="text-xl font-semibold text-sky-400 mb-3">{title || "Refine Website with Chat"}</h2>
-        {onChatModelChange && (
-          <div className="w-full flex justify-center pb-2 border-b border-slate-700/50">
+        {onChatModelChange ? (
+          <div className="w-full flex items-center justify-center gap-3 pb-2 border-b border-slate-700/50">
+            <h2 className="text-lg font-semibold text-sky-400">
+              {title ? 
+                title.replace(/Refine\s+(Plan|Code)(\s+with\s+Chat)?/i, 'Refine with ') : 
+                "Refine with "
+              }
+            </h2>
             <ModelSelector
               selectedModel={chatModel}
               onModelChange={onChatModelChange}
@@ -64,6 +69,8 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
               size="small"
             />
           </div>
+        ) : (
+          <h2 className="text-xl font-semibold text-sky-400 mb-3">{title || "Refine Website with Chat"}</h2>
         )}
       </div>
       

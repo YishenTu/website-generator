@@ -18,11 +18,47 @@ export const TabButton: React.FC<TabButtonProps> = React.memo(({ label, isActive
             ? 'border-b-2 border-sky-500 text-sky-400'
             : 'text-slate-400 hover:text-slate-200 hover:border-b-2 hover:border-slate-600'
         }
-        ${disabled ? 'opacity-50 cursor-not-allowed hover:border-transparent' : ''}
+        ${disabled ? 'opacity-50 cursor-not-allowed hover:border-transparent hover:text-slate-400' : ''}
       `}
       aria-disabled={disabled}
     >
       {label}
+    </button>
+  );
+});
+
+// 新增操作按钮组件，样式与TabButton一致但不显示激活状态
+interface TabActionButtonProps {
+  children: React.ReactNode;
+  onClick: () => void;
+  disabled?: boolean;
+  isActive?: boolean; // 新增，用于显示激活状态
+  className?: string;
+}
+
+export const TabActionButton: React.FC<TabActionButtonProps> = React.memo(({ 
+  children, 
+  onClick, 
+  disabled = false,
+  isActive = false, // 新增
+  className = '' 
+}) => {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      className={`px-4 py-2.5 text-sm font-medium transition-colors duration-150 focus:outline-none flex items-center
+        ${
+          isActive
+            ? 'border-b-2 border-sky-500 text-sky-400'
+            : 'text-slate-400 hover:text-slate-200 hover:border-b-2 hover:border-slate-600'
+        }
+        ${disabled ? 'opacity-50 cursor-not-allowed hover:border-transparent hover:text-slate-400' : ''}
+        ${className}
+      `}
+      aria-disabled={disabled}
+    >
+      {children}
     </button>
   );
 });

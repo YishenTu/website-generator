@@ -59,7 +59,7 @@ export const resetAppToInitialState = (config: ResetAppStateConfig): void => {
   config.setIsPlanChatLoading(false);
   config.setIsFullPreviewActive(false);
   config.setIsRefineMode(false);
-  config.setActiveTab(ActiveTab.Preview);
+  config.setActiveTab(ActiveTab.Input);
   
   // 中止所有正在进行的操作
   abortAllOperations([

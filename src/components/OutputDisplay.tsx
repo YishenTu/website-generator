@@ -1,10 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ActiveTab } from '../types/types';
-import { TabButton } from './TabButton';
 import { CodeEditor } from './CodeEditor';
 import { PreviewLoader } from './PreviewLoader';
-import { GenerationStatus } from './GenerationStatus';
-import { getModelInfo } from '../services/aiService';
+
 import { useDebounce } from '../hooks/useDebounce';
 import { 
   DocumentDuplicateIcon, 
@@ -24,7 +22,6 @@ interface OutputDisplayProps {
   isLoading: boolean;
   error: string | null;
   activeTab: ActiveTab;
-  onTabChange: (tab: ActiveTab) => void;
   onCopyCode: () => void;
   onDownloadHtml: () => void;
   onToggleFullPreview: () => void;
@@ -32,8 +29,6 @@ interface OutputDisplayProps {
   appStage: AppStage;
   className?: string;
   onHtmlContentChange?: (newHtml: string) => void; // New prop for editable code view
-  // 新增属性用于 streaming 状态
-  streamingModel?: string; // 当前使用的模型 ID
 }
 
 export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
@@ -41,7 +36,6 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
   isLoading,
   error,
   activeTab,
-  onTabChange,
   onCopyCode,
   onDownloadHtml,
   onToggleFullPreview,
@@ -49,7 +43,6 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
   appStage,
   className = "", 
   onHtmlContentChange,
-  streamingModel,
 }) => {
   // 添加iframe加载状态
   const [isIframeLoading, setIsIframeLoading] = useState(true);
@@ -83,7 +76,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
 
   // 生成优化的HTML，预加载关键资源
   const optimizedHtmlContent = useMemo(() => {
-    if (!debouncedHtmlContent) return debouncedHtmlContent;
+    if (debouncedHtmlContent === null || debouncedHtmlContent === undefined) return debouncedHtmlContent;
     
     try {
       // 使用DOMParser进行健壮的HTML解析和修改
@@ -221,33 +214,8 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
   
 
   return (
-    <div className={combineStyles(containerClasses, isFullPreviewActive ? '' : CONTAINER_STYLES.cardPadding)}>
-      {!isFullPreviewActive && (
-        <div className={combineStyles(LAYOUT_STYLES.flexRow, 'mb-3 border-b border-slate-700', LAYOUT_STYLES.flexShrink0, 'justify-between items-center')}>
-          <div className="flex">
-            <TabButton
-              label="Preview"
-              isActive={activeTab === ActiveTab.Preview}
-              onClick={() => onTabChange(ActiveTab.Preview)}
-              disabled={htmlContent === null || (isLoading && appStage !== 'htmlReady')} // Disable if no content or loading non-HTML
-            />
-            <TabButton
-              label="Code"
-              isActive={activeTab === ActiveTab.Code}
-              onClick={() => onTabChange(ActiveTab.Code)}
-              disabled={htmlContent === null || (isLoading && appStage !== 'htmlReady')} // Disable if no content or loading non-HTML
-            />
-          </div>
-          {/* GenerationStatus在右侧 */}
-          {(appStage === 'htmlPending' || appStage === 'htmlReady') && streamingModel && (
-            <GenerationStatus
-              isGenerating={isLoading && (appStage === 'htmlPending' || appStage === 'htmlReady')}
-              modelName={getModelInfo(streamingModel)?.name}
-              className="relative top-0 right-0"
-            />
-          )}
-        </div>
-      )}
+    <div className={combineStyles(containerClasses, isFullPreviewActive ? '' : CONTAINER_STYLES.cardPadding, isFullPreviewActive ? '' : LAYOUT_STYLES.flexCol)}>
+
 
       {isFullPreviewActive && htmlContent && (
          <button
@@ -264,7 +232,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
           </button>
       )}
 
-      <div className={combineStyles(LAYOUT_STYLES.flexGrow, LAYOUT_STYLES.relative, LAYOUT_STYLES.minH0, isFullPreviewActive ? 'h-full w-full' : '')}>
+      <div className={combineStyles(LAYOUT_STYLES.flexGrow, LAYOUT_STYLES.relative, LAYOUT_STYLES.minH0, isFullPreviewActive ? 'h-full w-full' : 'overflow-hidden')}>
         {error && (
           <div className={combineStyles(LAYOUT_STYLES.fullHeight, LAYOUT_STYLES.flexCenter, 'p-4')}>
             <div className="text-center bg-red-900/50 border border-red-700 text-red-300 p-4 rounded-md">
@@ -302,14 +270,11 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
                 // 移除key prop，避免不必要的重新创建
                 srcDoc={optimizedHtmlContent || ''}
                 title="Website Preview"
-                className={combineStyles('w-full h-full border-0', isFullPreviewActive ? '' : 'rounded-b-md', 'bg-white')}
+                className={combineStyles('w-full border-0 h-full', isFullPreviewActive ? '' : 'rounded-md', 'bg-white')}
                 sandbox="allow-scripts allow-same-origin allow-downloads"
                 loading="eager"
                 onLoad={handleIframeLoad}
                 onError={handleIframeError}
-                style={{ 
-                  minHeight: '400px'
-                }}
               />
             )}
             {activeTab === ActiveTab.Code && (
@@ -325,52 +290,61 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
         ) : null}
       </div>
 
-      {!isFullPreviewActive && htmlContent && !isLoading && !error && appStage === 'htmlReady' && (
+      {!isFullPreviewActive && (appStage === 'htmlPending' || appStage === 'htmlReady') && (
         <div className={combineStyles(
-          'mt-4 pt-4 border-t border-slate-700',
-          LAYOUT_STYLES.flexCol,
-          'sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3',
+          'mt-4',
           LAYOUT_STYLES.flexShrink0
         )}>
-          <button
-            onClick={onToggleFullPreview}
-            className={combineStyles(
-              'flex-1',
-              BUTTON_STYLES.base,
-              BUTTON_STYLES.blue,
-              BUTTON_STYLES.smallButton
-            )}
-            aria-label="Full Preview"
-          >
-            <ArrowTopRightOnSquareIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
-            Full Preview
-          </button>
-          <button
-            onClick={onCopyCode}
-            className={combineStyles(
-              'flex-1',
-              BUTTON_STYLES.base,
-              BUTTON_STYLES.primary,
-              BUTTON_STYLES.smallButton
-            )}
-            aria-label="Copy HTML code"
-          >
-            <DocumentDuplicateIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
-            Copy Code
-          </button>
-          <button
-            onClick={onDownloadHtml}
-            className={combineStyles(
-              'flex-1',
-              BUTTON_STYLES.base,
-              BUTTON_STYLES.success,
-              BUTTON_STYLES.smallButton
-            )}
-            aria-label="Download HTML file"
-          >
-            <ArrowDownTrayIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
-            Download
-          </button>
+          <div className={combineStyles(
+            LAYOUT_STYLES.flexCol,
+            'sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3'
+          )}>
+            <button
+              onClick={onToggleFullPreview}
+              disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
+              className={combineStyles(
+                'flex-1',
+                BUTTON_STYLES.base,
+                BUTTON_STYLES.blue,
+                BUTTON_STYLES.disabled,
+                BUTTON_STYLES.smallButton
+              )}
+              aria-label="Full Preview"
+            >
+              <ArrowTopRightOnSquareIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
+              Full Preview
+            </button>
+            <button
+              onClick={onCopyCode}
+              disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
+              className={combineStyles(
+                'flex-1',
+                BUTTON_STYLES.base,
+                BUTTON_STYLES.primary,
+                BUTTON_STYLES.disabled,
+                BUTTON_STYLES.smallButton
+              )}
+              aria-label="Copy HTML code"
+            >
+              <DocumentDuplicateIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
+              Copy Code
+            </button>
+            <button
+              onClick={onDownloadHtml}
+              disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
+              className={combineStyles(
+                'flex-1',
+                BUTTON_STYLES.base,
+                BUTTON_STYLES.success,
+                BUTTON_STYLES.disabled,
+                BUTTON_STYLES.smallButton
+              )}
+              aria-label="Download HTML file"
+            >
+              <ArrowDownTrayIcon className={combineStyles(ICON_SIZES.xs, 'mr-2')} />
+              Download
+            </button>
+          </div>
         </div>
       )}
     </div>

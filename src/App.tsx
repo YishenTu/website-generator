@@ -1,6 +1,8 @@
 import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { GoogleGenAI } from "@google/genai";
-import { AppStages } from "./components/AppStages";
+import { TabNavigation } from "./components/TabNavigation";
+import { TabContent } from "./components/TabContent";
+import { ChatPanel } from "./components/ChatPanel";
 import { OutputDisplay } from "./components/OutputDisplay";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AppProvider, type AppContextType } from './contexts/AppContext';
@@ -178,22 +180,21 @@ const App: React.FC = () => {
     return () => window.removeEventListener('keydown', handleEscKey);
   }, [isFullPreviewActive, setIsFullPreviewActive]);
 
-  // Determine grid classes based on stage
-  const getMainGridClasses = () => {
-    switch (appStage) {
-      case 'planPending':
-        return 'md:grid-cols-2 grid-cols-1 gap-4 md:gap-6 min-h-0';
-      case 'planReady':
-        return isRefineMode 
-          ? 'md:grid-cols-5 grid-cols-1 gap-4 md:gap-6 min-h-0'
-          : 'md:grid-cols-2 grid-cols-1 gap-4 md:gap-6 min-h-0';
-      case 'htmlPending':
-      case 'htmlReady':
-        return 'md:grid-cols-5 grid-cols-1 gap-4 md:gap-6 min-h-0';
-      default:
-        return 'grid-cols-1 gap-4 md:gap-6 min-h-0';
-    }
-  };
+  // Handle tab switching with workflow logic
+  const handleTabChange = useCallback((tab: ActiveTab) => {
+    setActiveTab(tab);
+  }, [setActiveTab]);
+  
+  // Handle refine mode toggle
+  const handleToggleRefineMode = useCallback(() => {
+    setIsRefineMode(!isRefineMode);
+  }, [isRefineMode, setIsRefineMode]);
+  
+  // Auto-switch tabs based on workflow
+  // Note: Manual tab switching is handled directly in generation functions:
+  // - handleGeneratePlan switches to Plan tab
+  // - handleGenerateHtmlFromPlan switches to Code tab
+  // This allows users to manually switch between tabs during generation
 
   // Full preview mode
   if (isFullPreviewActive && generatedHtml) {
@@ -204,7 +205,6 @@ const App: React.FC = () => {
           isLoading={false}
           error={null}
           activeTab={ActiveTab.Preview}
-          onTabChange={() => {}}
           onCopyCode={handleCopyCode}
           onDownloadHtml={handleDownloadHtml}
           onToggleFullPreview={toggleFullPreview}
@@ -229,23 +229,6 @@ const App: React.FC = () => {
           <p className="text-slate-400 text-center mt-1 text-sm md:text-base">
             {UI_TEXT.APP_SUBTITLE}
           </p>
-          {appStage === 'htmlReady' && (
-            <button
-              onClick={handleStartNewSession}
-              className={combineStyles(
-                'absolute top-0 right-0',
-                LAYOUT_STYLES.flexCenter,
-                BUTTON_STYLES.base,
-                BUTTON_STYLES.primary,
-                BUTTON_STYLES.smallButton,
-                'py-2 px-3'
-              )}
-              aria-label="Start a new session"
-              disabled={isLoading || isChatLoading}
-            >
-              <ArrowPathIcon className={combineStyles(ICON_SIZES.xs, 'mr-1.5')} /> New Session
-            </button>
-          )}
         </header>
 
         {/* Error display */}
@@ -255,9 +238,47 @@ const App: React.FC = () => {
           </div>
         )}
         
-        {/* Main content grid */}
-        <main className={combineStyles(LAYOUT_STYLES.flexGrow, 'grid', getMainGridClasses(), appStage === 'initial' ? 'place-items-start justify-center' : '')}>
-          <AppStages />
+        {/* Tab Navigation - fixed at 75% width */}
+        <div className="flex justify-center mb-6">
+          <div className="w-3/4 max-w-7xl">
+            <TabNavigation
+              activeTab={activeTab}
+              onTabChange={handleTabChange}
+              appStage={appStage}
+              isRefineMode={isRefineMode}
+              onToggleRefineMode={handleToggleRefineMode}
+              onStartNewSession={handleStartNewSession}
+              isLoading={isLoading}
+              isChatLoading={isChatLoading}
+              streamingModel={appStage === 'htmlPending' || appStage === 'htmlReady' ? htmlModel : planModel}
+            />
+          </div>
+        </div>
+        
+        {/* Main content area - fixed at 75% width */}
+        <main className={combineStyles(LAYOUT_STYLES.flexGrow, 'flex justify-center min-h-0')}>
+          <div className="w-3/4 max-w-7xl flex gap-6 min-w-0">
+            {/* Main content panel */}
+            <div className={`${isRefineMode ? 'flex-1 min-w-0' : 'w-full'} transition-all duration-300`}>
+              <TabContent activeTab={activeTab} appStage={appStage} />
+            </div>
+            
+            {/* Chat panel */}
+            {isRefineMode && (
+              <div className="w-80 flex-shrink-0 transition-all duration-300">
+                <ChatPanel
+                  messages={activeTab === ActiveTab.Plan ? planChatMessages : chatMessages}
+                  onSendMessage={activeTab === ActiveTab.Plan ? handleSendPlanChatMessage : handleSendChatMessage}
+                  isLoading={activeTab === ActiveTab.Plan ? isPlanChatLoading : isChatLoading}
+                  onStop={handleStopGeneration}
+                  chatModel={activeTab === ActiveTab.Plan ? planChatModel : chatModel}
+                  onChatModelChange={activeTab === ActiveTab.Plan ? handlePlanChatModelChange : handleChatModelChange}
+                  isChatAvailable={activeTab === ActiveTab.Plan ? isPlanChatAvailable() : isChatAvailable()}
+                  title={activeTab === ActiveTab.Plan ? "Refine Plan" : "Refine Code"}
+                />
+              </div>
+            )}
+          </div>
         </main>
       </div>
     </AppProvider>

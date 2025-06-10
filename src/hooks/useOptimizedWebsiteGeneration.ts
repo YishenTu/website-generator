@@ -362,14 +362,14 @@ export function useOptimizedWebsiteGeneration({ ai }: UseWebsiteGenerationProps)
   // For brevity, I'll include a few key ones
 
   const handleResetToInitial = useCallback(() => {
-    abortAllOperations(abortControllerRef, planAbortControllerRef);
+    abortAllOperations([abortControllerRef.current, planAbortControllerRef.current]);
     chatSessionRef.current = null;
     planChatSessionRef.current = null;
     dispatch({ type: 'RESET_TO_INITIAL' });
   }, []);
 
   const handleStopGeneration = useCallback(() => {
-    abortAllOperations(abortControllerRef, planAbortControllerRef);
+    abortAllOperations([abortControllerRef.current, planAbortControllerRef.current]);
     dispatch({ type: 'SET_LOADING', payload: false });
     dispatch({ type: 'SET_CHAT_LOADING', payload: false });
     dispatch({ type: 'SET_PLAN_CHAT_LOADING', payload: false });
@@ -378,7 +378,7 @@ export function useOptimizedWebsiteGeneration({ ai }: UseWebsiteGenerationProps)
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      abortAllOperations(abortControllerRef, planAbortControllerRef);
+      abortAllOperations([abortControllerRef.current, planAbortControllerRef.current]);
     };
   }, []);
 

@@ -41,7 +41,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
           value={selectedModel}
           onChange={(e) => handleModelChange(e.target.value)}
           disabled={disabled}
-          className="appearance-none bg-slate-700 text-slate-200 border border-slate-600 rounded-md py-1.5 px-3 pr-8 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          className="appearance-none bg-slate-700 text-slate-200 border border-slate-600 rounded-md py-1.5 px-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-center"
         >
           {Object.entries(MODELS_BY_PROVIDER).map(([provider, models]) => (
             <optgroup key={provider} label={provider.charAt(0).toUpperCase() + provider.slice(1)}>
@@ -53,7 +53,6 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
             </optgroup>
           ))}
         </select>
-        <ChevronDownIcon className="absolute right-2 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
       </div>
     );
   }

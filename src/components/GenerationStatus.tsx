@@ -15,11 +15,11 @@ export const GenerationStatus: React.FC<GenerationStatusProps> = ({
   if (!modelName) return null;
 
   return (
-    <div className={`bg-slate-800/90 text-sky-400 px-3 py-2 rounded-lg shadow-lg backdrop-blur-sm ${className}`}>
+    <div className={`text-sky-400 px-3 py-2 ${className}`}>
       <div className="flex items-center space-x-2 text-sm font-medium">
         {isGenerating ? (
           <>
-            <LoadingSpinner size="sm" />
+            <LoadingSpinner className="w-4 h-4 text-sky-400" />
             <span>Generating with {modelName}</span>
           </>
         ) : (

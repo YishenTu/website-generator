@@ -11,39 +11,32 @@ export const ThinkingBudgetToggle: React.FC<ThinkingBudgetToggleProps> = ({
   onToggle,
   disabled = false
 }) => {
+  const handleClick = () => {
+    if (!disabled) {
+      onToggle(!enabled);
+    }
+  };
+
   return (
-    <div className="flex items-center gap-2">
-      <label className="flex items-center cursor-pointer select-none">
-        <div className="relative">
-          <input
-            type="checkbox"
-            checked={enabled}
-            onChange={(e) => onToggle(e.target.checked)}
-            disabled={disabled}
-            className="sr-only"
-          />
-          <div className={`
-            block w-10 h-6 rounded-full transition-colors duration-200 ease-in-out
-            ${enabled 
-              ? 'bg-sky-500' 
-              : 'bg-slate-600'
-            }
-            ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
-          `}>
-            <div className={`
-              absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform duration-200 ease-in-out
-              ${enabled ? 'transform translate-x-4' : 'transform translate-x-0'}
-            `} />
-          </div>
-        </div>
-        <span className={`
-          ml-2 text-sm font-medium
-          ${enabled ? 'text-sky-400' : 'text-slate-400'}
-          ${disabled ? 'opacity-50' : ''}
-        `}>
-          Max Thinking
-        </span>
-      </label>
-    </div>
+    <button
+      onClick={handleClick}
+      disabled={disabled}
+      className={`
+        px-3 py-1.5 text-sm font-medium rounded-md transition-colors duration-150 
+        focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-slate-800
+        ${enabled 
+          ? 'bg-sky-600 text-white hover:bg-sky-700 focus:ring-sky-500' 
+          : 'bg-slate-700 text-slate-300 hover:bg-slate-600 focus:ring-slate-500'
+        }
+        ${disabled 
+          ? 'opacity-50 cursor-not-allowed hover:bg-slate-700' 
+          : 'cursor-pointer'
+        }
+      `}
+      aria-pressed={enabled}
+      title={enabled ? "Disable Max Thinking" : "Enable Max Thinking"}
+    >
+      Max Thinking
+    </button>
   );
 }; 

@@ -78,6 +78,9 @@ export async function generateWebsitePlanStream(
 
     let accumulatedText = "";
     for await (const chunk of responseStream) {
+      if (signal?.aborted) {
+        throw new DOMException('The user aborted a request.', 'AbortError');
+      }
       const chunkText = chunk.text; 
       if (chunkText) { 
         accumulatedText += chunkText;
@@ -130,6 +133,9 @@ export async function generateWebsiteFromReportWithPlanStream(
     
     let accumulatedText = "";
     for await (const chunk of responseStream) {
+      if (signal?.aborted) {
+        throw new DOMException('The user aborted a request.', 'AbortError');
+      }
       const chunkText = chunk.text; 
       if (chunkText) { 
         accumulatedText += chunkText;

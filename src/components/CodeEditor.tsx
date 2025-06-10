@@ -1,9 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useEffect, useRef } from 'react';
 import CodeMirror from '@uiw/react-codemirror';
 import { html } from '@codemirror/lang-html';
 import { oneDark } from '@codemirror/theme-one-dark';
 import { EditorView } from '@codemirror/view';
-import { PencilIcon, EyeIcon } from './icons';
 
 interface CodeEditorProps {
   value: string;
@@ -20,8 +19,6 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   className = "",
   autoScrollToBottom = false
 }) => {
-  const [isEditing, setIsEditing] = useState(false);
-  const canEdit = !readOnly && !!onChange;
   const editorRef = useRef<EditorView | null>(null);
 
   // Auto-scroll to bottom when content changes and autoScrollToBottom is enabled
@@ -42,40 +39,20 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
   }, [value, autoScrollToBottom]);
 
   return (
-    <div className={`relative h-full ${className}`}>
-      {canEdit && (
-        <div className="absolute top-2 right-2 z-10">
-          <button
-            onClick={() => setIsEditing(!isEditing)}
-            className={`p-2 rounded-md transition-colors ${
-              isEditing 
-                ? 'bg-sky-600 hover:bg-sky-700 text-white' 
-                : 'bg-slate-700 hover:bg-slate-600 text-slate-300'
-            }`}
-            title={isEditing ? '切换到查看模式' : '切换到编辑模式'}
-          >
-            {isEditing ? (
-              <EyeIcon className="w-4 h-4" />
-            ) : (
-              <PencilIcon className="w-4 h-4" />
-            )}
-          </button>
-        </div>
-      )}
-
-      <div className="h-full overflow-auto">
+    <div className={`h-full ${className}`}>
+      <div className="h-full overflow-auto rounded-md">
         <CodeMirror
           value={value}
           onChange={(val) => {
-            if (isEditing && canEdit && onChange) {
+            if (onChange && !readOnly) {
               onChange(val);
             }
           }}
           onCreateEditor={(view) => {
             editorRef.current = view;
           }}
-          editable={isEditing && canEdit}
-          readOnly={!isEditing || readOnly || !onChange}
+          editable={!readOnly && !!onChange}
+          readOnly={readOnly || !onChange}
           extensions={[
             html(),
             EditorView.theme({

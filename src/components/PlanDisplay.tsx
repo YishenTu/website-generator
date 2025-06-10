@@ -3,15 +3,13 @@ import { ModelSelector } from './ModelSelector';
 import { ThinkingBudgetToggle } from './ThinkingBudgetToggle';
 import { getDefaultModel, supportsThinking } from '../services/aiService';
 import { isProviderAvailable } from '../utils/envValidator';
-import { CheckCircleIcon, PencilSquareIcon } from './icons';
+import { CheckCircleIcon } from './icons';
 
 interface PlanDisplayProps {
   planText: string;
   onProceedToHtml: (editedPlan: string, maxThinking?: boolean) => void;
-  onReviseReportAndPlan: () => void;
   isAppLoading: boolean; // True if app is generally loading (e.g., plan streaming in)
   isLoadingHtml: boolean; // True if this component's action (generating HTML from plan) is loading
-  showGenerateButton?: boolean; 
   isCompactView?: boolean;
   htmlModel?: string; // 模型ID字符串
   onHtmlModelChange?: (model: string) => void; // 模型ID回调
@@ -25,10 +23,8 @@ interface PlanDisplayProps {
 export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
   planText,
   onProceedToHtml,
-  onReviseReportAndPlan,
   isAppLoading,
   isLoadingHtml,
-  showGenerateButton = true, 
   isCompactView = false,
   htmlModel = getDefaultModel(isProviderAvailable('gemini') ? 'gemini' : 'openrouter'),
   onHtmlModelChange,
@@ -106,24 +102,15 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
   const titleSize = isCompactView ? 'text-lg' : 'text-xl';
   const buttonPy = 'py-1.5';
 
-  const isTextareaDisabled = isAppLoading || isLoadingHtml || (isCompactView && !showGenerateButton);
+  const isTextareaDisabled = isAppLoading || isLoadingHtml;
   const generateButtonDisabled = isAppLoading || isLoadingHtml || !editablePlanText.trim();
-  const reviseButtonDisabled = isAppLoading || isLoadingHtml;
 
   return (
     <div className={`flex flex-col bg-slate-800 ${containerPadding} rounded-lg shadow-lg h-full`}>
-      <div className={`flex items-center justify-between ${titleMargin} flex-shrink-0`}>
-        <h2 className={`${titleSize} font-semibold text-sky-400`}>
-          {isCompactView ? 'Current Plan' : 
-           isAppLoading ? 'Generating Website Plan...' : 
-           'Generated Website Plan'}
-          {hasManualEdit && !isAppLoading && (
-            <span className="ml-2 text-xs bg-amber-600 text-amber-100 px-2 py-1 rounded-full">
-              已编辑
-            </span>
-          )}
-        </h2>
-        <div className="flex items-center gap-2">
+      {/* Action buttons row */}
+      {(hasManualEdit || showRefineButton) && (
+        <div className={`flex items-center justify-end ${titleMargin} flex-shrink-0`}>
+          <div className="flex items-center gap-2">
           {hasManualEdit && !isAppLoading && !isLoadingHtml && (
             <button
               onClick={handleResetToOriginal}
@@ -149,66 +136,59 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
               Refine
             </button>
           )}
+          </div>
         </div>
-      </div>
-      <textarea
-        value={displayPlan}
-        onChange={handlePlanTextChange}
-        disabled={isTextareaDisabled} 
-        className="w-full p-3 bg-slate-700 text-slate-200 border border-slate-600 rounded-md resize-none text-sm leading-relaxed custom-scrollbar focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:opacity-70 disabled:cursor-not-allowed flex-grow min-h-0"
-        aria-label="Website plan text"
-        readOnly={isAppLoading && !isCompactView} // Readonly while plan is streaming in
-      />
-      <div className={`mt-3 flex ${isCompactView ? 'flex-col space-y-2' : 'flex-col space-y-3'} flex-shrink-0`}>
-        {showGenerateButton && (
-          <div className={`flex items-center gap-3`}>
-            <button
-              onClick={handleProceed}
-              disabled={generateButtonDisabled}
-              className={`flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm`}
-              aria-label="Generate website from this plan"
-            >
-              <CheckCircleIcon className="w-5 h-5 mr-2" />
-                              Generate Website from Plan
-                {maxThinking && supportsThinking(htmlModel) && (
-                <span className="ml-2 text-xs bg-green-800 px-2 py-1 rounded-full">
-                  Max
-                </span>
-              )}
-            </button>
-            
-                            {supportsThinking(htmlModel) && setMaxThinking && (
-              <ThinkingBudgetToggle
-                enabled={maxThinking || false}
-                onToggle={setMaxThinking}
-                disabled={isAppLoading || isLoadingHtml}
-              />
-            )}
-            
-            {onHtmlModelChange && (
-              <div className="flex items-center gap-2">
-                <ModelSelector
-                  selectedModel={htmlModel}
-                  onModelChange={onHtmlModelChange}
-                  disabled={isAppLoading || isLoadingHtml}
-                  size="small"
-                />
-              </div>
-            )}
+      )}
+      <div className="flex-grow min-h-0 relative">
+        <textarea
+          value={displayPlan}
+          onChange={handlePlanTextChange}
+          disabled={isTextareaDisabled} 
+          className="w-full h-full p-3 bg-slate-700 text-slate-200 border border-slate-600 rounded-md resize-none text-sm leading-relaxed custom-scrollbar focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:opacity-70 disabled:cursor-not-allowed"
+          aria-label="Website plan text"
+          readOnly={isAppLoading && !isCompactView} // Readonly while plan is streaming in
+        />
+        
+        {/* Edit status overlay */}
+        {hasManualEdit && !isAppLoading && (
+          <div className="absolute bottom-2 right-2 pointer-events-none">
+            <span className="text-xs px-2 py-1 rounded bg-amber-600/80 text-amber-100">
+              已编辑
+            </span>
           </div>
         )}
-        
-        {!showGenerateButton && (
+      </div>
+      <div className={`mt-4 flex ${isCompactView ? 'flex-col space-y-2' : 'flex-col space-y-3'} flex-shrink-0`}>
+        <div className={`flex items-center gap-3`}>
           <button
-            onClick={onReviseReportAndPlan}
-            disabled={reviseButtonDisabled} 
-            className={`w-full bg-yellow-600 hover:bg-yellow-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-yellow-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm`}
-            aria-label="Revise report and re-generate plan"
+            onClick={handleProceed}
+            disabled={generateButtonDisabled}
+            className={`flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm`}
+            aria-label="Generate website from this plan"
           >
-            <PencilSquareIcon className="w-5 h-5 mr-2" />
-            Revise Report / Plan
+            <CheckCircleIcon className="w-5 h-5 mr-2" />
+            Generate Website from Plan
           </button>
-        )}
+          
+          {supportsThinking(htmlModel) && setMaxThinking && (
+            <ThinkingBudgetToggle
+              enabled={maxThinking || false}
+              onToggle={setMaxThinking}
+              disabled={isAppLoading || isLoadingHtml}
+            />
+          )}
+          
+          {onHtmlModelChange && (
+            <div className="flex items-center gap-2">
+              <ModelSelector
+                selectedModel={htmlModel}
+                onModelChange={onHtmlModelChange}
+                disabled={isAppLoading || isLoadingHtml}
+                size="small"
+              />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
