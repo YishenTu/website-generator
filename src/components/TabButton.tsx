@@ -12,7 +12,7 @@ export const TabButton: React.FC<TabButtonProps> = React.memo(({ label, isActive
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg
+      className={`px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg
         ${
           isActive
             ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
@@ -47,7 +47,7 @@ export const TabActionButton: React.FC<TabActionButtonProps> = React.memo(({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none flex items-center rounded-lg
+      className={`px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none flex items-center rounded-lg
         ${
           isActive
             ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'

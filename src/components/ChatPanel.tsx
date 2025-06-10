@@ -94,14 +94,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSubmit} className="flex-shrink-0 mt-auto pt-2 border-t border-white/10">
+      <form onSubmit={handleSubmit} className="flex-shrink-0 mt-auto pt-2">
         <div className="flex items-center space-x-2">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder={getPlaceholderText()}
-            className="flex-grow p-2.5 glass-input text-slate-200 border border-white/20 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 text-sm transition-all duration-200"
+            className="flex-grow py-1.5 px-2.5 glass-input text-slate-200 border border-white/20 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 text-sm transition-all duration-200"
             disabled={isInputDisabled}
             aria-label="Chat message input"
           />
@@ -109,7 +109,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
              <button
                 type="button"
                 onClick={onStop}
-                className="bg-red-600/80 hover:bg-red-700/90 text-white font-semibold py-2.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black backdrop-blur-md border border-red-500/30"
+                className="bg-red-600/80 hover:bg-red-700/90 text-white font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black backdrop-blur-md border border-red-500/30"
                 aria-label="Stop refinement"
             >
                 <StopIcon className="w-5 h-5" />
@@ -118,7 +118,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
             <button
                 type="submit"
                 disabled={isInputDisabled || !inputText.trim()}
-                className="bg-sky-600/80 hover:bg-sky-700/90 disabled:bg-white/10 disabled:border-white/10 disabled:opacity-50 text-white font-semibold py-2.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-black backdrop-blur-md border border-sky-500/30"
+                className="bg-sky-600/80 hover:bg-sky-700/90 disabled:bg-white/10 disabled:border-white/10 disabled:opacity-50 text-white font-semibold py-1.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-black backdrop-blur-md border border-sky-500/30"
                 aria-label="Send chat message"
             >
                 <PaperAirplaneIcon className="w-5 h-5" />

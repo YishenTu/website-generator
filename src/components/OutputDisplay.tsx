@@ -302,7 +302,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             <button
               onClick={onToggleFullPreview}
               disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+              className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
                 appStage === 'htmlPending'
                   ? 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
                   : htmlContent && !error && appStage === 'htmlReady'
@@ -317,7 +317,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             <button
               onClick={onCopyCode}
               disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+              className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
                 appStage === 'htmlPending'
                   ? 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
                   : htmlContent && !error && appStage === 'htmlReady'
@@ -332,7 +332,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             <button
               onClick={onDownloadHtml}
               disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
-              className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+              className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
                 appStage === 'htmlPending'
                   ? 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
                   : htmlContent && !error && appStage === 'htmlReady'

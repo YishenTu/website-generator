@@ -6,14 +6,13 @@ import { ChatPanel } from "./components/ChatPanel";
 import { OutputDisplay } from "./components/OutputDisplay";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AppProvider, type AppContextType } from './contexts/AppContext';
-import { ArrowPathIcon } from './components/icons';
 import { copyHtmlToClipboard, downloadHtmlFile } from './components/fileUtils';
 import { ActiveTab } from './types/types';
 import { useWebsiteGeneration } from './hooks/useWebsiteGeneration';
 import { validateEnvironmentVariables } from './utils/envValidator';
 import { logger } from './utils/logger';
 import { getEnvVar } from './utils/env';
-import { CONTAINER_STYLES, TEXT_STYLES, BUTTON_STYLES, LAYOUT_STYLES, ICON_SIZES, combineStyles } from './utils/styleConstants';
+import { LAYOUT_STYLES, combineStyles } from './utils/styleConstants';
 import { UI_TEXT, FILE } from './utils/constants';
 
 export type AppStage = 'initial' | 'planPending' | 'planReady' | 'htmlPending' | 'htmlReady';
@@ -225,14 +224,14 @@ const App: React.FC = () => {
         <header className={combineStyles('mb-4 md:mb-6', LAYOUT_STYLES.flexShrink0, LAYOUT_STYLES.relative)}>
           <div className="text-center relative">
             {/* Main Title with Neon Effect */}
-            <h1 className="text-4xl md:text-6xl font-black mb-2 relative opacity-85">
+            <h1 className="text-4xl md:text-6xl font-black mb-2 relative opacity-80">
               <span className="bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite]">
                 TURN TEXT INTO VISUAL
               </span>
               {/* Glow Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-lg opacity-20 bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite]">
+              <span className="absolute inset-0 bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-lg opacity-20 bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite]">
                 TURN TEXT INTO VISUAL
-              </div>
+              </span>
             </h1>
             
             {/* Decorative Elements */}
