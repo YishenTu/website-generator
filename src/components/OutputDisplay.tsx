@@ -219,10 +219,6 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
     }
   }
   
-  // Main loading spinner for non-htmlReady stages OR if htmlContent is still null in htmlReady
-  const showMainSpinner = isLoading && 
-                         (appStage === 'planPending' || appStage === 'htmlPending' || 
-                         (appStage === 'htmlReady' && htmlContent === null));
 
   return (
     <div className={combineStyles(containerClasses, isFullPreviewActive ? '' : CONTAINER_STYLES.cardPadding)}>
@@ -240,19 +236,6 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             onClick={() => onTabChange(ActiveTab.Code)}
             disabled={htmlContent === null || (isLoading && appStage !== 'htmlReady')} // Disable if no content or loading non-HTML
           />
-           {isLoading && appStage === 'htmlReady' && (
-            <div className="ml-auto flex items-center px-3">
-              <LoadingSpinner className={combineStyles(ICON_SIZES.sm, 'text-emerald-400')} />
-              <span className={combineStyles('ml-2', TEXT_STYLES.muted, 'text-emerald-300')}>
-                Streaming...
-              </span>
-              {streamingModel && (
-                <span className={combineStyles('ml-2 text-xs px-2 py-1 bg-emerald-600/20 text-emerald-400 rounded-md font-mono')}>
-                  {getModelInfo(streamingModel)?.name}
-                </span>
-              )}
-            </div>
-          )}
         </div>
       )}
 
@@ -272,23 +255,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
       )}
 
       <div className={combineStyles(LAYOUT_STYLES.flexGrow, LAYOUT_STYLES.relative, LAYOUT_STYLES.minH0, isFullPreviewActive ? 'h-full w-full' : '')}>
-        {showMainSpinner && (
-          <div className={combineStyles(
-            CONTAINER_STYLES.absolute,
-            CONTAINER_STYLES.inset0,
-            LAYOUT_STYLES.flexCol,
-            LAYOUT_STYLES.flexCenter,
-            'bg-slate-800 bg-opacity-80 z-10 rounded-b-md'
-          )}>
-            <LoadingSpinner className={combineStyles(ICON_SIZES.xxl, 'text-sky-500')} />
-            <p className={combineStyles('mt-3', TEXT_STYLES.headingMd, 'text-slate-300')}>
-              {appStage === 'planPending' ? UI_TEXT.LOADING_PLAN : 
-               appStage === 'htmlPending' ? 'Preparing for website generation...' :
-               UI_TEXT.LOADING_HTML}
-            </p>
-          </div>
-        )}
-        {error && !showMainSpinner && ( // Show error if not already showing main spinner
+        {error && (
           <div className={combineStyles(LAYOUT_STYLES.fullHeight, LAYOUT_STYLES.flexCenter, 'p-4')}>
             <div className="text-center bg-red-900/50 border border-red-700 text-red-300 p-4 rounded-md">
               <h3 className={combineStyles('font-semibold text-lg mb-1')}>{UI_TEXT.ERROR_TITLE}</h3>
@@ -317,17 +284,6 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
           />
         )}
         
-        {/* 代码生成初期的 streaming 状态 - 当还没有任何内容时 */}
-        {activeTab === ActiveTab.Preview && !optimizedHtmlContent && isLoading && appStage === 'htmlReady' && !showMainSpinner && (
-          <PreviewLoader 
-            isLoading={false} 
-            hasError={false} 
-            onRetry={() => {}}
-            isStreaming={true}
-            streamingModel={streamingModel ? getModelInfo(streamingModel)?.name : undefined}
-            showStreamingStatus={true}
-          />
-        )}
 
         {/* Render content area if htmlContent is not null (even empty string) and no error, or if full preview active */}
         {(optimizedHtmlContent !== null && !error) || (isFullPreviewActive && optimizedHtmlContent !== null) ? (
@@ -344,14 +300,12 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
                 onLoad={handleIframeLoad}
                 onError={handleIframeError}
                 style={{ 
-                  minHeight: '400px',
-                  opacity: isIframeLoading ? 0.5 : 1,
-                  transition: 'opacity 0.3s ease-in-out'
+                  minHeight: '400px'
                 }}
               />
             )}
             {activeTab === ActiveTab.Code && (
-              <Suspense fallback={<LoadingSpinner className="mx-auto" />}>
+              <Suspense fallback={<div />}>
                 <CodeEditor
                   value={htmlContent || ''}
                   onChange={onHtmlContentChange}

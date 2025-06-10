@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { ModelSelector } from './ModelSelector';
-import { LoadingSpinner } from './LoadingSpinner';
 import { ThinkingBudgetToggle } from './ThinkingBudgetToggle';
 import { getDefaultModel } from '../services/aiService';
 import { isProviderAvailable } from '../utils/envValidator';
@@ -166,15 +165,11 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
             <button
               onClick={handleProceed}
               disabled={generateButtonDisabled}
-              className={`flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm`}
+              className={`flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm`}
               aria-label="Generate website from this plan"
             >
-              {isLoadingHtml ? (
-                <LoadingSpinner className="w-5 h-5 mr-2 text-white" />
-              ) : (
-                <CheckCircleIcon className="w-5 h-5 mr-2" />
-              )}
-              {isLoadingHtml ? 'Generating Website...' : 'Generate Website from Plan'}
+              <CheckCircleIcon className="w-5 h-5 mr-2" />
+              Generate Website from Plan
               {maxThinking && htmlModel.startsWith('gemini') && (
                 <span className="ml-2 text-xs bg-green-800 px-2 py-1 rounded-full">
                   Max

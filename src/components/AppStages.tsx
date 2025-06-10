@@ -3,10 +3,9 @@ import { ReportInputForm } from './ReportInputForm';
 import { PlanDisplay } from './PlanDisplay';
 import { OutputDisplay } from './OutputDisplay';
 import { ChatPanel } from './ChatPanel';
-import { LoadingSpinner } from './LoadingSpinner';
 import { ActiveTab, ChatMessage } from '../types/types';
 import type { AppStage } from '../App';
-import { CONTAINER_STYLES, LAYOUT_STYLES, TEXT_STYLES, ICON_SIZES, combineStyles } from '../utils/styleConstants';
+import { CONTAINER_STYLES, LAYOUT_STYLES, combineStyles } from '../utils/styleConstants';
 
 interface Props {
   appStage: AppStage;
@@ -262,12 +261,6 @@ export const AppStages: React.FC<Props> = ({
         )}
       </div>
       <div className={combineStyles('md:col-span-2', CONTAINER_STYLES.section)}>
-        {isLoading && appStage === 'htmlPending' && (
-          <div className={combineStyles(LAYOUT_STYLES.flexCol, LAYOUT_STYLES.flexCenter, LAYOUT_STYLES.fullHeight)}>
-            <LoadingSpinner className={combineStyles(ICON_SIZES.xl, 'text-sky-500')} />
-            <p className={combineStyles('mt-3', TEXT_STYLES.muted)}>Preparing for website generation...</p>
-          </div>
-        )}
       </div>
       <div className={combineStyles('md:col-span-2', CONTAINER_STYLES.section)}>
         <ReportInputForm
@@ -301,12 +294,6 @@ export const AppStages: React.FC<Props> = ({
             onChatModelChange={handleChatModelChange}
             isChatAvailable={isChatAvailable()}
           />
-        )}
-        {isLoading && appStage === 'htmlReady' && generatedHtml === null && (
-          <div className={combineStyles(LAYOUT_STYLES.flexCol, LAYOUT_STYLES.flexCenter, LAYOUT_STYLES.fullHeight)}>
-            <LoadingSpinner className={combineStyles(ICON_SIZES.xl, 'text-sky-400')} />
-            <p className={combineStyles('mt-2', TEXT_STYLES.muted)}>Generating initial website...</p>
-          </div>
         )}
       </div>
       <div className={combineStyles('md:col-span-4', LAYOUT_STYLES.flexCol, LAYOUT_STYLES.overflowHidden, LAYOUT_STYLES.fullHeight)}>
