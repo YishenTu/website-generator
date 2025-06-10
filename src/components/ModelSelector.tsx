@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { ALL_MODELS, MODELS_BY_PROVIDER, getModelInfo } from '../services/aiService';
-import { CpuChipIcon, ChevronDownIcon, ExpandIcon, CollapseIcon } from './icons';
+import { CpuChipIcon, ExpandIcon, CollapseIcon } from './icons';
 
 // 简化后的接口：只支持字符串模型ID
 interface ModelSelectorProps {
