@@ -1,4 +1,4 @@
-# AI网站生成器
+# AI Website Generator
 
 基于AI的智能网站生成器，只需输入文本报告，即可生成完整的网站。支持多种AI模型，提供实时聊天优化和代码编辑功能。
 
@@ -8,8 +8,9 @@
 - **智能聊天**: 与AI实时对话，优化网站生成效果
 - **代码编辑器**: 内置代码编辑器，支持实时预览和编辑
 - **智能规划**: AI自动分析报告内容，生成网站结构规划
-- **现代化布局**: 采用Linear App风格的现代化布局设计，辅以灵活的网格布局
-- **一键部署**: 自动化部署脚本，3步完成部署
+- **现代化UI**: 采用毛玻璃效果和渐变背景，提供酷炫的用户界面
+- **阶段化管理**: 完整的应用状态管理，支持计划和HTML生成的不同阶段
+- **一键部署**: 自动化部署脚本和Docker支持
 - **响应式设计**: 生成的网站自适应各种设备
 - **实时预览**: 即时查看生成效果，支持实时修改
 
@@ -83,15 +84,23 @@
 ## 文件结构
 
 ```
-ai-website-generator-from-report/
+website-generator/
 ├── src/                    # 源代码目录
 │   ├── components/         # React组件和工具函数
 │   │   ├── icons/                  # 图标组件目录
 │   │   │   └── index.tsx           # 统一的图标导出文件
+│   │   ├── stages/                 # 应用阶段组件目录
+│   │   │   ├── InitialStage.tsx            # 初始阶段组件
+│   │   │   ├── PlanPendingStage.tsx        # 计划生成中阶段
+│   │   │   ├── PlanReadyStage.tsx          # 计划完成阶段
+│   │   │   ├── HtmlPendingStage.tsx        # HTML生成中阶段
+│   │   │   ├── HtmlReadyStage.tsx          # HTML完成阶段
+│   │   │   └── index.ts                    # 阶段组件导出
 │   │   ├── AppStages.tsx           # 应用阶段管理组件
 │   │   ├── ChatPanel.tsx           # 聊天面板组件
 │   │   ├── CodeEditor.tsx          # 代码编辑器组件
 │   │   ├── ErrorBoundary.tsx       # 错误边界组件
+│   │   ├── GenerationStatus.tsx    # 生成状态显示组件
 │   │   ├── LoadingSpinner.tsx      # 加载动画组件
 │   │   ├── ModelSelector.tsx       # AI模型选择器
 │   │   ├── OutputDisplay.tsx       # 输出显示组件
@@ -99,13 +108,19 @@ ai-website-generator-from-report/
 │   │   ├── PreviewLoader.tsx       # 预览加载器组件
 │   │   ├── ReportInputForm.tsx     # 报告输入表单
 │   │   ├── TabButton.tsx           # 标签按钮组件
+│   │   ├── TabContent.tsx          # 标签内容组件
+│   │   ├── TabNavigation.tsx       # 标签导航组件
+│   │   ├── ThinkingBudgetToggle.tsx # 思考预算切换组件
 │   │   ├── appStateUtils.ts        # 应用状态工具函数
 │   │   ├── fileUtils.ts            # 文件操作工具函数
 │   │   └── textUtils.ts            # 文本处理工具函数
+│   ├── contexts/           # React上下文
+│   │   └── AppContext.tsx          # 应用上下文管理
 │   ├── hooks/             # 自定义React Hooks
-│   │   ├── useDebounce.ts          # 防抖动Hook
-│   │   ├── useBufferedUpdater.ts   # 缓冲更新Hook
-│   │   └── useWebsiteGeneration.ts # 网站生成业务逻辑Hook
+│   │   ├── useDebounce.ts                  # 防抖动Hook
+│   │   ├── useBufferedUpdater.ts           # 缓冲更新Hook
+│   │   ├── useOptimizedWebsiteGeneration.ts # 优化的网站生成Hook
+│   │   └── useWebsiteGeneration.ts         # 网站生成业务逻辑Hook
 │   ├── services/          # 服务层代码
 │   │   ├── aiService.ts            # AI服务统一接口
 │   │   ├── geminiService.ts        # Gemini API服务
@@ -121,6 +136,7 @@ ai-website-generator-from-report/
 │   │   ├── env.ts                  # 环境变量工具
 │   │   ├── envValidator.ts         # 环境变量验证工具
 │   │   ├── errorHandler.ts         # 统一错误处理工具
+│   │   ├── inputValidation.ts      # 输入验证工具
 │   │   ├── logger.ts               # 结构化日志工具
 │   │   ├── streamHandler.ts        # 流数据处理工具
 │   │   └── styleConstants.ts       # 样式常量定义
@@ -204,7 +220,15 @@ ai-website-generator-from-report/
 
 ## 更新日志
 
-### v1.2.4 (最新) - 2025-01-23
+### v1.3.0 (最新) - 2025-01-25
+- **UI重构**: 完全重新设计用户界面，采用毛玻璃效果和渐变背景
+- **组件架构优化**: 新增阶段管理系统，引入多个专用阶段组件
+- **应用上下文**: 实现统一的应用状态管理和上下文系统
+- **性能优化**: 新增缓冲更新和优化的网站生成钩子
+- **用户体验**: 统一按钮高度和组件样式，提升界面一致性
+- **思考预算**: 为Claude和Gemini模型添加最大思考预算控制
+
+### v1.2.4 - 2025-01-23
 - **组件优化**：
   - 完善错误边界组件，提供更好的错误恢复机制
   - 优化懒加载组件导入方式，提升首屏加载性能
