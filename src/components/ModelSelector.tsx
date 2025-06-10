@@ -125,7 +125,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
               <button
                 key={model.id}
                 onClick={() => handleModelChange(model.id)}
-                className={`w-full text-left px-3 py-2 text-sm hover:bg-white/20 transition-all duration-200 border-b border-white/5 last:border-b-0 ${
+                className={`w-full text-left px-3 py-1.5 text-sm hover:bg-white/20 transition-all duration-200 border-b border-white/5 last:border-b-0 ${
                   selectedModel === model.id 
                     ? 'bg-transparent text-sky-400 border-sky-400/50 border-l-2 border-r-2' 
                     : 'text-white/80'
@@ -145,7 +145,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
           ref={buttonRef}
           onClick={() => !disabled && setIsOpen(!isOpen)}
           disabled={disabled}
-          className="appearance-none glass-input text-slate-200 border border-white/20 rounded-lg py-2.5 px-4 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-center backdrop-blur-md transition-all duration-200 min-w-[120px] flex items-center justify-between"
+          className="appearance-none glass-input text-slate-200 border border-white/20 rounded-lg py-1.5 px-4 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-center backdrop-blur-md transition-all duration-200 min-w-[120px] flex items-center justify-between"
         >
           <span className="truncate">
             {selectedModelInfo?.name || selectedModel}

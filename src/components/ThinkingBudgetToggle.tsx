@@ -21,7 +21,7 @@ export const ThinkingBudgetToggle: React.FC<ThinkingBudgetToggleProps> = ({
     <button
       onClick={handleClick}
       disabled={disabled}
-      className={`px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg
+      className={`px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg
         ${
           enabled
             ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'

@@ -107,7 +107,7 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
           {/* 生成按钮 */}
           <button
             onClick={onGeneratePlan}
-            className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+            className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
               !isGenerationDisabled
                 ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
                 : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'

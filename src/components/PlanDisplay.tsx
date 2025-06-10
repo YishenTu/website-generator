@@ -114,7 +114,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           {hasManualEdit && !isAppLoading && !isLoadingHtml && (
             <button
               onClick={handleResetToOriginal}
-              className="px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15"
+              className="px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15"
               aria-label="Reset to original plan"
               title="重置到原始plan"
             >
@@ -127,7 +127,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           {showRefineButton && onToggleRefine && !isAppLoading && (
             <button
               onClick={onToggleRefine}
-              className="px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15"
+              className="px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15"
               aria-label="Toggle refine mode"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1.5">
@@ -163,7 +163,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           <button
             onClick={handleProceed}
             disabled={generateButtonDisabled}
-            className={`flex-1 px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+            className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
               !generateButtonDisabled
                 ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
                 : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'

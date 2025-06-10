@@ -223,12 +223,22 @@ const App: React.FC = () => {
       <div className={combineStyles(LAYOUT_STYLES.flexCol, 'h-screen p-4 md:p-6 bg-black text-slate-100 overflow-hidden')}>
         {/* Header */}
         <header className={combineStyles('mb-4 md:mb-6', LAYOUT_STYLES.flexShrink0, LAYOUT_STYLES.relative)}>
-          <h1 className="text-3xl md:text-4xl font-bold text-sky-400 text-center">
-            {UI_TEXT.APP_TITLE}
-          </h1>
-          <p className="text-white/70 text-center mt-1 text-sm md:text-base">
-            {UI_TEXT.APP_SUBTITLE}
-          </p>
+          <div className="text-center relative">
+            {/* Main Title with Neon Effect */}
+            <h1 className="text-4xl md:text-6xl font-black mb-2 relative opacity-85">
+              <span className="bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite]">
+                TURN TEXT INTO VISUAL
+              </span>
+              {/* Glow Effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-lg opacity-20 bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite]">
+                TURN TEXT INTO VISUAL
+              </div>
+            </h1>
+            
+            {/* Decorative Elements */}
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-[30rem] h-1 bg-gradient-to-r from-transparent via-sky-500 to-transparent rounded-full opacity-60"></div>
+            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-[25rem] h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full opacity-50"></div>
+          </div>
         </header>
 
         {/* Error display */}
