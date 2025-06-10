@@ -45,7 +45,7 @@ export const TabNavigation: React.FC<TabNavigationProps> = React.memo(({
   };
 
   return (
-    <div className="border-b border-slate-700">
+    <div className="glass-effect rounded-xl border border-white/10 backdrop-blur-lg p-4 shadow-xl shadow-black/30">
       <div className="flex justify-between items-center">
         <nav className="flex space-x-1">
           <TabButton

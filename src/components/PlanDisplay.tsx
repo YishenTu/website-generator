@@ -106,7 +106,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
   const generateButtonDisabled = isAppLoading || isLoadingHtml || !editablePlanText.trim();
 
   return (
-    <div className={`flex flex-col bg-slate-800 ${containerPadding} rounded-lg shadow-lg h-full`}>
+    <div className={`flex flex-col glass-card ${containerPadding} rounded-xl shadow-2xl shadow-black/40 h-full`}>
       {/* Action buttons row */}
       {(hasManualEdit || showRefineButton) && (
         <div className={`flex items-center justify-end ${titleMargin} flex-shrink-0`}>
@@ -114,7 +114,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           {hasManualEdit && !isAppLoading && !isLoadingHtml && (
             <button
               onClick={handleResetToOriginal}
-              className="bg-gray-600 hover:bg-gray-700 text-white font-medium py-1.5 px-3 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-xs"
+              className="bg-gray-600/80 hover:bg-gray-700/90 text-white font-medium py-1.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 focus:ring-offset-black text-xs backdrop-blur-md border border-gray-500/30"
               aria-label="Reset to original plan"
               title="重置到原始plan"
             >
@@ -127,7 +127,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           {showRefineButton && onToggleRefine && !isAppLoading && (
             <button
               onClick={onToggleRefine}
-              className="bg-purple-600 hover:bg-purple-700 text-white font-medium py-1.5 px-3 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm"
+              className="bg-purple-600/80 hover:bg-purple-700/90 text-white font-medium py-1.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-black text-sm backdrop-blur-md border border-purple-500/30"
               aria-label="Toggle refine mode"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1.5">
@@ -144,7 +144,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           value={displayPlan}
           onChange={handlePlanTextChange}
           disabled={isTextareaDisabled} 
-          className="w-full h-full p-3 bg-slate-700 text-slate-200 border border-slate-600 rounded-md resize-none text-sm leading-relaxed custom-scrollbar focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full h-full p-3 glass-input text-slate-200 border border-white/20 rounded-lg resize-none text-sm leading-relaxed custom-scrollbar focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
           aria-label="Website plan text"
           readOnly={isAppLoading && !isCompactView} // Readonly while plan is streaming in
         />
@@ -152,7 +152,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
         {/* Edit status overlay */}
         {hasManualEdit && !isAppLoading && (
           <div className="absolute bottom-2 right-2 pointer-events-none">
-            <span className="text-xs px-2 py-1 rounded bg-amber-600/80 text-amber-100">
+            <span className="text-xs px-2 py-1 rounded-md glass-effect backdrop-blur-lg text-amber-300 border border-amber-400/30">
               已编辑
             </span>
           </div>
@@ -163,7 +163,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           <button
             onClick={handleProceed}
             disabled={generateButtonDisabled}
-            className={`flex-1 bg-green-600 hover:bg-green-700 disabled:bg-slate-600 text-white font-semibold ${buttonPy} px-4 rounded-md flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm`}
+            className={`flex-1 bg-green-600/80 hover:bg-green-700/90 disabled:bg-white/10 disabled:border-white/10 disabled:opacity-50 text-white font-semibold ${buttonPy} px-4 rounded-lg flex items-center justify-center focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-black text-sm backdrop-blur-md border border-green-500/30 hover:border-green-400/50 shadow-lg transition-all duration-200`}
             aria-label="Generate website from this plan"
           >
             <CheckCircleIcon className="w-5 h-5 mr-2" />

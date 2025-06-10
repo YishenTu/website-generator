@@ -41,7 +41,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
           value={selectedModel}
           onChange={(e) => handleModelChange(e.target.value)}
           disabled={disabled}
-          className="appearance-none bg-slate-700 text-slate-200 border border-slate-600 rounded-md py-1.5 px-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 disabled:opacity-50 disabled:cursor-not-allowed text-center"
+          className="appearance-none glass-input text-slate-200 border border-white/20 rounded-lg py-1.5 px-2 text-sm focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 disabled:opacity-50 disabled:cursor-not-allowed text-center backdrop-blur-md transition-all duration-200"
         >
           {Object.entries(MODELS_BY_PROVIDER).map(([provider, models]) => (
             <optgroup key={provider} label={provider.charAt(0).toUpperCase() + provider.slice(1)}>
@@ -58,7 +58,7 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
   }
 
   return (
-    <div className="bg-slate-800 p-4 rounded-lg shadow-lg">
+    <div className="glass-card p-4 rounded-xl shadow-2xl shadow-black/40">
       <h3 className="text-lg font-semibold text-sky-400 mb-3 flex items-center">
         <CpuChipIcon className="w-5 h-5 mr-2" />
         AI Model Selection
@@ -66,18 +66,18 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
       
       <div className="space-y-4">
         {Object.entries(MODELS_BY_PROVIDER).map(([provider, models]) => (
-          <div key={provider} className="border border-slate-600 rounded-lg overflow-hidden">
+          <div key={provider} className="border border-white/20 rounded-lg overflow-hidden">
             {/* Provider Header */}
             <button
               onClick={() => toggleProvider(provider)}
-              className="w-full flex items-center justify-between p-3 bg-slate-700/50 hover:bg-slate-700/70 transition-colors"
+              className="w-full flex items-center justify-between p-3 glass-effect hover:bg-white/10 transition-all duration-200"
               disabled={disabled}
             >
               <div className="flex items-center">
-                <span className="text-sm font-medium text-slate-300 capitalize">
+                <span className="text-sm font-medium text-white/80 capitalize">
                   {provider === 'gemini' ? 'Google Gemini' : 'OpenRouter Models'}
                 </span>
-                <span className="ml-2 text-xs px-2 py-1 bg-slate-600 text-slate-400 rounded-full">
+                <span className="ml-2 text-xs px-2 py-1 glass-effect text-white/70 rounded-full border border-white/20">
                   {models.length} models
                 </span>
               </div>
@@ -94,11 +94,11 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                   <label
                     key={model.id}
                     className={`
-                      flex items-start p-3 rounded-md border cursor-pointer transition-all duration-200
-                      ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-slate-700/50'}
+                      flex items-start p-3 rounded-lg border cursor-pointer transition-all duration-200 backdrop-blur-md
+                      ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-white/10'}
                       ${selectedModel === model.id 
-                        ? 'border-sky-500 bg-sky-900/20' 
-                        : 'border-slate-600 bg-slate-700/30'
+                        ? 'border-sky-400/50 bg-sky-600/20 shadow-lg shadow-sky-500/20' 
+                        : 'border-white/20 glass-input'
                       }
                     `}
                   >
@@ -113,11 +113,11 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
                     />
                     <div className="ml-3 flex-1">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-medium text-slate-200">
+                        <h4 className="text-sm font-medium text-white/90">
                           {model.name}
                         </h4>
                         {selectedModel === model.id && (
-                          <span className="text-xs px-2 py-1 bg-sky-600 text-white rounded-full">
+                          <span className="text-xs px-2 py-1 bg-sky-600/80 text-white rounded-full border border-sky-400/30 backdrop-blur-md">
                             选中
                           </span>
                         )}
@@ -133,12 +133,12 @@ export const ModelSelector: React.FC<ModelSelectorProps> = ({
       
       {/* 显示当前选中的模型信息 */}
       {selectedModel && (
-        <div className="mt-4 p-3 bg-slate-700/30 rounded-lg border border-slate-600">
-          <div className="text-xs text-slate-400 mb-1">当前选中:</div>
-          <div className="text-sm text-slate-200 font-medium">
+        <div className="mt-4 p-3 glass-effect rounded-lg border border-white/20 backdrop-blur-lg">
+          <div className="text-xs text-white/70 mb-1">当前选中:</div>
+          <div className="text-sm text-white/90 font-medium">
             {ALL_MODELS.find(m => m.id === selectedModel)?.name || selectedModel}
           </div>
-          <div className="text-xs text-slate-500 mt-1">
+          <div className="text-xs text-white/60 mt-1">
             服务商: {getModelInfo(selectedModel)?.provider || 'unknown'}
           </div>
         </div>

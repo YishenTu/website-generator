@@ -56,18 +56,18 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
   const showThinkingToggle = supportsThinking(selectedModel) && onMaxThinkingChange;
 
   return (
-    <div className="flex flex-col bg-slate-800 p-4 rounded-lg shadow-lg h-full">
+    <div className="flex flex-col glass-card p-4 rounded-xl shadow-2xl shadow-black/40 h-full">
       <div className="flex-grow min-h-0 flex flex-col relative">
         <textarea
           value={reportText}
           onChange={handleTextChange}
           placeholder={`Paste your text here... (minimum ${VALIDATION_LIMITS.REPORT_TEXT_MIN} characters)`}
-          className={`w-full p-3 bg-slate-700 text-slate-200 border rounded-md resize-none focus:ring-2 focus:border-sky-500 text-sm leading-relaxed flex-grow min-h-0 custom-scrollbar ${
+          className={`w-full p-3 glass-input text-slate-200 rounded-lg resize-none focus:ring-2 focus:border-sky-500 text-sm leading-relaxed flex-grow min-h-0 custom-scrollbar transition-all duration-200 ${
             validationError 
-              ? 'border-red-500 focus:ring-red-500' 
+              ? 'border-red-500/50 focus:ring-red-500 focus:border-red-500' 
               : isApproachingLimit(reportText.length, VALIDATION_LIMITS.REPORT_TEXT_MAX)
-                ? 'border-yellow-500 focus:ring-yellow-500'
-                : 'border-slate-600 focus:ring-sky-500'
+                ? 'border-yellow-500/50 focus:ring-yellow-500 focus:border-yellow-500'
+                : 'border-white/20 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5'
           }`}
           disabled={isTextareaDisabled}
           aria-label="Report text input"
@@ -80,12 +80,12 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
         <div className="absolute bottom-2 right-2 pointer-events-none">
           <span 
             id="char-count"
-            className={`text-xs px-2 py-1 rounded bg-slate-800/80 ${
+            className={`text-xs px-2 py-1 rounded-md glass-effect backdrop-blur-lg ${
               isApproachingLimit(reportText.length, VALIDATION_LIMITS.REPORT_TEXT_MAX)
-                ? 'text-yellow-400'
+                ? 'text-yellow-400 border border-yellow-400/30'
                 : reportText.length > VALIDATION_LIMITS.REPORT_TEXT_MAX
-                  ? 'text-red-400'
-                  : 'text-slate-400'
+                  ? 'text-red-400 border border-red-400/30'
+                  : 'text-white/70 border border-white/20'
             }`}
           >
             {formatCharacterCount(reportText.length, VALIDATION_LIMITS.REPORT_TEXT_MAX)}
@@ -95,7 +95,7 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
         {/* Validation error overlay - positioned in bottom left of textarea */}
         {validationError && (
           <div className="absolute bottom-2 left-2 pointer-events-none">
-            <span id="validation-error" className="text-xs px-2 py-1 rounded bg-red-900/80 text-red-400 max-w-xs truncate">
+            <span id="validation-error" className="text-xs px-2 py-1 rounded-md glass-effect backdrop-blur-lg text-red-400 border border-red-400/30 max-w-xs truncate">
               {validationError}
             </span>
           </div>
@@ -107,7 +107,7 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
           {/* 生成按钮 */}
           <button
             onClick={onGeneratePlan}
-            className="flex-1 bg-sky-600 hover:bg-sky-700 disabled:bg-slate-600 text-white font-semibold py-1.5 px-4 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-800 text-sm"
+            className="flex-1 bg-sky-600/80 hover:bg-sky-700/90 disabled:bg-white/10 disabled:border-white/10 disabled:opacity-50 text-white font-semibold py-1.5 px-4 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-black text-sm backdrop-blur-md border border-sky-500/30 hover:border-sky-400/50 shadow-lg"
             disabled={isGenerationDisabled}
             aria-label="Generate website plan from report"
           >

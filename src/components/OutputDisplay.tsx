@@ -221,10 +221,10 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
          <button
             onClick={onToggleFullPreview}
             className={combineStyles(
-              'absolute top-4 right-4 z-[60] bg-slate-700 hover:bg-slate-600 text-white font-medium py-2 px-3 rounded-full shadow-lg',
+              'absolute top-4 right-4 z-[60] glass-effect hover:bg-white/20 text-white font-medium py-2 px-3 rounded-full shadow-2xl shadow-black/40 backdrop-blur-lg border border-white/20',
               LAYOUT_STYLES.flexCenter,
               BUTTON_STYLES.smallButton,
-              'transition-colors'
+              'transition-all duration-200'
             )}
             aria-label="Exit Full Preview"
           >
@@ -235,7 +235,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
       <div className={combineStyles(LAYOUT_STYLES.flexGrow, LAYOUT_STYLES.relative, LAYOUT_STYLES.minH0, isFullPreviewActive ? 'h-full w-full' : 'overflow-hidden')}>
         {error && (
           <div className={combineStyles(LAYOUT_STYLES.fullHeight, LAYOUT_STYLES.flexCenter, 'p-4')}>
-            <div className="text-center bg-red-900/50 border border-red-700 text-red-300 p-4 rounded-md">
+            <div className="text-center glass-effect bg-red-600/20 border border-red-500/30 text-red-200 p-4 rounded-xl shadow-2xl shadow-red-900/50 backdrop-blur-lg">
               <h3 className={combineStyles('font-semibold text-lg mb-1')}>{UI_TEXT.ERROR_TITLE}</h3>
               <p className={TEXT_STYLES.mutedXs}>{error}</p>
             </div>

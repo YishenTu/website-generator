@@ -220,20 +220,20 @@ const App: React.FC = () => {
   // Main app layout
   return (
     <AppProvider value={contextValue}>
-      <div className={combineStyles(LAYOUT_STYLES.flexCol, 'h-screen p-4 md:p-6 bg-slate-900 text-slate-100 overflow-hidden')}>
+      <div className={combineStyles(LAYOUT_STYLES.flexCol, 'h-screen p-4 md:p-6 bg-black text-slate-100 overflow-hidden')}>
         {/* Header */}
         <header className={combineStyles('mb-4 md:mb-6', LAYOUT_STYLES.flexShrink0, LAYOUT_STYLES.relative)}>
-          <h1 className="text-3xl md:text-4xl font-bold text-sky-500 text-center">
+          <h1 className="text-3xl md:text-4xl font-bold text-sky-400 text-center">
             {UI_TEXT.APP_TITLE}
           </h1>
-          <p className="text-slate-400 text-center mt-1 text-sm md:text-base">
+          <p className="text-white/70 text-center mt-1 text-sm md:text-base">
             {UI_TEXT.APP_SUBTITLE}
           </p>
         </header>
 
         {/* Error display */}
         {error && (
-          <div className="mb-4 p-3 bg-red-900/70 text-red-200 border border-red-700 rounded-md text-center text-sm shadow-lg" role="alert">
+          <div className="mb-4 p-3 glass-effect bg-red-600/20 text-red-200 border border-red-500/30 rounded-lg text-center text-sm shadow-2xl shadow-red-900/50 backdrop-blur-lg" role="alert">
             {error}
           </div>
         )}

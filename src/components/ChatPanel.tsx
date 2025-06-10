@@ -52,10 +52,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
   };
 
   return (
-    <div className="flex flex-col bg-slate-800 p-4 rounded-lg shadow-lg h-full">
+    <div className="flex flex-col glass-card p-4 rounded-xl shadow-2xl shadow-black/40 h-full">
       <div className="flex flex-col items-center mb-3 flex-shrink-0">
         {onChatModelChange ? (
-          <div className="w-full flex items-center justify-center gap-3 pb-2 border-b border-slate-700/50">
+          <div className="w-full flex items-center justify-center gap-3 pb-2 border-b border-white/10">
             <h2 className="text-lg font-semibold text-sky-400">
               {title ? 
                 title.replace(/Refine\s+(Plan|Code)(\s+with\s+Chat)?/i, 'Refine with ') : 
@@ -81,10 +81,10 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
             className={`flex ${msg.sender === UserType.User ? 'justify-end' : 'justify-start'}`}
           >
             <div
-              className={`max-w-[85%] p-2.5 rounded-lg text-sm shadow
+              className={`max-w-[85%] p-2.5 rounded-lg text-sm shadow-lg backdrop-blur-md
                 ${msg.sender === UserType.User
-                  ? 'bg-sky-600 text-white rounded-br-none'
-                  : 'bg-slate-700 text-slate-200 rounded-bl-none'
+                  ? 'bg-sky-600/80 text-white rounded-br-none border border-sky-500/30'
+                  : 'glass-input text-slate-200 rounded-bl-none border border-white/20'
                 }`}
             >
               {msg.text}
@@ -93,14 +93,14 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
         ))}
         <div ref={messagesEndRef} />
       </div>
-      <form onSubmit={handleSubmit} className="flex-shrink-0 mt-auto pt-2 border-t border-slate-700/50">
+      <form onSubmit={handleSubmit} className="flex-shrink-0 mt-auto pt-2 border-t border-white/10">
         <div className="flex items-center space-x-2">
           <input
             type="text"
             value={inputText}
             onChange={(e) => setInputText(e.target.value)}
             placeholder={getPlaceholderText()}
-            className="flex-grow p-2.5 bg-slate-700 text-slate-200 border border-slate-600 rounded-md focus:ring-2 focus:ring-sky-500 focus:border-sky-500 text-sm"
+            className="flex-grow p-2.5 glass-input text-slate-200 border border-white/20 rounded-lg focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 text-sm transition-all duration-200"
             disabled={isInputDisabled}
             aria-label="Chat message input"
           />
@@ -108,7 +108,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
              <button
                 type="button"
                 onClick={onStop}
-                className="bg-red-600 hover:bg-red-700 text-white font-semibold py-2.5 px-3 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-slate-800"
+                className="bg-red-600/80 hover:bg-red-700/90 text-white font-semibold py-2.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-black backdrop-blur-md border border-red-500/30"
                 aria-label="Stop refinement"
             >
                 <StopIcon className="w-5 h-5" />
@@ -117,7 +117,7 @@ export const ChatPanel: React.FC<ChatPanelProps> = React.memo(({
             <button
                 type="submit"
                 disabled={isInputDisabled || !inputText.trim()}
-                className="bg-sky-600 hover:bg-sky-700 disabled:bg-slate-600 text-white font-semibold py-2.5 px-3 rounded-md flex items-center justify-center transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-800"
+                className="bg-sky-600/80 hover:bg-sky-700/90 disabled:bg-white/10 disabled:border-white/10 disabled:opacity-50 text-white font-semibold py-2.5 px-3 rounded-lg flex items-center justify-center transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-black backdrop-blur-md border border-sky-500/30"
                 aria-label="Send chat message"
             >
                 <PaperAirplaneIcon className="w-5 h-5" />

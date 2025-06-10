@@ -12,13 +12,13 @@ export const TabButton: React.FC<TabButtonProps> = React.memo(({ label, isActive
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`px-4 py-2.5 text-sm font-medium transition-colors duration-150 focus:outline-none
+      className={`px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg
         ${
           isActive
-            ? 'border-b-2 border-sky-500 text-sky-400'
-            : 'text-slate-400 hover:text-slate-200 hover:border-b-2 hover:border-slate-600'
+            ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
+            : 'text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border hover:border-white/15'
         }
-        ${disabled ? 'opacity-50 cursor-not-allowed hover:border-transparent hover:text-slate-400' : ''}
+        ${disabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:border-transparent hover:text-white/70' : ''}
       `}
       aria-disabled={disabled}
     >
@@ -47,13 +47,13 @@ export const TabActionButton: React.FC<TabActionButtonProps> = React.memo(({
     <button
       onClick={onClick}
       disabled={disabled}
-      className={`px-4 py-2.5 text-sm font-medium transition-colors duration-150 focus:outline-none flex items-center
+      className={`px-4 py-2.5 text-sm font-medium transition-all duration-300 focus:outline-none flex items-center rounded-lg
         ${
           isActive
-            ? 'border-b-2 border-sky-500 text-sky-400'
-            : 'text-slate-400 hover:text-slate-200 hover:border-b-2 hover:border-slate-600'
+            ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
+            : 'text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border hover:border-white/15'
         }
-        ${disabled ? 'opacity-50 cursor-not-allowed hover:border-transparent hover:text-slate-400' : ''}
+        ${disabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:border-transparent hover:text-white/70' : ''}
         ${className}
       `}
       aria-disabled={disabled}

@@ -34,6 +34,15 @@
                 800: "#1e293b",
                 900: "#0f172a"
               }
+            },
+            backdropBlur: {
+              'xs': '2px',
+              'sm': '4px',
+              'md': '8px',
+              'lg': '12px',
+              'xl': '16px',
+              '2xl': '24px',
+              '3xl': '40px'
             }
           }
         }
@@ -46,20 +55,59 @@
     height: 8px; /* Height of the scrollbar for horizontal scroll */
   }
   .custom-scrollbar::-webkit-scrollbar-track {
-    background: #1e293b; /* slate-800, Track color */
+    background: rgba(0, 0, 0, 0.3); /* 半透明黑色轨道 */
     border-radius: 10px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background: #475569; /* slate-600, Thumb color */
+    background: rgba(255, 255, 255, 0.3); /* 半透明白色滑块 */
     border-radius: 10px;
   }
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: #64748b; /* slate-500, Thumb hover color */
+    background: rgba(255, 255, 255, 0.5); /* 鼠标悬停时更明显 */
   }
   /* For Firefox - more limited styling */
   .custom-scrollbar {
     scrollbar-width: thin; /* "auto" or "thin" */
-    scrollbar-color: #475569 #1e293b; /* thumb and track color */
+    scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.3); /* thumb and track color */
+  }
+
+  /* 毛玻璃效果基础样式 */
+  .glass-effect {
+    background: rgba(25, 25, 30, 0.3);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-card {
+    background: rgba(30, 30, 35, 0.4);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .glass-dark {
+    background: rgba(15, 15, 20, 0.4);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .glass-input {
+    background: rgba(20, 20, 25, 0.25);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* 渐变背景 */
+  .gradient-bg {
+    background: linear-gradient(135deg, 
+      rgba(0, 0, 0, 1) 0%, 
+      rgba(15, 15, 15, 1) 25%, 
+      rgba(0, 0, 0, 1) 50%, 
+      rgba(20, 20, 20, 1) 75%, 
+      rgba(0, 0, 0, 1) 100%);
   }
 </style>
 <script type="importmap">
@@ -73,7 +121,7 @@
 }
 </script>
 </head>
-<body class="bg-slate-900 text-slate-100 antialiased">
+<body class="bg-black text-slate-100 antialiased gradient-bg">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
 </body>
