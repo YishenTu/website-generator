@@ -260,7 +260,22 @@ export const AppStages: React.FC<Props> = ({
           />
         )}
       </div>
-      <div className={combineStyles('md:col-span-2', CONTAINER_STYLES.section)}>
+      <div className={combineStyles('md:col-span-2', LAYOUT_STYLES.flexCol, LAYOUT_STYLES.overflowHidden, LAYOUT_STYLES.fullHeight)}>
+        <OutputDisplay
+          htmlContent={generatedHtml}
+          isLoading={isLoading}
+          error={null}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+          onCopyCode={onCopyCode}
+          onDownloadHtml={onDownloadHtml}
+          onToggleFullPreview={onToggleFullPreview}
+          isFullPreviewActive={false}
+          appStage={appStage}
+          onHtmlContentChange={onHtmlContentChange}
+          className={LAYOUT_STYLES.fullHeight}
+          streamingModel={htmlModel}
+        />
       </div>
       <div className={combineStyles('md:col-span-2', CONTAINER_STYLES.section)}>
         <ReportInputForm

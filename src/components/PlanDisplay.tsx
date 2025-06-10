@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ModelSelector } from './ModelSelector';
 import { ThinkingBudgetToggle } from './ThinkingBudgetToggle';
-import { getDefaultModel } from '../services/aiService';
+import { getDefaultModel, supportsThinking } from '../services/aiService';
 import { isProviderAvailable } from '../utils/envValidator';
 import { CheckCircleIcon, PencilSquareIcon } from './icons';
 
@@ -169,15 +169,15 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = ({
               aria-label="Generate website from this plan"
             >
               <CheckCircleIcon className="w-5 h-5 mr-2" />
-              Generate Website from Plan
-              {maxThinking && htmlModel.startsWith('gemini') && (
+                              Generate Website from Plan
+                {maxThinking && supportsThinking(htmlModel) && (
                 <span className="ml-2 text-xs bg-green-800 px-2 py-1 rounded-full">
                   Max
                 </span>
               )}
             </button>
             
-            {htmlModel.startsWith('gemini') && setMaxThinking && (
+                            {supportsThinking(htmlModel) && setMaxThinking && (
               <ThinkingBudgetToggle
                 enabled={maxThinking || false}
                 onToggle={setMaxThinking}

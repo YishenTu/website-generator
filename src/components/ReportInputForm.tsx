@@ -2,7 +2,7 @@ import React from 'react';
 import { ModelSelector } from './ModelSelector';
 import { ThinkingBudgetToggle } from './ThinkingBudgetToggle';
 import { SparklesIcon, StopIcon, ArrowPathIcon } from './icons';
-import { isGeminiModel } from '../services/aiService';
+import { supportsThinking } from '../services/aiService';
 import type { AppStage } from '../App'; // Import AppStage type
 
 interface ReportInputFormProps {
@@ -68,7 +68,7 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
   }
   
   const isTextareaDisabled = isLoading || appStage === 'planPending' || appStage === 'htmlPending';
-  const showThinkingToggle = isGeminiModel(selectedModel) && onMaxThinkingChange;
+  const showThinkingToggle = supportsThinking(selectedModel) && onMaxThinkingChange;
 
   return (
     <div className="flex flex-col bg-slate-800 p-4 rounded-lg shadow-lg h-full">

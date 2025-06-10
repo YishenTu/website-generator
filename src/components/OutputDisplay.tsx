@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef, Suspense } from 'react';
 import { ActiveTab } from '../types/types';
-import { LoadingSpinner } from './LoadingSpinner';
 import { TabButton } from './TabButton';
 const CodeEditor = React.lazy(() => import('./CodeEditor').then(module => ({ default: module.CodeEditor })));
 import { PreviewLoader } from './PreviewLoader';
+import { GenerationStatus } from './GenerationStatus';
 import { getModelInfo } from '../services/aiService';
 import { useDebounce } from '../hooks/useDebounce';
 import { 
@@ -223,19 +223,29 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
   return (
     <div className={combineStyles(containerClasses, isFullPreviewActive ? '' : CONTAINER_STYLES.cardPadding)}>
       {!isFullPreviewActive && (
-        <div className={combineStyles(LAYOUT_STYLES.flexRow, 'mb-3 border-b border-slate-700', LAYOUT_STYLES.flexShrink0)}>
-          <TabButton
-            label="Preview"
-            isActive={activeTab === ActiveTab.Preview}
-            onClick={() => onTabChange(ActiveTab.Preview)}
-            disabled={htmlContent === null || (isLoading && appStage !== 'htmlReady')} // Disable if no content or loading non-HTML
-          />
-          <TabButton
-            label="Code"
-            isActive={activeTab === ActiveTab.Code}
-            onClick={() => onTabChange(ActiveTab.Code)}
-            disabled={htmlContent === null || (isLoading && appStage !== 'htmlReady')} // Disable if no content or loading non-HTML
-          />
+        <div className={combineStyles(LAYOUT_STYLES.flexRow, 'mb-3 border-b border-slate-700', LAYOUT_STYLES.flexShrink0, 'justify-between items-center')}>
+          <div className="flex">
+            <TabButton
+              label="Preview"
+              isActive={activeTab === ActiveTab.Preview}
+              onClick={() => onTabChange(ActiveTab.Preview)}
+              disabled={htmlContent === null || (isLoading && appStage !== 'htmlReady')} // Disable if no content or loading non-HTML
+            />
+            <TabButton
+              label="Code"
+              isActive={activeTab === ActiveTab.Code}
+              onClick={() => onTabChange(ActiveTab.Code)}
+              disabled={htmlContent === null || (isLoading && appStage !== 'htmlReady')} // Disable if no content or loading non-HTML
+            />
+          </div>
+          {/* GenerationStatus在右侧 */}
+          {(appStage === 'htmlPending' || appStage === 'htmlReady') && streamingModel && (
+            <GenerationStatus
+              isGenerating={isLoading && (appStage === 'htmlPending' || appStage === 'htmlReady')}
+              modelName={getModelInfo(streamingModel)?.name}
+              className="relative top-0 right-0"
+            />
+          )}
         </div>
       )}
 
@@ -264,7 +274,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
           </div>
         )}
         
-        {placeholderTextContent && !showMainSpinner && !error && ( // Show placeholder if no spinner, error, and conditions met
+        {placeholderTextContent && !error && ( // Show placeholder if no error and conditions met
             <div className={combineStyles(LAYOUT_STYLES.fullHeight, LAYOUT_STYLES.flexCol, LAYOUT_STYLES.flexCenter, 'p-4 text-center')}>
                 <div className="text-slate-500">
                     {placeholderTextContent}
@@ -272,17 +282,15 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = ({
             </div>
         )}
 
-        {        /* PreviewLoader组件 - 处理iframe加载、streaming和错误状态 */}
-        {activeTab === ActiveTab.Preview && optimizedHtmlContent && !showMainSpinner && (
+        {/* PreviewLoader组件 - 处理iframe加载和错误状态 */}
+        {activeTab === ActiveTab.Preview && optimizedHtmlContent && (
           <PreviewLoader 
             isLoading={isIframeLoading} 
             hasError={iframeError} 
             onRetry={handleRetry}
-            isStreaming={isLoading && appStage === 'htmlReady'}
-            streamingModel={streamingModel ? getModelInfo(streamingModel)?.name : undefined}
-            showStreamingStatus={isLoading && appStage === 'htmlReady'}
           />
         )}
+
         
 
         {/* Render content area if htmlContent is not null (even empty string) and no error, or if full preview active */}

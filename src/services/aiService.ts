@@ -84,6 +84,25 @@ export function isOpenAIModel(modelId: string): boolean {
   return modelInfo?.provider === 'openai';
 }
 
+// 检查模型是否支持思考功能
+export function supportsThinking(modelId: string): boolean {
+  const modelInfo = getModelInfo(modelId);
+  if (!modelInfo) return false;
+  
+  // Gemini模型支持thinking
+  if (modelInfo.provider === 'gemini') {
+    return true;
+  }
+  
+  // OpenRouter模型中的Claude和DeepSeek R1支持reasoning
+  if (modelInfo.provider === 'openrouter') {
+    return modelId.includes('claude') || modelId.includes('deepseek-r1');
+  }
+  
+  // OpenAI模型目前不支持
+  return false;
+}
+
 // 获取默认模型
 export function getDefaultModel(provider: 'gemini' | 'openrouter' | 'openai'): string {
   if (provider === 'gemini') {
@@ -139,7 +158,7 @@ export async function generateWebsitePlan(
   return dispatchToModel(
     modelId,
     () => generateWebsitePlanStream(ai, reportText, onChunk, onComplete, signal, modelId, maxThinking),
-    () => generateWebsitePlanStreamOpenRouter(reportText, onChunk, onComplete, signal, modelId),
+    () => generateWebsitePlanStreamOpenRouter(reportText, onChunk, onComplete, signal, modelId, maxThinking),
     () => generateWebsitePlanStreamOpenAI(reportText, onChunk, onComplete, signal, modelId)
   );
 }
@@ -158,7 +177,7 @@ export async function generateWebsiteFromPlan(
   return dispatchToModel(
     modelId,
     () => generateWebsiteFromReportWithPlanStream(ai, reportText, planText, onChunk, onComplete, signal, modelId, maxThinking),
-    () => generateWebsiteFromReportWithPlanStreamOpenRouter(reportText, planText, onChunk, onComplete, signal, modelId),
+    () => generateWebsiteFromReportWithPlanStreamOpenRouter(reportText, planText, onChunk, onComplete, signal, modelId, maxThinking),
     () => generateWebsiteFromReportWithPlanStreamOpenAI(reportText, planText, onChunk, onComplete, signal, modelId)
   );
 }
@@ -173,7 +192,7 @@ export function createHtmlChatSession(
 ): ChatSession {
   return dispatchToModel<ChatSession>(
     modelId,
-    () => new GeminiChatSession(ai, initialHtml, reportText, planText, modelId),
+    () => new GeminiChatSession(ai, initialHtml, reportText, planText, modelId, false),
     () => new OpenRouterChatSession(initialHtml, reportText, planText, modelId),
     () => new OpenAIChatSession(initialHtml, reportText, planText, modelId)
   );
@@ -188,7 +207,7 @@ export function createPlanChatSession(
 ): ChatSession {
   return dispatchToModel<ChatSession>(
     modelId,
-    () => new GeminiPlanChatSession(ai, initialPlan, reportText, modelId),
+    () => new GeminiPlanChatSession(ai, initialPlan, reportText, modelId, false),
     () => new OpenRouterPlanChatSession(initialPlan, reportText, modelId),
     () => new OpenAIPlanChatSession(initialPlan, reportText, modelId)
   );

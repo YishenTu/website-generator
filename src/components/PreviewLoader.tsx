@@ -1,23 +1,37 @@
 import React from 'react';
+import { CONTAINER_STYLES, TEXT_STYLES, ICON_SIZES, ANIMATION_STYLES, combineStyles } from '../utils/styleConstants';
+import { LoadingSpinner } from './LoadingSpinner';
 
 interface PreviewLoaderProps {
   isLoading: boolean;
   hasError: boolean;
   onRetry: () => void;
-  isStreaming?: boolean;
-  streamingModel?: string;
-  showStreamingStatus?: boolean;
 }
 
 export const PreviewLoader: React.FC<PreviewLoaderProps> = React.memo(({ 
   isLoading,
   hasError, 
-  onRetry,
-  isStreaming = false,
-  streamingModel,
-  showStreamingStatus = false
+  onRetry
 }) => {
 
+  // Loading stage
+  if (isLoading && !hasError) {
+    return (
+      <div className={combineStyles(
+        CONTAINER_STYLES.absolute,
+        CONTAINER_STYLES.inset0,
+        CONTAINER_STYLES.flexCenter,
+        'bg-slate-800 bg-opacity-50 z-20 rounded-b-md backdrop-blur-sm'
+      )}>
+        <div className="text-center">
+          <LoadingSpinner size="md" />
+          <p className={combineStyles(TEXT_STYLES.mutedSm, 'mt-3')}>
+            Loading preview...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   // Error stage
   if (!hasError) return null;

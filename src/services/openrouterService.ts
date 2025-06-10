@@ -6,10 +6,10 @@ import {
   getHtmlChatInitialMessage,
   getPlanChatInitialMessage
 } from "../templates/promptTemplates";
-import { createLogger } from "../utils/logger";
 import { makeApiStreamRequest } from "./streamRequest";
 import { ENV_VARS } from "../utils/constants";
 import { getEnvVar } from "../utils/env";
+import { logger } from '../utils/logger';
 
 const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 
@@ -41,10 +41,43 @@ interface OpenRouterMessage {
   content: string;
 }
 
+// Reasoning configuration interface based on OpenRouter API
+interface ReasoningConfig {
+  max_tokens?: number;
+  effort?: 'high' | 'medium' | 'low';
+  exclude?: boolean;
+}
+
 interface OpenRouterRequest {
   model: string;
   messages: OpenRouterMessage[];
   stream: boolean;
+  reasoning?: ReasoningConfig;
+}
+
+
+
+// 创建reasoning配置
+function createReasoningConfig(modelId: string, maxThinking: boolean = false): ReasoningConfig | undefined {
+  if (!maxThinking) {
+    return undefined;
+  }
+
+  // 对于Claude模型，使用max_tokens=32000
+  if (modelId.includes('claude')) {
+    logger.info(`Setting reasoning max_tokens to 32000 for Claude model ${modelId}, exclude: true`);
+    return {
+      max_tokens: 32000,
+      exclude: true // 永远排除reasoning tokens输出
+    };
+  }
+  
+  // 对于其他模型（如DeepSeek R1），使用effort=high
+  logger.info(`Setting reasoning effort to 'high' for model ${modelId}, exclude: true`);
+  return {
+    effort: 'high',
+    exclude: true // 永远排除reasoning tokens输出
+  };
 }
 
 // --- Generic Stream Request Helper ---
@@ -60,8 +93,15 @@ async function makeGenericStreamRequest(
   if (!apiKey) {
     throw new Error(`OpenRouter API key is not configured. Please ensure the ${ENV_VARS.OPENROUTER_API_KEY} environment variable is set.`);
   }
+  
+  // Log reasoning configuration if present
+  if (requestBody.reasoning) {
+    logger.info(`Using reasoning configuration: ${JSON.stringify(requestBody.reasoning)}`);
+  }
+  
   await makeApiStreamRequest(OPENROUTER_API_URL, apiKey, requestBody, onChunk, onComplete, signal, errorContext);
 }
+
 // --- Base Stream Request Function ---
 
 async function makeOpenRouterStreamRequest(
@@ -69,10 +109,12 @@ async function makeOpenRouterStreamRequest(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  maxThinking: boolean = false
 ): Promise<void> {
+  const model = modelName || DEFAULT_MODEL;
   const requestBody: OpenRouterRequest = {
-    model: modelName || DEFAULT_MODEL,
+    model,
     messages: [
       {
         role: 'user',
@@ -81,6 +123,12 @@ async function makeOpenRouterStreamRequest(
     ],
     stream: true
   };
+
+  // Add reasoning configuration if maxThinking is enabled
+  const reasoningConfig = createReasoningConfig(model, maxThinking);
+  if (reasoningConfig) {
+    requestBody.reasoning = reasoningConfig;
+  }
 
   return makeGenericStreamRequest(requestBody, onChunk, onComplete, signal);
 }
@@ -92,13 +140,21 @@ async function makeChatStreamRequest(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  maxThinking: boolean = false
 ): Promise<void> {
+  const model = modelName || DEFAULT_MODEL;
   const requestBody: OpenRouterRequest = {
-    model: modelName || DEFAULT_MODEL,
+    model,
     messages: [...messages],
     stream: true
   };
+
+  // Add reasoning configuration if maxThinking is enabled
+  const reasoningConfig = createReasoningConfig(model, maxThinking);
+  if (reasoningConfig) {
+    requestBody.reasoning = reasoningConfig;
+  }
 
   return makeGenericStreamRequest(requestBody, onChunk, onComplete, signal, "chat");
 }
@@ -110,10 +166,11 @@ export async function generateWebsitePlanStreamOpenRouter(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  maxThinking: boolean = false
 ): Promise<void> {
   const prompt = generateWebsitePlanPrompt(reportText);
-  return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal, modelName);
+  return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal, modelName, maxThinking);
 }
 
 export async function generateWebsiteFromReportWithPlanStreamOpenRouter(
@@ -122,10 +179,11 @@ export async function generateWebsiteFromReportWithPlanStreamOpenRouter(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  maxThinking: boolean = false
 ): Promise<void> {
   const prompt = generateWebsitePromptWithPlan(reportText, planText);
-  return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal, modelName);
+  return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal, modelName, maxThinking);
 }
 
 // --- Chat Session Classes ---
@@ -187,7 +245,8 @@ export class OpenRouterChatSession {
         onComplete(accumulatedText);
       },
       signal,
-      this.modelName
+      this.modelName,
+      false // 聊天不使用max thinking
     );
   }
 }
@@ -249,7 +308,8 @@ export class OpenRouterPlanChatSession {
         onComplete(accumulatedText);
       },
       signal,
-      this.modelName
+      this.modelName,
+      false // 聊天不使用max thinking
     );
   }
 } 
