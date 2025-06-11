@@ -257,7 +257,7 @@ show_deployment_info() {
     echo
     echo "🌐 应用访问地址: http://localhost:8080"
     echo "🔍 健康检查: http://localhost:8080/health"
-    ehco
+    echo
     echo "  更新应用: ./scripts/deploy.sh"
     echo
 }

@@ -5,9 +5,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ### Development
-- `npm run dev` - Start development server on port 3000
+- `npm run dev` - Start development server on port 3000 (user will run manually)
 - `npm run build` - Build production version to `dist/`
 - `npm run preview` - Preview production build
+
+### Important Notes
+- DO NOT run `npm run dev` automatically - the user will start the development server manually when needed
 
 ### TypeScript Configuration
 - Uses TypeScript 5.7 with strict mode enabled
@@ -65,3 +68,6 @@ The app uses a service abstraction pattern where:
 - Uses Tailwind CSS with centralized style constants in styleConstants.ts
 - Linear App-inspired design with vertical flow layout
 - Responsive grid layout that adapts based on app stage
+- Cyberpunk aesthetic with icy blue color scheme
+- Custom fonts: Orbitron (cyberpunk titles), Rajdhani (subtitles), Space Mono, Exo 2
+- Enhanced visual effects: gradient animations, glow effects, neon styling
