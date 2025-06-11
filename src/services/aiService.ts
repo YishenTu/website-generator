@@ -20,8 +20,7 @@ import {
   OpenAIPlanChatSession,
   OPENAI_MODELS
 } from "./openaiService";
-import { ENV_VARS, ERROR_MESSAGES } from "../utils/constants";
-import { logger } from '../utils/logger';
+import { ENV_VARS } from "../utils/constants";
 import { getEnvVar } from '../utils/env';
 
 // 模型信息接口
@@ -93,9 +92,9 @@ export function supportsThinking(modelId: string): boolean {
     return true;
   }
   
-  // OpenRouter模型中的Claude和DeepSeek R1支持reasoning
+  // OpenRouter模型中的Claude、DeepSeek R1和OpenAI o3支持reasoning
   if (modelInfo.provider === 'openrouter') {
-    return modelId.includes('claude') || modelId.includes('deepseek-r1');
+    return modelId.includes('claude') || modelId.includes('deepseek-r1') || modelId.includes('openai/o3');
   }
   
   // OpenAI模型目前不支持
@@ -191,7 +190,7 @@ export function createHtmlChatSession(
 ): ChatSession {
   return dispatchToModel<ChatSession>(
     modelId,
-    () => new GeminiChatSession(ai, initialHtml, reportText, planText, modelId, false),
+    () => new GeminiChatSession(ai, initialHtml, reportText, planText, modelId),
     () => new OpenRouterChatSession(initialHtml, reportText, planText, modelId),
     () => new OpenAIChatSession(initialHtml, reportText, planText, modelId)
   );
@@ -206,7 +205,7 @@ export function createPlanChatSession(
 ): ChatSession {
   return dispatchToModel<ChatSession>(
     modelId,
-    () => new GeminiPlanChatSession(ai, initialPlan, reportText, modelId, false),
+    () => new GeminiPlanChatSession(ai, initialPlan, reportText, modelId),
     () => new OpenRouterPlanChatSession(initialPlan, reportText, modelId),
     () => new OpenAIPlanChatSession(initialPlan, reportText, modelId)
   );

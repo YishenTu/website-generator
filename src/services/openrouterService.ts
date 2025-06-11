@@ -30,6 +30,14 @@ export const OPENROUTER_MODELS = [
   {
     id: 'deepseek/deepseek-r1-0528',
     name: 'DeepSeek R1'
+  },
+  {
+    id: 'openai/o3',
+    name: 'OpenAI o3'
+  },
+  {
+    id: 'openai/o3-pro',
+    name: 'OpenAI o3-Pro'
   }
 ] as const;
 
@@ -72,7 +80,7 @@ function createReasoningConfig(modelId: string, maxThinking: boolean = false): R
     };
   }
   
-  // 对于其他模型（如DeepSeek R1），使用effort=high
+  // 对于其他模型（包括OpenAI o3/o3-pro和DeepSeek R1），使用effort=high
   logger.info(`Setting reasoning effort to 'high' for model ${modelId}, exclude: true`);
   return {
     effort: 'high',
