@@ -4,12 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Website Generator</title>
+    <!-- Google Fonts for Cyberpunk Typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:wght@100;200;300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
       tailwind.config = {
         theme: {
           extend: {
+            fontFamily: {
+              'orbitron': ['Orbitron', 'monospace'],
+              'rajdhani': ['Rajdhani', 'sans-serif'],
+              'exo2': ['Exo 2', 'sans-serif'],
+              'space-mono': ['Space Mono', 'monospace'],
+            },
             colors: {
+              'ice-blue': '#B8E6FF',
               sky: {
                 50: "#f0f9ff",
                 100: "#e0f2fe",
@@ -121,6 +132,24 @@
     100% {
       background-position: 0% 50%;
     }
+  }
+
+  /* 反向渐变动画 */
+  @keyframes gradient_reverse {
+    0% {
+      background-position: 100% 50%;
+    }
+    50% {
+      background-position: 0% 50%;
+    }
+    100% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* 自定义动画类 */
+  .animate-gradient-reverse {
+    animation: gradient_reverse 6s ease-in-out infinite;
   }
 </style>
 <script type="importmap">

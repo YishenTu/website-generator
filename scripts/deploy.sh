@@ -257,12 +257,7 @@ show_deployment_info() {
     echo
     echo "🌐 应用访问地址: http://localhost:8080"
     echo "🔍 健康检查: http://localhost:8080/health"
-    echo
-    echo
-    echo "📋 常用命令:"
-    echo "  查看日志: docker-compose -f docker/docker-compose.yml logs -f"
-    echo "  重启应用: docker-compose -f docker/docker-compose.yml restart"
-    echo "  停止应用: docker-compose -f docker/docker-compose.yml down"
+    ehco
     echo "  更新应用: ./scripts/deploy.sh"
     echo
 }

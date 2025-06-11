@@ -223,20 +223,48 @@ const App: React.FC = () => {
         {/* Header */}
         <header className={combineStyles('mb-4 md:mb-6', LAYOUT_STYLES.flexShrink0, LAYOUT_STYLES.relative)}>
           <div className="text-center relative">
-            {/* Main Title with Neon Effect */}
-            <h1 className="text-4xl md:text-6xl font-black mb-2 relative opacity-80">
-              <span className="bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite]">
-                TURN TEXT INTO VISUAL
-              </span>
-              {/* Glow Effect */}
-              <span className="absolute inset-0 bg-gradient-to-r from-sky-400 via-blue-500 to-indigo-500 bg-clip-text text-transparent blur-lg opacity-20 bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite]">
-                TURN TEXT INTO VISUAL
-              </span>
-            </h1>
+            {/* Cyberpunk Title with Enhanced Effects */}
+            <div className="relative">
+              <h1 className="text-4xl md:text-6xl font-black mb-2 relative font-orbitron tracking-wider">
+                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-ice-blue bg-clip-text text-transparent bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite] drop-shadow-[0_0_20px_rgba(34,211,238,0.4)]">
+                  FROSTBYTE
+                </span>
+                <span className="ml-3 bg-gradient-to-r from-blue-300 via-cyan-300 to-white bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-reverse drop-shadow-[0_0_15px_rgba(147,197,253,0.3)]">
+                  AI
+                </span>
+                
+                {/* Multiple Glow Layers */}
+                <span className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-400 to-ice-blue bg-clip-text text-transparent blur-sm opacity-30 bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite]">
+                  FROSTBYTE
+                </span>
+                <span className="absolute inset-0 ml-3 bg-gradient-to-r from-blue-300 via-cyan-300 to-white bg-clip-text text-transparent blur-sm opacity-30 bg-[length:200%_100%] animate-gradient-reverse">
+                  AI
+                </span>
+                
+                {/* Outer Glow */}
+                <span className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-400 to-ice-blue bg-clip-text text-transparent blur-lg opacity-15 bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite] scale-110">
+                  FROSTBYTE
+                </span>
+                <span className="absolute inset-0 ml-3 bg-gradient-to-r from-blue-300 via-cyan-300 to-white bg-clip-text text-transparent blur-lg opacity-15 bg-[length:200%_100%] animate-gradient-reverse scale-110">
+                  AI
+                </span>
+              </h1>
+              
+              {/* Subtitle */}
+              <p className="text-xs md:text-sm font-rajdhani font-medium text-cyan-400/70 tracking-[0.3em] uppercase">
+                Neural Website Generator
+              </p>
+            </div>
             
-            {/* Decorative Elements */}
-            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 w-[30rem] h-1 bg-gradient-to-r from-transparent via-sky-500 to-transparent rounded-full opacity-60"></div>
-            <div className="absolute -bottom-4 left-1/2 transform -translate-x-1/2 w-[25rem] h-1 bg-gradient-to-r from-transparent via-blue-500 to-transparent rounded-full opacity-50"></div>
+            {/* Enhanced Decorative Elements */}
+            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-[35rem] h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-70 shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
+            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-[25rem] h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-50"></div>
+            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-[30rem] h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-60 shadow-[0_0_8px_rgba(59,130,246,0.4)]"></div>
+            <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 w-[20rem] h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-40"></div>
+            
+            {/* Side Accents */}
+            <div className="absolute top-1/2 -left-8 w-2 h-2 bg-cyan-400 blur-sm opacity-60 animate-pulse"></div>
+            <div className="absolute top-1/2 -right-8 w-2 h-2 bg-blue-400 blur-sm opacity-60 animate-pulse" style={{animationDelay: '1s'}}></div>
           </div>
         </header>
 
