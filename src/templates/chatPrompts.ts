@@ -29,6 +29,21 @@ const CHAT_SYSTEM_FOCUS_AND_INTEGRITY = `
 Ensure the output is a valid, complete HTML document.
 Focus on accurately implementing the user's change requests while maintaining the integrity of the rest of the HTML structure and Tailwind CSS usage, and staying consistent with the original design intent if not specified otherwise.`;
 
+// Slides-specific instructions for navigation component handling
+const SLIDES_NAVIGATION_INSTRUCTIONS = `
+
+**CRITICAL: Slides Navigation Component Handling**
+This is a SLIDE PRESENTATION with automatic navigation injection. You MUST follow these rules:
+
+1. **DO NOT generate any navigation buttons, controls, or JavaScript yourself**
+2. **ALWAYS preserve the \`<!-- NAVIGATION_COMPONENT_PLACEHOLDER -->\` comment** - this is where the navigation component gets automatically injected
+3. **The navigation component includes**: previous/next buttons, slide counter, keyboard shortcuts, fullscreen toggle, touch support
+4. **If you don't see the placeholder**, add it just before the closing \`</body>\` tag: \`<!-- NAVIGATION_COMPONENT_PLACEHOLDER -->\`
+5. **Focus only on slide content** - the navigation system is handled automatically
+6. **Maintain slide structure**: Each slide should be a \`<section>\` with class="slide" and proper IDs (e.g., id="slide-1", id="slide-2")
+
+The navigation component will be automatically injected after your HTML generation, so do not include any manual navigation elements.`;
+
 // ==============================================
 // PLAN CHAT SYSTEM PROMPTS
 // ==============================================
@@ -45,12 +60,19 @@ You are an expert web design planner. When the user asks you to modify a website
 // PUBLIC API FUNCTIONS
 // ==============================================
 
-export const getChatSystemInstruction = (): string => `
-
+export const getChatSystemInstruction = (outputType: 'webpage' | 'slides' = 'webpage'): string => {
+  const baseInstruction = `
 ${CHAT_SYSTEM_ROLE_AND_CONTEXT}
 ${CHAT_SYSTEM_MODIFICATION_RULES}
-${CHAT_SYSTEM_FOCUS_AND_INTEGRITY}
-`;
+${CHAT_SYSTEM_FOCUS_AND_INTEGRITY}`;
+
+  // Add slides-specific instructions for navigation handling
+  if (outputType === 'slides') {
+    return baseInstruction + SLIDES_NAVIGATION_INSTRUCTIONS;
+  }
+  
+  return baseInstruction;
+};
 
 export const getPlanChatSystemInstruction = (): string => PLAN_CHAT_SYSTEM_INSTRUCTION;
 

@@ -4,14 +4,50 @@
 // Basic sanitization to prevent XSS attacks from LLM-generated content
 
 /**
+ * List of trusted CDN domains for external scripts
+ */
+const TRUSTED_CDN_DOMAINS = [
+  'cdn.tailwindcss.com',
+  'cdnjs.cloudflare.com', 
+  'fonts.googleapis.com',
+  'cdn.jsdelivr.net',
+  'unpkg.com',
+  'd3js.org',
+  'code.jquery.com',
+  'stackpath.bootstrapcdn.com',
+  'maxcdn.bootstrapcdn.com',
+  'ajax.googleapis.com',
+  'cdn.plot.ly',
+  'threejs.org'
+];
+
+/**
+ * Check if a script tag references a trusted external CDN
+ * @param scriptTag - The full script tag string
+ * @returns boolean indicating if the script is from a trusted CDN
+ */
+const isTrustedExternalScript = (scriptTag: string): boolean => {
+  // Extract src attribute from script tag
+  const srcMatch = scriptTag.match(/src\s*=\s*["']([^"']+)["']/i);
+  if (!srcMatch || !srcMatch[1]) {
+    // No src attribute means it's inline script - not trusted
+    return false;
+  }
+  
+  const src = srcMatch[1];
+  
+  // Check if the src is from a trusted CDN domain
+  return TRUSTED_CDN_DOMAINS.some(domain => src.includes(domain));
+};
+
+/**
  * Sanitize HTML content by removing potentially dangerous elements and attributes
  * @param html - Raw HTML content
  * @returns Sanitized HTML content
  */
 export const sanitizeHtml = (html: string): string => {
-  // List of dangerous tags to remove completely
+  // List of dangerous tags to remove completely (excluding script for special handling)
   const dangerousTags = [
-    'script',
     'iframe',
     'object',
     'embed',
@@ -42,7 +78,22 @@ export const sanitizeHtml = (html: string): string => {
   
   let sanitized = html;
   
-  // Remove dangerous tags and their content
+  // Special handling for script tags - keep trusted external CDN scripts but remove dangerous ones
+  const scriptTagRegex = /<script[^>]*>.*?<\/script>/gis;
+  const selfClosingScriptRegex = /<script[^>]*\/>/gis;
+  
+  // Find all script tags and filter them
+  const allScriptMatches = [...sanitized.matchAll(scriptTagRegex), ...sanitized.matchAll(selfClosingScriptRegex)];
+  
+  allScriptMatches.forEach(match => {
+    const scriptTag = match[0];
+    if (!isTrustedExternalScript(scriptTag)) {
+      // Remove untrusted/inline scripts
+      sanitized = sanitized.replace(scriptTag, '');
+    }
+  });
+  
+  // Remove other dangerous tags and their content
   dangerousTags.forEach(tag => {
     const regex = new RegExp(`<${tag}[^>]*>.*?<\/${tag}>`, 'gis');
     sanitized = sanitized.replace(regex, '');
@@ -87,9 +138,10 @@ export const validateHtmlSafety = (html: string): {
 } => {
   const warnings: string[] = [];
   
-  // Check for potential script injection
-  if (/<script[^>]*>/i.test(html)) {
-    warnings.push('Contains script tags');
+  // Check for inline script content (not external CDN scripts)
+  const inlineScriptRegex = /<script(?![^>]*src\s*=\s*["'][^"']*["'])[^>]*>/i;
+  if (inlineScriptRegex.test(html)) {
+    warnings.push('Contains inline script tags');
   }
   
   if (/javascript:/i.test(html)) {

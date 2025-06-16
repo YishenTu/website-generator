@@ -137,7 +137,7 @@ export class OpenAIChatSession {
     this.messages = [
       {
         role: 'system',
-        content: getChatSystemInstruction()
+        content: getChatSystemInstruction(outputType)
       },
       {
         role: 'user',

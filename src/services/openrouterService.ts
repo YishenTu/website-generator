@@ -216,7 +216,7 @@ export class OpenRouterChatSession {
     this.messages = [
       {
         role: 'system',
-        content: getChatSystemInstruction()
+        content: getChatSystemInstruction(outputType)
       },
       {
         role: 'user',

@@ -173,7 +173,7 @@ export class GeminiChatSession {
     this.chatSession = ai.chats.create({
       model: model,
       config: { 
-        systemInstruction: getChatSystemInstruction()
+        systemInstruction: getChatSystemInstruction(outputType)
       },
       history: chatHistory,
     });
