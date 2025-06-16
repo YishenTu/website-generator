@@ -3,6 +3,7 @@ import { GoogleGenAI } from "@google/genai";
 import { TabNavigation } from "./components/TabNavigation";
 import { TabContent } from "./components/TabContent";
 import { ChatPanel } from "./components/ChatPanel";
+import { SettingsSidebar } from "./components/SettingsSidebar";
 import { OutputDisplay } from "./components/OutputDisplay";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AppProvider, type AppContextType } from './contexts/AppContext';
@@ -51,6 +52,8 @@ const App: React.FC = () => {
     chatMessages,
     planChatMessages,
     maxThinking,
+    theme,
+    language,
     
     // Actions
     setReportText,
@@ -75,6 +78,8 @@ const App: React.FC = () => {
     isChatAvailable,
     isPlanChatAvailable,
     setMaxThinking,
+    setTheme,
+    setLanguage,
   } = useWebsiteGeneration({ ai });
 
   // Memoized action handlers
@@ -123,7 +128,9 @@ const App: React.FC = () => {
       activeTab,
       chatMessages,
       planChatMessages,
-      maxThinking
+      maxThinking,
+      theme,
+      language
     },
     actions: {
       setReportText,
@@ -149,14 +156,16 @@ const App: React.FC = () => {
       onDownloadHtml: handleDownloadHtml,
       onToggleFullPreview: toggleFullPreview,
       onHtmlContentChange: handleHtmlContentChange,
-      setIsRefineMode
+      setIsRefineMode,
+      setTheme,
+      setLanguage
     }
   }), [
     // State dependencies
     appStage, isRefineMode, reportText, generatedPlan, generatedHtml,
     planModel, htmlModel, chatModel, planChatModel,
     isLoading, isChatLoading, isPlanChatLoading,
-    activeTab, chatMessages, planChatMessages, maxThinking,
+    activeTab, chatMessages, planChatMessages, maxThinking, theme, language,
     // Action dependencies
     setReportText, handleGeneratePlan, handleGenerateHtmlFromPlan,
     handleStartNewSession, handleResetToInitial, handleStopGeneration,
@@ -165,7 +174,7 @@ const App: React.FC = () => {
     setActiveTab, setMaxThinking, initializePlanChatSession,
     isChatAvailable, isPlanChatAvailable, handlePlanChatModelChange,
     handleChatModelChange, handleCopyCode, handleDownloadHtml,
-    toggleFullPreview, handleHtmlContentChange, setIsRefineMode
+    toggleFullPreview, handleHtmlContentChange, setIsRefineMode, setTheme, setLanguage
   ]);
 
   // Handle ESC key for full preview
@@ -296,12 +305,14 @@ const App: React.FC = () => {
         <main className={combineStyles(LAYOUT_STYLES.flexGrow, 'flex justify-center min-h-0')}>
           <div className="w-3/4 max-w-7xl flex gap-6 min-w-0">
             {/* Main content panel */}
-            <div className={`${isRefineMode ? 'flex-1 min-w-0' : 'w-full'} transition-all duration-300`}>
+            <div className={`${(activeTab === ActiveTab.Input || isRefineMode) ? 'flex-1 min-w-0' : 'w-full'} transition-all duration-300`}>
               <TabContent activeTab={activeTab} appStage={appStage} />
             </div>
             
-            {/* Chat panel */}
-            {isRefineMode && (
+            {/* Settings Sidebar for Input tab, Chat panel for other tabs */}
+            {activeTab === ActiveTab.Input ? (
+              <SettingsSidebar />
+            ) : isRefineMode && (
               <div className="w-80 flex-shrink-0 transition-all duration-300">
                 <ChatPanel
                   messages={activeTab === ActiveTab.Plan ? planChatMessages : chatMessages}

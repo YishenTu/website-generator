@@ -71,6 +71,8 @@ The plan should be directly usable as input for another AI to generate the HTML.
 - The plan should be written in Chinese (中文)
 - If the original report contains important concepts in languages other than Chinese, include both the Chinese translation and the original language terms in parentheses
 - Example: "数据分析 (Data Analysis)" or "人工智能 (Artificial Intelligence)"
+- The plan must specify that the website content language should be: {lang}
+- The plan must specify that the website design theme should be: {theme}
 
 Generated Website Plan:`;
 
@@ -90,9 +92,7 @@ const CODE_CORE_TASK_AND_PLAN_ADHERENCE = `
 1.  **Adhere to the Plan:** The generated HTML structure, content summarization, sectioning, layout, and styling cues MUST be derived from the "Website Plan to Follow". The original report is for detailed content extraction where the plan refers to it.
 
 2. **Language Requirements:**
-    - The webpage content language should match the language of the original report, regardless of the plan's language
-    - Unless the user specifically requests a particular language, always follow the report's language
-    - For multi-language reports, use the primary/dominant language of the report
+    - The webpage content language MUST be based on the language specified in the "Website Plan to Follow". The plan is the single source of truth for language selection.
 `;
 
 const CODE_LAYOUT_CONTENT_AND_STYLING = `
@@ -184,8 +184,36 @@ You are an expert web design planner. When the user asks you to modify a website
 
 // --- Plan Generation Functions ---
 
-export const generateWebsitePlanPrompt = (reportText: string): string => `
+export interface PlanSettings {
+  theme: 'cyber' | 'light';
+  language: 'default' | 'en' | 'zh';
+}
 
+export const generateWebsitePlanPrompt = (reportText: string, settings: PlanSettings): string => {
+  // Map language setting to readable text
+  const languageText = (() => {
+    switch (settings.language) {
+      case 'en':
+        return '英文 (English)';
+      case 'zh':
+        return '中文 (Chinese)';
+      case 'default':
+      default:
+        return '与原始报告相同的语言 (same language as the original report)';
+    }
+  })();
+
+  // Map theme setting to readable text
+  const themeText = settings.theme === 'light' 
+    ? '简洁明亮的设计风格 (clean, minimal light theme)' 
+    : '玻璃拟物化设计风格 (glassmorphism design aesthetic)';
+
+  // Replace placeholders in the template
+  const processedInstructions = PLAN_OUTPUT_FORMAT_INSTRUCTIONS
+    .replace('{lang}', languageText)
+    .replace('{theme}', themeText);
+
+  return `
 ${PLAN_GENERATION_ROLE}
 
 **Report to Analyze:**
@@ -193,8 +221,9 @@ ${PLAN_GENERATION_ROLE}
 ${reportText}
 ---
 ${PLAN_REQUIREMENTS_STRUCTURE}
-${PLAN_OUTPUT_FORMAT_INSTRUCTIONS}
+${processedInstructions}
 `;
+};
 
 // --- Code Generation Functions ---
 
@@ -245,12 +274,12 @@ ${initialHtml}
 
 I will give you instructions to modify this HTML. Your responses should only be the complete, updated HTML code. You have access to the full generation context above to understand the original requirements and constraints.`;
 
-export const getPlanChatInitialMessage = (initialPlan: string, reportText: string): string => `
+export const getPlanChatInitialMessage = (initialPlan: string, reportText: string, settings: PlanSettings): string => `
 I have a website design plan generated from a report using the following complete generation context:
 
 **ORIGINAL PLAN GENERATION PROMPT:**
 ---
-${generateWebsitePlanPrompt(reportText)}
+${generateWebsitePlanPrompt(reportText, settings)}
 ---
 
 **GENERATED INITIAL PLAN:**

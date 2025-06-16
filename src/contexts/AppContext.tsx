@@ -2,6 +2,10 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { ActiveTab, ChatMessage } from '../types/types';
 import type { AppStage } from '../App';
 
+// Theme and Language types
+export type Theme = 'cyber' | 'light';
+export type Language = 'default' | 'en' | 'zh';
+
 // State interface
 export interface AppState {
   appStage: AppStage;
@@ -20,6 +24,8 @@ export interface AppState {
   chatMessages: ChatMessage[];
   planChatMessages: ChatMessage[];
   maxThinking: boolean;
+  theme: Theme;
+  language: Language;
 }
 
 // Actions interface
@@ -48,6 +54,8 @@ export interface AppActions {
   onToggleFullPreview: () => void;
   onHtmlContentChange: (html: string) => void;
   setIsRefineMode: (flag: boolean) => void;
+  setTheme: (theme: Theme) => void;
+  setLanguage: (language: Language) => void;
 }
 
 // Context type
@@ -91,4 +99,15 @@ export const useAppState = (): AppState => {
 export const useAppActions = (): AppActions => {
   const { actions } = useAppContext();
   return actions;
+};
+
+// Selector hooks for theme and language
+export const useAppTheme = (): Theme => {
+  const { state } = useAppContext();
+  return state.theme;
+};
+
+export const useAppLanguage = (): Language => {
+  const { state } = useAppContext();
+  return state.language;
 };

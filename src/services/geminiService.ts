@@ -5,7 +5,8 @@ import {
   getChatSystemInstruction,
   getPlanChatSystemInstruction,
   getHtmlChatInitialMessage,
-  getPlanChatInitialMessage
+  getPlanChatInitialMessage,
+  type PlanSettings
 } from "../templates/promptTemplates";
 import { handleApiError, formatErrorMessage } from "../utils/errorHandler";
 import { createLogger } from "../utils/logger";
@@ -48,13 +49,14 @@ const createGenerationConfig = (modelName: string) => ({
 export async function generateWebsitePlanStream(
   ai: GoogleGenAI,
   reportText: string,
+  settings: PlanSettings,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
   modelName?: string,
   maxThinking: boolean = false
 ): Promise<void> {
-  const prompt = generateWebsitePlanPrompt(reportText);
+  const prompt = generateWebsitePlanPrompt(reportText, settings);
   const model = modelName || DEFAULT_MODEL;
   
   const requestParams = maxThinking ? { 
@@ -216,11 +218,11 @@ export class GeminiChatSession {
 export class GeminiPlanChatSession {
   private chatSession: Chat;
 
-  constructor(ai: GoogleGenAI, initialPlan: string, reportText: string, modelName?: string) {
+  constructor(ai: GoogleGenAI, initialPlan: string, reportText: string, settings: PlanSettings, modelName?: string) {
     const model = modelName || DEFAULT_MODEL;
     // 构造Gemini API格式的聊天历史
     const chatHistory = [
-      { role: "user", parts: [{ text: getPlanChatInitialMessage(initialPlan, reportText) }] },
+      { role: "user", parts: [{ text: getPlanChatInitialMessage(initialPlan, reportText, settings) }] },
       { role: "model", parts: [{ text: initialPlan }] }
     ];
     

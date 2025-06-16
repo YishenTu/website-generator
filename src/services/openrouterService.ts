@@ -4,7 +4,8 @@ import {
   getChatSystemInstruction,
   getPlanChatSystemInstruction,
   getHtmlChatInitialMessage,
-  getPlanChatInitialMessage
+  getPlanChatInitialMessage,
+  type PlanSettings
 } from "../templates/promptTemplates";
 import { makeApiStreamRequest } from "./streamRequest";
 import { ENV_VARS } from "../utils/constants";
@@ -171,13 +172,14 @@ async function makeChatStreamRequest(
 
 export async function generateWebsitePlanStreamOpenRouter(
   reportText: string,
+  settings: PlanSettings,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
   modelName?: string,
   maxThinking: boolean = false
 ): Promise<void> {
-  const prompt = generateWebsitePlanPrompt(reportText);
+  const prompt = generateWebsitePlanPrompt(reportText, settings);
   return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal, modelName, maxThinking);
 }
 
@@ -264,7 +266,7 @@ export class OpenRouterPlanChatSession {
   private apiKey: string;
   private modelName: string;
 
-  constructor(initialPlan: string, reportText: string, modelName?: string) {
+  constructor(initialPlan: string, reportText: string, settings: PlanSettings, modelName?: string) {
     this.apiKey = getEnvVar('OPENROUTER_API_KEY') || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
@@ -280,7 +282,7 @@ export class OpenRouterPlanChatSession {
       },
       {
         role: 'user',
-        content: getPlanChatInitialMessage(initialPlan, reportText)
+        content: getPlanChatInitialMessage(initialPlan, reportText, settings)
       },
       {
         role: 'assistant',

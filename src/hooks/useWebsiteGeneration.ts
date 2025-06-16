@@ -14,6 +14,7 @@ import { cleanTextOutput, getModelDisplayName } from '../components/textUtils';
 import { abortAllOperations, resetAppToInitialState } from '../components/appStateUtils';
 import { ActiveTab, ChatMessage, UserType } from '../types/types';
 import type { AppStage } from '../App';
+import type { Theme, Language } from '../contexts/AppContext';
 import { createLogger } from '../utils/logger';
 import { ERROR_MESSAGES } from '../utils/constants';
 import { getAvailableProviders } from '../utils/envValidator';
@@ -44,6 +45,8 @@ export interface UseWebsiteGenerationReturn {
   chatMessages: ChatMessage[];
   planChatMessages: ChatMessage[];
   maxThinking: boolean;
+  theme: Theme;
+  language: Language;
   
   // Actions
   setReportText: (text: string) => void;
@@ -56,6 +59,8 @@ export interface UseWebsiteGenerationReturn {
   setIsRefineMode: (active: boolean) => void;
   setGeneratedHtml: (html: string | null) => void;
   setMaxThinking: (enabled: boolean) => void;
+  setTheme: (theme: Theme) => void;
+  setLanguage: (language: Language) => void;
   handleGeneratePlan: () => Promise<void>;
   handleGenerateHtmlFromPlan: (planText: string, maxThinking?: boolean) => Promise<void>;
   handleSendChatMessage: (message: string) => Promise<void>;
@@ -109,6 +114,25 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   // 新增：思考预算状态
   const [maxThinking, setMaxThinking] = useState<boolean>(false);
   
+  // Theme and Language state with localStorage persistence
+  const [theme, setThemeState] = useState<Theme>(() => {
+    try {
+      const saved = localStorage.getItem('ai-website-generator-theme');
+      return (saved === 'light' || saved === 'cyber') ? saved : 'cyber';
+    } catch {
+      return 'cyber';
+    }
+  });
+  
+  const [language, setLanguageState] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem('ai-website-generator-language');
+      return (saved === 'default' || saved === 'en' || saved === 'zh') ? saved : 'default';
+    } catch {
+      return 'default';
+    }
+  });
+  
   // Refs
   const chatSessionRef = useRef<ChatSession | null>(null);
   const planChatSessionRef = useRef<ChatSession | null>(null);
@@ -156,6 +180,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
         planModel,
         ai,
         reportText,
+        { theme, language },
         (chunk: string) => {
           streamingPlan += chunk;
           planBuffer.update(streamingPlan);
@@ -184,19 +209,19 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
       setGeneratedPlan(null);
       abortControllerRef.current = null;
     }
-  }, [reportText, planModel, ai, maxThinking]);
+  }, [reportText, planModel, ai, maxThinking, theme, language]);
 
   // Initialize plan chat session
   const initializePlanChatSession = useCallback((planText: string, model?: string) => {
     const targetModel = model || planChatModel;
     try {
-      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText, reportText);
+      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText, reportText, { theme, language });
       setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated. How would you like to modify it?", isHtml: false }]);
     } catch (error) {
       logger.error("Failed to initialize plan chat session:", error);
       setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated successfully! Note: Chat functionality is not available due to initialization error.", isHtml: false }]);
     }
-  }, [ai, planChatModel, reportText]);
+  }, [ai, planChatModel, reportText, theme, language]);
 
   // HTML generation from plan
   const handleGenerateHtmlFromPlan = useCallback(async (currentPlanText: string, maxThinking?: boolean) => {
@@ -493,6 +518,32 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   const isChatAvailable = () => !!chatSessionRef.current;
   const isPlanChatAvailable = () => !!planChatSessionRef.current;
 
+  // Theme and Language persistence effects
+  useEffect(() => {
+    try {
+      localStorage.setItem('ai-website-generator-theme', theme);
+    } catch (error) {
+      logger.error('Failed to save theme to localStorage:', error);
+    }
+  }, [theme]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('ai-website-generator-language', language);
+    } catch (error) {
+      logger.error('Failed to save language to localStorage:', error);
+    }
+  }, [language]);
+
+  // Theme and Language setter functions
+  const setTheme = useCallback((newTheme: Theme) => {
+    setThemeState(newTheme);
+  }, []);
+
+  const setLanguage = useCallback((newLanguage: Language) => {
+    setLanguageState(newLanguage);
+  }, []);
+
   // Cleanup effect to handle component unmount
   useEffect(() => {
     return () => {
@@ -525,6 +576,8 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     chatMessages,
     planChatMessages,
     maxThinking,
+    theme,
+    language,
     
     // Actions
     setReportText,
@@ -537,6 +590,8 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     setIsRefineMode,
     setGeneratedHtml,
     setMaxThinking,
+    setTheme,
+    setLanguage,
     handleGeneratePlan,
     handleGenerateHtmlFromPlan,
     handleSendChatMessage,

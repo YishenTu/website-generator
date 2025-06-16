@@ -22,6 +22,7 @@ import {
 } from "./openaiService";
 import { ENV_VARS } from "../utils/constants";
 import { getEnvVar } from '../utils/env';
+import type { PlanSettings } from '../templates/promptTemplates';
 
 // 模型信息接口
 export interface ModelInfo {
@@ -148,6 +149,7 @@ export async function generateWebsitePlan(
   modelId: string,
   ai: GoogleGenAI,
   reportText: string,
+  settings: PlanSettings,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
@@ -155,9 +157,9 @@ export async function generateWebsitePlan(
 ): Promise<void> {
   return dispatchToModel(
     modelId,
-    () => generateWebsitePlanStream(ai, reportText, onChunk, onComplete, signal, modelId, maxThinking),
-    () => generateWebsitePlanStreamOpenRouter(reportText, onChunk, onComplete, signal, modelId, maxThinking),
-    () => generateWebsitePlanStreamOpenAI(reportText, onChunk, onComplete, signal, modelId)
+    () => generateWebsitePlanStream(ai, reportText, settings, onChunk, onComplete, signal, modelId, maxThinking),
+    () => generateWebsitePlanStreamOpenRouter(reportText, settings, onChunk, onComplete, signal, modelId, maxThinking),
+    () => generateWebsitePlanStreamOpenAI(reportText, settings, onChunk, onComplete, signal, modelId)
   );
 }
 
@@ -201,13 +203,14 @@ export function createPlanChatSession(
   modelId: string,
   ai: GoogleGenAI,
   initialPlan: string,
-  reportText: string
+  reportText: string,
+  settings: PlanSettings
 ): ChatSession {
   return dispatchToModel<ChatSession>(
     modelId,
-    () => new GeminiPlanChatSession(ai, initialPlan, reportText, modelId),
-    () => new OpenRouterPlanChatSession(initialPlan, reportText, modelId),
-    () => new OpenAIPlanChatSession(initialPlan, reportText, modelId)
+    () => new GeminiPlanChatSession(ai, initialPlan, reportText, settings, modelId),
+    () => new OpenRouterPlanChatSession(initialPlan, reportText, settings, modelId),
+    () => new OpenAIPlanChatSession(initialPlan, reportText, settings, modelId)
   );
 }
 

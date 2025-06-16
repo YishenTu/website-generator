@@ -4,7 +4,8 @@ import {
   getChatSystemInstruction,
   getPlanChatSystemInstruction,
   getHtmlChatInitialMessage,
-  getPlanChatInitialMessage
+  getPlanChatInitialMessage,
+  type PlanSettings
 } from "../templates/promptTemplates";
 import { makeApiStreamRequest } from "./streamRequest";
 
@@ -95,12 +96,13 @@ async function makeChatStreamRequest(
 
 export async function generateWebsitePlanStreamOpenAI(
   reportText: string,
+  settings: PlanSettings,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
   modelName?: string
 ): Promise<void> {
-  const prompt = generateWebsitePlanPrompt(reportText);
+  const prompt = generateWebsitePlanPrompt(reportText, settings);
   return makeOpenAIStreamRequest(prompt, onChunk, onComplete, signal, modelName);
 }
 
@@ -183,7 +185,7 @@ export class OpenAIPlanChatSession {
   private messages: OpenAIMessage[] = [];
   private apiKey: string;
   private modelName: string;
-  constructor(initialPlan: string, reportText: string, modelName?: string) {
+  constructor(initialPlan: string, reportText: string, settings: PlanSettings, modelName?: string) {
     this.apiKey = process.env.OPENAI_API_KEY || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
@@ -199,7 +201,7 @@ export class OpenAIPlanChatSession {
       },
       {
         role: 'user',
-        content: getPlanChatInitialMessage(initialPlan, reportText)
+        content: getPlanChatInitialMessage(initialPlan, reportText, settings)
       },
       {
         role: 'assistant',
