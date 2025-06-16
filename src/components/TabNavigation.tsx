@@ -84,8 +84,8 @@ export const TabNavigation: React.FC<TabNavigationProps> = React.memo(({
             />
           )}
           
-          {/* Refine button - only show when plan is ready or later */}
-          {(appStage === 'planReady' || appStage === 'htmlPending' || appStage === 'htmlReady') && (
+          {/* Refine button - only show when plan is ready or later and not on Input tab */}
+          {(appStage === 'planReady' || appStage === 'htmlPending' || appStage === 'htmlReady') && activeTab !== ActiveTab.Input && (
             <TabActionButton
               onClick={onToggleRefineMode}
               disabled={isLoading || isChatLoading}

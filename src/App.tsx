@@ -52,6 +52,7 @@ const App: React.FC = () => {
     chatMessages,
     planChatMessages,
     maxThinking,
+    outputType,
     theme,
     language,
     
@@ -78,6 +79,7 @@ const App: React.FC = () => {
     isChatAvailable,
     isPlanChatAvailable,
     setMaxThinking,
+    setOutputType,
     setTheme,
     setLanguage,
   } = useWebsiteGeneration({ ai });
@@ -129,6 +131,7 @@ const App: React.FC = () => {
       chatMessages,
       planChatMessages,
       maxThinking,
+      outputType,
       theme,
       language
     },
@@ -157,6 +160,7 @@ const App: React.FC = () => {
       onToggleFullPreview: toggleFullPreview,
       onHtmlContentChange: handleHtmlContentChange,
       setIsRefineMode,
+      setOutputType,
       setTheme,
       setLanguage
     }
@@ -165,7 +169,7 @@ const App: React.FC = () => {
     appStage, isRefineMode, reportText, generatedPlan, generatedHtml,
     planModel, htmlModel, chatModel, planChatModel,
     isLoading, isChatLoading, isPlanChatLoading,
-    activeTab, chatMessages, planChatMessages, maxThinking, theme, language,
+    activeTab, chatMessages, planChatMessages, maxThinking, outputType, theme, language,
     // Action dependencies
     setReportText, handleGeneratePlan, handleGenerateHtmlFromPlan,
     handleStartNewSession, handleResetToInitial, handleStopGeneration,
@@ -174,7 +178,7 @@ const App: React.FC = () => {
     setActiveTab, setMaxThinking, initializePlanChatSession,
     isChatAvailable, isPlanChatAvailable, handlePlanChatModelChange,
     handleChatModelChange, handleCopyCode, handleDownloadHtml,
-    toggleFullPreview, handleHtmlContentChange, setIsRefineMode, setTheme, setLanguage
+    toggleFullPreview, handleHtmlContentChange, setIsRefineMode, setOutputType, setTheme, setLanguage
   ]);
 
   // Handle ESC key for full preview

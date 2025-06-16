@@ -2,9 +2,10 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { ActiveTab, ChatMessage } from '../types/types';
 import type { AppStage } from '../App';
 
-// Theme and Language types
+// Theme, Language, and Output Type types
 export type Theme = 'cyber' | 'light';
 export type Language = 'default' | 'en' | 'zh';
+export type OutputType = 'webpage' | 'slides';
 
 // State interface
 export interface AppState {
@@ -24,6 +25,7 @@ export interface AppState {
   chatMessages: ChatMessage[];
   planChatMessages: ChatMessage[];
   maxThinking: boolean;
+  outputType: OutputType;
   theme: Theme;
   language: Language;
 }
@@ -54,6 +56,7 @@ export interface AppActions {
   onToggleFullPreview: () => void;
   onHtmlContentChange: (html: string) => void;
   setIsRefineMode: (flag: boolean) => void;
+  setOutputType: (outputType: OutputType) => void;
   setTheme: (theme: Theme) => void;
   setLanguage: (language: Language) => void;
 }
@@ -110,4 +113,10 @@ export const useAppTheme = (): Theme => {
 export const useAppLanguage = (): Language => {
   const { state } = useAppContext();
   return state.language;
+};
+
+// Selector hook for output type
+export const useAppOutputType = (): OutputType => {
+  const { state } = useAppContext();
+  return state.outputType;
 };

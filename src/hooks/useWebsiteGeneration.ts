@@ -14,7 +14,7 @@ import { cleanTextOutput, getModelDisplayName } from '../components/textUtils';
 import { abortAllOperations, resetAppToInitialState } from '../components/appStateUtils';
 import { ActiveTab, ChatMessage, UserType } from '../types/types';
 import type { AppStage } from '../App';
-import type { Theme, Language } from '../contexts/AppContext';
+import type { Theme, Language, OutputType } from '../contexts/AppContext';
 import { createLogger } from '../utils/logger';
 import { ERROR_MESSAGES } from '../utils/constants';
 import { getAvailableProviders } from '../utils/envValidator';
@@ -45,6 +45,7 @@ export interface UseWebsiteGenerationReturn {
   chatMessages: ChatMessage[];
   planChatMessages: ChatMessage[];
   maxThinking: boolean;
+  outputType: OutputType;
   theme: Theme;
   language: Language;
   
@@ -59,6 +60,7 @@ export interface UseWebsiteGenerationReturn {
   setIsRefineMode: (active: boolean) => void;
   setGeneratedHtml: (html: string | null) => void;
   setMaxThinking: (enabled: boolean) => void;
+  setOutputType: (outputType: OutputType) => void;
   setTheme: (theme: Theme) => void;
   setLanguage: (language: Language) => void;
   handleGeneratePlan: () => Promise<void>;
@@ -114,7 +116,16 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   // 新增：思考预算状态
   const [maxThinking, setMaxThinking] = useState<boolean>(false);
   
-  // Theme and Language state with localStorage persistence
+  // Output Type, Theme and Language state with localStorage persistence
+  const [outputType, setOutputTypeState] = useState<OutputType>(() => {
+    try {
+      const saved = localStorage.getItem('ai-website-generator-output-type');
+      return (saved === 'webpage' || saved === 'slides') ? saved : 'webpage';
+    } catch {
+      return 'webpage';
+    }
+  });
+  
   const [theme, setThemeState] = useState<Theme>(() => {
     try {
       const saved = localStorage.getItem('ai-website-generator-theme');
@@ -518,7 +529,15 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   const isChatAvailable = () => !!chatSessionRef.current;
   const isPlanChatAvailable = () => !!planChatSessionRef.current;
 
-  // Theme and Language persistence effects
+  // Output Type, Theme and Language persistence effects
+  useEffect(() => {
+    try {
+      localStorage.setItem('ai-website-generator-output-type', outputType);
+    } catch (error) {
+      logger.error('Failed to save output type to localStorage:', error);
+    }
+  }, [outputType]);
+
   useEffect(() => {
     try {
       localStorage.setItem('ai-website-generator-theme', theme);
@@ -535,7 +554,10 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     }
   }, [language]);
 
-  // Theme and Language setter functions
+  // Output Type, Theme and Language setter functions
+  const setOutputType = useCallback((newOutputType: OutputType) => {
+    setOutputTypeState(newOutputType);
+  }, []);
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
   }, []);
@@ -576,6 +598,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     chatMessages,
     planChatMessages,
     maxThinking,
+    outputType,
     theme,
     language,
     
@@ -590,6 +613,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     setIsRefineMode,
     setGeneratedHtml,
     setMaxThinking,
+    setOutputType,
     setTheme,
     setLanguage,
     handleGeneratePlan,
