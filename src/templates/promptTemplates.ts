@@ -199,7 +199,7 @@ export const generateWebsitePlanPrompt = (reportText: string, settings: PlanSett
         return '中文 (Chinese)';
       case 'default':
       default:
-        return '与原始报告相同的语言 (same language as the original report)';
+        return 'The webpage content language should match the primary language of the input report. Use English if the report is primarily in English, use Chinese if the report is primarily in Chinese.';
     }
   })();
 
