@@ -57,8 +57,6 @@ export const PlanReadyStage: React.FC = React.memo(() => {
           <PlanDisplay
             planText={generatedPlan || ''}
             onProceedToHtml={handleGenerateHtmlFromPlan}
-            showGenerateButton={true}
-            onReviseReportAndPlan={handleResetToInitial}
             isAppLoading={false}
             isLoadingHtml={false}
             isCompactView={false}
@@ -107,8 +105,6 @@ export const PlanReadyStage: React.FC = React.memo(() => {
         <PlanDisplay
           planText={generatedPlan || ''}
           onProceedToHtml={handleGenerateHtmlFromPlan}
-          showGenerateButton={true}
-          onReviseReportAndPlan={handleResetToInitial}
           isAppLoading={false}
           isLoadingHtml={false}
           isCompactView={false}

@@ -76,8 +76,7 @@ export const CodeEditor: React.FC<CodeEditorProps> = ({
             closeBrackets: true,
             autocompletion: true,
             highlightSelectionMatches: false,
-            searchKeymap: false,
-            scrollPastEnd: true
+            searchKeymap: false
           }}
           style={{
             height: '100%',

@@ -5,7 +5,6 @@ import { ReportInputForm } from './ReportInputForm';
 import { PlanDisplay } from './PlanDisplay';
 import { OutputDisplay } from './OutputDisplay';
 import { useAppState, useAppActions } from '../contexts/AppContext';
-import { GenerationStatus } from './GenerationStatus';
 import { CONTAINER_STYLES, LAYOUT_STYLES, combineStyles } from '../utils/styleConstants';
 
 interface TabContentProps {
@@ -129,7 +128,6 @@ export const TabContent: React.FC<TabContentProps> = React.memo(({
             isFullPreviewActive={false}
             appStage={appStage}
             onHtmlContentChange={onHtmlContentChange}
-            streamingModel={htmlModel}
           />
         </div>
       );
@@ -153,7 +151,6 @@ export const TabContent: React.FC<TabContentProps> = React.memo(({
             isFullPreviewActive={false}
             appStage={appStage}
             onHtmlContentChange={onHtmlContentChange}
-            streamingModel={htmlModel}
           />
         </div>
       );

@@ -46,8 +46,6 @@ export const PlanPendingStage: React.FC = React.memo(() => {
         <PlanDisplay
           planText={generatedPlan || ''}
           onProceedToHtml={handleGenerateHtmlFromPlan}
-          showGenerateButton={true}
-          onReviseReportAndPlan={handleResetToInitial}
           isAppLoading={isLoading && appStage === 'planPending'}
           isLoadingHtml={false}
           isCompactView={false}

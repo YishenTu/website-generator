@@ -5,7 +5,7 @@ import { useCallback, useRef } from 'react';
  */
 export function useBufferedUpdater<T>(setter: React.Dispatch<React.SetStateAction<T>>) {
   const bufferRef = useRef<T>();
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
   const flush = useCallback(() => {
     if (rafRef.current !== undefined) {

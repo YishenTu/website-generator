@@ -99,8 +99,6 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
 
   const containerPadding = isCompactView ? 'p-3' : 'p-4';
   const titleMargin = isCompactView ? 'mb-2' : 'mb-3';
-  const titleSize = isCompactView ? 'text-lg' : 'text-xl';
-  const buttonPy = 'py-1.5';
 
   const isTextareaDisabled = isAppLoading || isLoadingHtml;
   const generateButtonDisabled = isAppLoading || isLoadingHtml || !editablePlanText.trim();

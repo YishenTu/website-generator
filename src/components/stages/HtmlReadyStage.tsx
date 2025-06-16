@@ -50,7 +50,6 @@ export const HtmlReadyStage: React.FC = React.memo(() => {
             isLoading={isLoading || isChatLoading}
             error={null}
             activeTab={activeTab}
-            onTabChange={setActiveTab}
             onCopyCode={onCopyCode}
             onDownloadHtml={onDownloadHtml}
             onToggleFullPreview={onToggleFullPreview}
@@ -58,7 +57,6 @@ export const HtmlReadyStage: React.FC = React.memo(() => {
             appStage={appStage}
             onHtmlContentChange={onHtmlContentChange}
             className={LAYOUT_STYLES.fullHeight}
-            streamingModel={htmlModel}
           />
         )}
       </div>

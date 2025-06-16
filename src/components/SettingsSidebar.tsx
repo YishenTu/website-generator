@@ -1,6 +1,5 @@
 import React from 'react';
-import { useAppTheme, useAppLanguage, useAppOutputType, useAppActions, type Theme, type Language, type OutputType } from '../contexts/AppContext';
-import { combineStyles } from '../utils/styleConstants';
+import { useAppTheme, useAppLanguage, useAppOutputType, useAppActions } from '../contexts/AppContext';
 import { OptionButton } from './OptionButton';
 import { I18N_CONSTANTS } from '../constants/i18n';
 

@@ -226,19 +226,19 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
       setGeneratedPlan(null);
       abortControllerRef.current = null;
     }
-  }, [reportText, planModel, ai, maxThinking, theme, language]);
+  }, [reportText, planModel, ai, maxThinking, theme, language, outputType]);
 
   // Initialize plan chat session
   const initializePlanChatSession = useCallback((planText: string, model?: string) => {
     const targetModel = model || planChatModel;
     try {
-      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText, reportText, { theme, language });
+      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText, reportText, { theme, language, outputType });
       setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated. How would you like to modify it?", isHtml: false }]);
     } catch (error) {
       logger.error("Failed to initialize plan chat session:", error);
       setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated successfully! Note: Chat functionality is not available due to initialization error.", isHtml: false }]);
     }
-  }, [ai, planChatModel, reportText, theme, language]);
+  }, [ai, planChatModel, reportText, theme, language, outputType]);
 
   // HTML generation from plan
   const handleGenerateHtmlFromPlan = useCallback(async (currentPlanText: string, maxThinking?: boolean) => {
@@ -494,7 +494,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
         setError(`Failed to initialize chat with ${getModelDisplayName(model)}`);
       }
     }
-  }, [chatModel, generatedHtml, ai, reportText, lastUsedPlanText]);
+  }, [chatModel, generatedHtml, ai, reportText, lastUsedPlanText, outputType]);
 
   const handlePlanChatModelChange = useCallback((model: string) => {
     if (model === planChatModel) return;

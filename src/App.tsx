@@ -19,18 +19,8 @@ import { UI_TEXT, FILE } from './utils/constants';
 
 export type AppStage = 'initial' | 'planPending' | 'planReady' | 'htmlPending' | 'htmlReady';
 
-const App: React.FC = () => {
-  // Validate environment variables on mount
-  useEffect(() => {
-    const validation = validateEnvironmentVariables();
-    if (!validation.isValid) {
-      // 在生产环境中，这可能需要显示一个更友好的错误界面
-      logger.error('Environment validation failed. Please check your configuration.');
-    }
-  }, []);
-
-  // Initialize GoogleGenAI
-  const ai = useRef(new GoogleGenAI({ apiKey: getEnvVar('GEMINI_API_KEY') })).current;
+// Inner component that uses the hooks and needs the providers
+const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
 
   // Use the website generation hook
   const {
@@ -232,8 +222,7 @@ const App: React.FC = () => {
 
   // Main app layout
   return (
-    <ConfirmationProvider>
-      <AppProvider value={contextValue}>
+    <AppProvider value={contextValue}>
       <div className={combineStyles(LAYOUT_STYLES.flexCol, 'h-screen p-4 md:p-6 bg-black text-slate-100 overflow-hidden')}>
         {/* Header */}
         <header className={combineStyles('mb-4 md:mb-6', LAYOUT_STYLES.flexShrink0, LAYOUT_STYLES.relative)}>
@@ -336,6 +325,26 @@ const App: React.FC = () => {
         </main>
       </div>
     </AppProvider>
+  );
+};
+
+// Main App component that provides the context and initializes AI
+const App: React.FC = () => {
+  // Validate environment variables on mount
+  useEffect(() => {
+    const validation = validateEnvironmentVariables();
+    if (!validation.isValid) {
+      // 在生产环境中，这可能需要显示一个更友好的错误界面
+      logger.error('Environment validation failed. Please check your configuration.');
+    }
+  }, []);
+
+  // Initialize GoogleGenAI
+  const ai = useRef(new GoogleGenAI({ apiKey: getEnvVar('GEMINI_API_KEY') })).current;
+
+  return (
+    <ConfirmationProvider>
+      <AppContent ai={ai} />
     </ConfirmationProvider>
   );
 };

@@ -24,8 +24,8 @@ export const PreviewLoader: React.FC<PreviewLoaderProps> = React.memo(({
         'bg-slate-800 bg-opacity-50 z-20 rounded-b-md backdrop-blur-sm'
       )}>
         <div className="text-center">
-          <LoadingSpinner size="md" />
-          <p className={combineStyles(TEXT_STYLES.mutedSm, 'mt-3')}>
+          <LoadingSpinner />
+          <p className={combineStyles(TEXT_STYLES.muted, 'mt-3')}>
             Loading preview...
           </p>
         </div>
