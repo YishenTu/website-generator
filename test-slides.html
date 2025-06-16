@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Slide Navigation Test</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-gradient-to-br from-gray-900 to-blue-900 text-white">
+    
+    <!-- Slide 1: Title Slide -->
+    <section id="slide-1" class="slide min-h-screen flex flex-col justify-center items-center text-center p-8">
+        <h1 class="text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
+            Slide Navigation Test
+        </h1>
+        <p class="text-2xl mb-8 text-gray-300">
+            Testing the vanilla JavaScript slide navigation component
+        </p>
+        <div class="flex gap-4 text-sm">
+            <div class="bg-white/10 backdrop-blur-md rounded-lg px-4 py-2">
+                <i class="fas fa-arrow-right mr-2"></i>Arrow Keys
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-lg px-4 py-2">
+                <i class="fas fa-hand-pointer mr-2"></i>Touch/Swipe
+            </div>
+            <div class="bg-white/10 backdrop-blur-md rounded-lg px-4 py-2">
+                <i class="fas fa-keyboard mr-2"></i>Space Bar
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 2: Features Overview -->
+    <section id="slide-2" class="slide min-h-screen flex flex-col justify-center p-8">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-4xl font-bold mb-8 text-center">Navigation Features</h2>
+            <div class="grid md:grid-cols-2 gap-8">
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20">
+                    <i class="fas fa-keyboard text-3xl text-blue-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Keyboard Navigation</h3>
+                    <ul class="text-gray-300 space-y-1">
+                        <li>→ Next slide</li>
+                        <li>← Previous slide</li>
+                        <li>Space: Next slide</li>
+                        <li>F: Fullscreen toggle</li>
+                        <li>Esc: Exit fullscreen</li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20">
+                    <i class="fas fa-mobile-alt text-3xl text-purple-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Touch Support</h3>
+                    <ul class="text-gray-300 space-y-1">
+                        <li>Swipe left: Next slide</li>
+                        <li>Swipe right: Previous slide</li>
+                        <li>Tap navigation buttons</li>
+                        <li>Responsive design</li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20">
+                    <i class="fas fa-mouse-pointer text-3xl text-green-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Mouse Controls</h3>
+                    <ul class="text-gray-300 space-y-1">
+                        <li>Click navigation buttons</li>
+                        <li>Hover effects</li>
+                        <li>Visual feedback</li>
+                    </ul>
+                </div>
+                <div class="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20">
+                    <i class="fas fa-expand text-3xl text-red-400 mb-4"></i>
+                    <h3 class="text-xl font-semibold mb-2">Fullscreen Mode</h3>
+                    <ul class="text-gray-300 space-y-1">
+                        <li>Press F or click button</li>
+                        <li>Immersive experience</li>
+                        <li>Perfect for presentations</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: Technical Details -->
+    <section id="slide-3" class="slide min-h-screen flex flex-col justify-center p-8">
+        <div class="max-w-4xl mx-auto text-center">
+            <h2 class="text-4xl font-bold mb-8">Technical Implementation</h2>
+            <div class="bg-white/10 backdrop-blur-md rounded-lg p-8 border border-white/20 mb-8">
+                <h3 class="text-2xl font-semibold mb-4 text-blue-400">Key Features</h3>
+                <div class="grid md:grid-cols-3 gap-6 text-left">
+                    <div>
+                        <h4 class="font-semibold mb-2">Auto-Detection</h4>
+                        <p class="text-gray-300 text-sm">Automatically finds slide sections in HTML</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2">Zero Dependencies</h4>
+                        <p class="text-gray-300 text-sm">Pure vanilla JavaScript, no external libraries</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold mb-2">Tailwind Ready</h4>
+                        <p class="text-gray-300 text-sm">Designed to work seamlessly with Tailwind CSS</p>
+                    </div>
+                </div>
+            </div>
+            <div class="text-lg text-gray-300">
+                <p>Self-contained script that can be injected into any HTML file</p>
+                <p class="mt-2">Glassmorphism design with smooth transitions</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 4: Code Example -->
+    <section id="slide-4" class="slide min-h-screen flex flex-col justify-center p-8">
+        <div class="max-w-4xl mx-auto">
+            <h2 class="text-4xl font-bold mb-8 text-center">Usage Example</h2>
+            <div class="bg-gray-900/50 backdrop-blur-md rounded-lg p-6 border border-white/20">
+                <h3 class="text-xl font-semibold mb-4 text-green-400">HTML Structure</h3>
+                <pre class="text-gray-300 text-sm overflow-x-auto"><code>&lt;section id="slide-1" class="slide"&gt;
+  &lt;h1&gt;First Slide&lt;/h1&gt;
+  &lt;p&gt;Slide content here...&lt;/p&gt;
+&lt;/section&gt;
+
+&lt;section id="slide-2" class="slide"&gt;
+  &lt;h1&gt;Second Slide&lt;/h1&gt;
+  &lt;p&gt;More content...&lt;/p&gt;
+&lt;/section&gt;</code></pre>
+            </div>
+            <div class="mt-6 bg-gray-900/50 backdrop-blur-md rounded-lg p-6 border border-white/20">
+                <h3 class="text-xl font-semibold mb-4 text-blue-400">JavaScript Usage</h3>
+                <pre class="text-gray-300 text-sm overflow-x-auto"><code>// Import and inject the navigation
+import { injectSlideNavigation } from './slideNavigation.js';
+
+const htmlWithNavigation = injectSlideNavigation(originalHtml);</code></pre>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Test Complete -->
+    <section id="slide-5" class="slide min-h-screen flex flex-col justify-center items-center text-center p-8">
+        <div class="max-w-2xl mx-auto">
+            <i class="fas fa-check-circle text-6xl text-green-400 mb-6"></i>
+            <h2 class="text-4xl font-bold mb-6">Test Complete!</h2>
+            <p class="text-xl text-gray-300 mb-8">
+                All navigation features are working correctly
+            </p>
+            <div class="bg-white/10 backdrop-blur-md rounded-lg p-6 border border-white/20">
+                <h3 class="text-lg font-semibold mb-4">Verified Features:</h3>
+                <div class="grid md:grid-cols-2 gap-4 text-left">
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Keyboard navigation</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Mouse controls</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Touch/swipe support</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Fullscreen mode</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Slide counter</span>
+                    </div>
+                    <div class="flex items-center">
+                        <i class="fas fa-check text-green-400 mr-2"></i>
+                        <span>Smooth transitions</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+<script>
+(function() {
+  'use strict';
+  
+  // Slide Navigation Controller
+  class SlideNavigator {
+    constructor() {
+      this.slides = [];
+      this.currentSlide = 0;
+      this.isInitialized = false;
+      
+      // Bind methods to preserve context
+      this.nextSlide = this.nextSlide.bind(this);
+      this.prevSlide = this.prevSlide.bind(this);
+      this.goToSlide = this.goToSlide.bind(this);
+      this.handleKeyboard = this.handleKeyboard.bind(this);
+    }
+    
+    // Initialize the slide navigator
+    init() {
+      if (this.isInitialized) return;
+      
+      // Auto-detect slide sections
+      this.detectSlides();
+      
+      if (this.slides.length === 0) {
+        console.warn('No slides found. Expected elements with class "slide" or sections with IDs starting with "slide-"');
+        return;
+      }
+      
+      // Create navigation UI
+      this.createNavigationUI();
+      
+      // Setup event listeners
+      this.setupEventListeners();
+      
+      // Initialize first slide
+      this.goToSlide(0);
+      
+      this.isInitialized = true;
+      console.log('Slide navigator initialized with ' + this.slides.length + ' slides');
+    }
+    
+    // Auto-detect slide sections in the HTML
+    detectSlides() {
+      // Look for elements with class 'slide' first
+      let slideElements = document.querySelectorAll('.slide');
+      
+      // If no .slide elements found, look for sections with IDs starting with 'slide-'
+      if (slideElements.length === 0) {
+        slideElements = document.querySelectorAll('section[id^="slide-"]');
+      }
+      
+      // If still no slides found, look for any section elements
+      if (slideElements.length === 0) {
+        slideElements = document.querySelectorAll('section');
+      }
+      
+      this.slides = Array.from(slideElements);
+      
+      // Setup initial styling
+      this.slides.forEach((slide, index) => {
+        slide.dataset.slideIndex = index;
+        
+        // Ensure slide class exists
+        if (!slide.classList.contains('slide')) {
+          slide.classList.add('slide');
+        }
+        
+        // Initially hide all slides except the first
+        if (index === 0) {
+          slide.style.display = 'block';
+          slide.classList.add('slide-active');
+        } else {
+          slide.style.display = 'none';
+          slide.classList.remove('slide-active');
+        }
+        
+        // Only add essential transition styling if not already present
+        if (!slide.classList.contains('transition-all')) {
+          slide.classList.add('transition-all', 'duration-500', 'ease-in-out');
+        }
+      });
+    }
+    
+    // Create navigation UI elements
+    createNavigationUI() {
+      // Create navigation container
+      const navContainer = document.createElement('div');
+      navContainer.id = 'slide-navigation';
+      navContainer.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-4 bg-black/20 backdrop-blur-md rounded-full px-6 py-3 border border-white/20 shadow-xl';
+      
+      // Previous button
+      const prevButton = document.createElement('button');
+      prevButton.id = 'slide-prev';
+      prevButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+      prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      prevButton.title = 'Previous slide (Arrow Left)';
+      prevButton.onclick = this.prevSlide;
+      
+      // Slide counter
+      const slideCounter = document.createElement('div');
+      slideCounter.id = 'slide-counter';
+      slideCounter.className = 'text-white font-mono text-sm px-3 py-1 bg-white/10 rounded-full';
+      slideCounter.textContent = '1 / ' + this.slides.length;
+      
+      // Next button
+      const nextButton = document.createElement('button');
+      nextButton.id = 'slide-next';
+      nextButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+      nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      nextButton.title = 'Next slide (Arrow Right)';
+      nextButton.onclick = this.nextSlide;
+      
+      // Fullscreen button
+      const fullscreenButton = document.createElement('button');
+      fullscreenButton.id = 'slide-fullscreen';
+      fullscreenButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 ml-2';
+      fullscreenButton.innerHTML = '<i class="fas fa-expand"></i>';
+      fullscreenButton.title = 'Toggle fullscreen (F)';
+      fullscreenButton.onclick = this.toggleFullscreen.bind(this);
+      
+      // Assemble navigation
+      navContainer.appendChild(prevButton);
+      navContainer.appendChild(slideCounter);
+      navContainer.appendChild(nextButton);
+      navContainer.appendChild(fullscreenButton);
+      
+      // Add to page
+      document.body.appendChild(navContainer);
+      
+      // Store references for easy access
+      this.navElements = {
+        container: navContainer,
+        prevButton,
+        nextButton,
+        counter: slideCounter,
+        fullscreenButton
+      };
+      
+      // Update button states
+      this.updateNavigationState();
+    }
+    
+    // Setup event listeners
+    setupEventListeners() {
+      // Keyboard navigation
+      document.addEventListener('keydown', this.handleKeyboard);
+      
+      // Touch/swipe support for mobile
+      this.setupTouchEvents();
+      
+      // Window resize handler
+      window.addEventListener('resize', () => {
+        this.updateSlideLayout();
+      });
+      
+      // Handle fullscreen changes
+      document.addEventListener('fullscreenchange', () => {
+        this.updateFullscreenButton();
+      });
+    }
+    
+    // Handle keyboard navigation
+    handleKeyboard(event) {
+      switch (event.key) {
+        case 'ArrowRight':
+        case ' ': // Space bar
+          event.preventDefault();
+          this.nextSlide();
+          break;
+        case 'ArrowLeft':
+          event.preventDefault();
+          this.prevSlide();
+          break;
+        case 'Home':
+          event.preventDefault();
+          this.goToSlide(0);
+          break;
+        case 'End':
+          event.preventDefault();
+          this.goToSlide(this.slides.length - 1);
+          break;
+        case 'Escape':
+          event.preventDefault();
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          }
+          break;
+        case 'f':
+        case 'F':
+          event.preventDefault();
+          this.toggleFullscreen();
+          break;
+      }
+    }
+    
+    // Setup touch events for mobile
+    setupTouchEvents() {
+      let startX = 0;
+      let endX = 0;
+      
+      document.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+      });
+      
+      document.addEventListener('touchend', (e) => {
+        endX = e.changedTouches[0].clientX;
+        this.handleTouch();
+      });
+      
+      this.handleTouch = () => {
+        const threshold = 50; // Minimum swipe distance
+        const diff = startX - endX;
+        
+        if (Math.abs(diff) > threshold) {
+          if (diff > 0) {
+            // Swipe left - next slide
+            this.nextSlide();
+          } else {
+            // Swipe right - previous slide
+            this.prevSlide();
+          }
+        }
+      };
+    }
+    
+    // Navigate to next slide
+    nextSlide() {
+      if (this.currentSlide < this.slides.length - 1) {
+        this.goToSlide(this.currentSlide + 1);
+      }
+    }
+    
+    // Navigate to previous slide
+    prevSlide() {
+      if (this.currentSlide > 0) {
+        this.goToSlide(this.currentSlide - 1);
+      }
+    }
+    
+    // Navigate to specific slide
+    goToSlide(index) {
+      if (index < 0 || index >= this.slides.length) return;
+      
+      // Hide current slide
+      if (this.slides[this.currentSlide]) {
+        this.slides[this.currentSlide].style.display = 'none';
+        this.slides[this.currentSlide].classList.remove('slide-active');
+      }
+      
+      // Show new slide
+      this.currentSlide = index;
+      this.slides[this.currentSlide].style.display = 'block';
+      this.slides[this.currentSlide].classList.add('slide-active');
+      
+      // Update navigation state
+      this.updateNavigationState();
+      
+      // Scroll to top of new slide
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Trigger custom event
+      const event = new CustomEvent('slideChange', {
+        detail: { currentSlide: this.currentSlide, totalSlides: this.slides.length }
+      });
+      document.dispatchEvent(event);
+    }
+    
+    // Update navigation button states and counter
+    updateNavigationState() {
+      if (!this.navElements) return;
+      
+      // Update counter
+      this.navElements.counter.textContent = (this.currentSlide + 1) + ' / ' + this.slides.length;
+      
+      // Update button states
+      this.navElements.prevButton.disabled = this.currentSlide === 0;
+      this.navElements.nextButton.disabled = this.currentSlide === this.slides.length - 1;
+    }
+    
+    // Update slide layout on resize
+    updateSlideLayout() {
+      this.slides.forEach(slide => {
+        // Ensure slides maintain full height
+        slide.style.minHeight = window.innerHeight + 'px';
+      });
+    }
+    
+    // Toggle fullscreen mode
+    toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log('Error attempting to enable fullscreen: ' + err.message);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    
+    // Update fullscreen button icon
+    updateFullscreenButton() {
+      if (!this.navElements) return;
+      
+      const icon = this.navElements.fullscreenButton.querySelector('i');
+      if (document.fullscreenElement) {
+        icon.className = 'fas fa-compress';
+        this.navElements.fullscreenButton.title = 'Exit fullscreen (F)';
+      } else {
+        icon.className = 'fas fa-expand';
+        this.navElements.fullscreenButton.title = 'Toggle fullscreen (F)';
+      }
+    }
+    
+    // Public API methods
+    getCurrentSlide() {
+      return this.currentSlide;
+    }
+    
+    getTotalSlides() {
+      return this.slides.length;
+    }
+    
+    destroy() {
+      // Remove event listeners
+      document.removeEventListener('keydown', this.handleKeyboard);
+      
+      // Remove navigation UI
+      if (this.navElements && this.navElements.container) {
+        this.navElements.container.remove();
+      }
+      
+      // Reset slide styling
+      this.slides.forEach(slide => {
+        slide.style.display = '';
+        slide.classList.remove('slide-active');
+      });
+      
+      this.isInitialized = false;
+    }
+  }
+  
+  // Initialize when DOM is ready
+  function initSlideNavigation() {
+    const navigator = new SlideNavigator();
+    navigator.init();
+    
+    // Make navigator globally accessible
+    window.slideNavigator = navigator;
+  }
+  
+  // Auto-initialize when DOM is loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSlideNavigation);
+  } else {
+    initSlideNavigation();
+  }
+  
+})();
+</script>
+
+<style>
+/* Additional CSS for slide transitions and styling */
+.slide {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.slide.slide-entering {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.slide.slide-exiting {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+/* Hide navigation in print mode */
+@media print {
+  #slide-navigation {
+    display: none !important;
+  }
+  
+  .slide {
+    page-break-after: always;
+    min-height: 100vh !important;
+    display: block !important;
+  }
+}
+
+/* Responsive navigation for mobile */
+@media (max-width: 640px) {
+  #slide-navigation {
+    bottom: 1rem;
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+  }
+  
+  #slide-navigation button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  #slide-counter {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+  }
+}
+</style>
+
+</body>
+</html>
