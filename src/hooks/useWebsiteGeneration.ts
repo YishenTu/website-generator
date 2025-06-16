@@ -1,5 +1,7 @@
 import { useState, useRef, useCallback, useEffect } from 'react';
 import { useBufferedUpdater } from './useBufferedUpdater';
+import { useDebouncedLocalStorage } from './useDebouncedLocalStorage';
+import { useConfirmation } from '../contexts/ConfirmationContext';
 import { GoogleGenAI } from "@google/genai";
 import { 
   generateWebsitePlan, 
@@ -11,6 +13,7 @@ import {
   getDefaultModel
 } from '../services/aiService';
 import { cleanTextOutput, getModelDisplayName } from '../components/textUtils';
+import { processGeneratedHtml } from '../utils/htmlPostProcessor';
 import { abortAllOperations, resetAppToInitialState } from '../components/appStateUtils';
 import { ActiveTab, ChatMessage, UserType } from '../types/types';
 import type { AppStage } from '../App';
@@ -91,6 +94,9 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   // State management
   const [reportText, setReportText] = useState<string>('');
   const [generatedPlan, setGeneratedPlan] = useState<string | null>(null);
+  
+  // Confirmation modal hook
+  const { confirm } = useConfirmation();
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
   const [planModel, setPlanModel] = useState<string>(getDefaultModel(defaultPlanProvider));
   const [htmlModel, setHtmlModel] = useState<string>(getDefaultModel(defaultHtmlProvider));
@@ -191,7 +197,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
         planModel,
         ai,
         reportText,
-        { theme, language },
+        { theme, language, outputType },
         (chunk: string) => {
           streamingPlan += chunk;
           planBuffer.update(streamingPlan);
@@ -277,16 +283,31 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
         },
         (finalHtml: string) => {
           const cleanedInitialHtml = cleanTextOutput(finalHtml);
+          
+          // Apply post-processing (navigation injection for slides)
+          const { html: processedHtml, warnings } = processGeneratedHtml(cleanedInitialHtml, outputType);
+          
+          // Log any warnings from post-processing
+          if (warnings.length > 0) {
+            logger.warn('Post-processing warnings:', warnings);
+          }
+          
           htmlBuffer.flush();
-          setGeneratedHtml(cleanedInitialHtml);
+          setGeneratedHtml(processedHtml);
           setAppStage('htmlReady');
 
           try {
-            chatSessionRef.current = createHtmlChatSession(chatModel, ai, cleanedInitialHtml, reportText, currentPlanText);
-            setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Initial website generated. How would you like to refine it?", isHtml: false }]);
+            chatSessionRef.current = createHtmlChatSession(chatModel, ai, processedHtml, reportText, currentPlanText, outputType);
+            const messageText = outputType === 'slides' 
+              ? "Initial slide presentation generated. How would you like to refine it?"
+              : "Initial website generated. How would you like to refine it?";
+            setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: messageText, isHtml: false }]);
           } catch (chatError) {
             logger.error("Failed to initialize chat session:", chatError);
-            setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Website generated successfully! Note: Chat functionality is not available due to initialization error.", isHtml: false }]);
+            const errorText = outputType === 'slides'
+              ? "Slide presentation generated successfully! Note: Chat functionality is not available due to initialization error."
+              : "Website generated successfully! Note: Chat functionality is not available due to initialization error.";
+            setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: errorText, isHtml: false }]);
           }
           
           setActiveTab(ActiveTab.Preview);
@@ -294,7 +315,8 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
           abortControllerRef.current = null;
         },
         signal,
-        maxThinking
+        maxThinking,
+        outputType
       );
     } catch (err) {
       if (err instanceof Error) {
@@ -347,8 +369,17 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
         },
         (finalText: string) => {
           const finalCleanedHtmlFromChat = cleanTextOutput(finalText);
+          
+          // Apply post-processing to maintain navigation component for slides
+          const { html: processedHtml, warnings } = processGeneratedHtml(finalCleanedHtmlFromChat, outputType);
+          
+          // Log any warnings from post-processing
+          if (warnings.length > 0) {
+            logger.warn('Chat post-processing warnings:', warnings);
+          }
+          
           htmlBuffer.flush();
-          setGeneratedHtml(finalCleanedHtmlFromChat);
+          setGeneratedHtml(processedHtml);
         },
         signal
       );
@@ -448,7 +479,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     
     if (generatedHtml && reportText && lastUsedPlanText) {
       try {
-        chatSessionRef.current = createHtmlChatSession(model, ai, generatedHtml, reportText, lastUsedPlanText);
+        chatSessionRef.current = createHtmlChatSession(model, ai, generatedHtml, reportText, lastUsedPlanText, outputType);
         setChatMessages((prev: ChatMessage[]) => [
           ...prev,
           { 
@@ -512,10 +543,11 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     });
   }, []);
   
-  const handleStartNewSession = useCallback(() => {
+  const handleStartNewSession = useCallback(async () => {
     // Show confirmation dialog
-    const confirmed = window.confirm(
-      'Are you sure you want to start a new session? This will clear all current content including the report, plan, and generated website.'
+    const confirmed = await confirm(
+      'Are you sure you want to start a new session? This will clear all current content including the report, plan, and generated website.',
+      'Start New Session'
     );
     
     if (confirmed) {
@@ -524,35 +556,15 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
       // Ensure we switch to Input tab after reset
       setActiveTab(ActiveTab.Input);
     }
-  }, [handleResetToInitial, setActiveTab]);
+  }, [confirm, handleResetToInitial, setActiveTab]);
 
   const isChatAvailable = () => !!chatSessionRef.current;
   const isPlanChatAvailable = () => !!planChatSessionRef.current;
 
-  // Output Type, Theme and Language persistence effects
-  useEffect(() => {
-    try {
-      localStorage.setItem('ai-website-generator-output-type', outputType);
-    } catch (error) {
-      logger.error('Failed to save output type to localStorage:', error);
-    }
-  }, [outputType]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('ai-website-generator-theme', theme);
-    } catch (error) {
-      logger.error('Failed to save theme to localStorage:', error);
-    }
-  }, [theme]);
-
-  useEffect(() => {
-    try {
-      localStorage.setItem('ai-website-generator-language', language);
-    } catch (error) {
-      logger.error('Failed to save language to localStorage:', error);
-    }
-  }, [language]);
+  // Output Type, Theme and Language persistence with debouncing
+  useDebouncedLocalStorage('ai-website-generator-output-type', outputType);
+  useDebouncedLocalStorage('ai-website-generator-theme', theme);
+  useDebouncedLocalStorage('ai-website-generator-language', language);
 
   // Output Type, Theme and Language setter functions
   const setOutputType = useCallback((newOutputType: OutputType) => {

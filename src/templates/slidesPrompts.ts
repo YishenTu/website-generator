@@ -109,20 +109,24 @@ const SLIDES_LAYOUT_AND_STRUCTURE = `
 
 const SLIDES_NAVIGATION_AND_FUNCTIONALITY = `
 5.  **Navigation and Functionality:**
-    *   **Required Navigation Features:**
-        -   Next/Previous slide buttons (visible on hover or always visible)
-        -   Slide counter display (e.g., "3 / 12" or "Slide 3 of 12")
-        -   Keyboard navigation (arrow keys, space bar, escape key)
+    *   **Navigation Component Placeholder:**
+        -   You MUST include this exact placeholder in your HTML: \`<!-- NAVIGATION_COMPONENT_PLACEHOLDER -->\`
+        -   Place it just before the closing \`</body>\` tag
+        -   The navigation component will be automatically injected at this location
+        
+    *   **Slide Structure Requirements:**
+        -   Each slide MUST be a \`<section>\` element with class="slide" and a unique id (e.g., id="slide-1", id="slide-2")
+        -   Use min-h-screen and w-full classes for proper slide dimensions
+        -   Example: \`<section id="slide-1" class="slide min-h-screen w-full flex flex-col justify-center items-center">\`
+        
+    *   **Navigation Features (Automatically Provided):**
+        -   Next/Previous slide buttons with glassmorphism styling
+        -   Slide counter display (e.g., "3 / 12")
+        -   Keyboard navigation (arrow keys, space bar, home, end, escape, F for fullscreen)
         -   Touch/swipe support for mobile devices
-    *   **JavaScript Implementation:**
-        -   Embed JavaScript directly in the HTML file (no external files)
-        -   Implement smooth transitions between slides
-        -   Handle edge cases (first slide, last slide)
-        -   Support both mouse and keyboard interactions
-    *   **CSS Transitions:**
-        -   Use CSS transforms for smooth slide transitions
-        -   Implement fade or slide effects between slides
-        -   Ensure consistent animation timing (e.g., \`transition-all duration-500 ease-in-out\`)`;
+        -   Fullscreen toggle functionality
+        -   Auto-detection of slide sections
+        -   Smooth transitions between slides`;
 
 const SLIDES_DESIGN_AND_AESTHETICS = `
 6.  **Design and Aesthetics (as per Plan):**

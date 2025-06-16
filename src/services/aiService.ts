@@ -172,13 +172,14 @@ export async function generateWebsiteFromPlan(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  maxThinking: boolean = false
+  maxThinking: boolean = false,
+  outputType: 'webpage' | 'slides' = 'webpage'
 ): Promise<void> {
   return dispatchToModel(
     modelId,
-    () => generateWebsiteFromReportWithPlanStream(ai, reportText, planText, onChunk, onComplete, signal, modelId, maxThinking),
-    () => generateWebsiteFromReportWithPlanStreamOpenRouter(reportText, planText, onChunk, onComplete, signal, modelId, maxThinking),
-    () => generateWebsiteFromReportWithPlanStreamOpenAI(reportText, planText, onChunk, onComplete, signal, modelId)
+    () => generateWebsiteFromReportWithPlanStream(ai, reportText, planText, onChunk, onComplete, signal, modelId, maxThinking, outputType),
+    () => generateWebsiteFromReportWithPlanStreamOpenRouter(reportText, planText, onChunk, onComplete, signal, modelId, maxThinking, outputType),
+    () => generateWebsiteFromReportWithPlanStreamOpenAI(reportText, planText, onChunk, onComplete, signal, modelId, outputType)
   );
 }
 
@@ -188,13 +189,14 @@ export function createHtmlChatSession(
   ai: GoogleGenAI,
   initialHtml: string,
   reportText: string,
-  planText: string
+  planText: string,
+  outputType: 'webpage' | 'slides' = 'webpage'
 ): ChatSession {
   return dispatchToModel<ChatSession>(
     modelId,
-    () => new GeminiChatSession(ai, initialHtml, reportText, planText, modelId),
-    () => new OpenRouterChatSession(initialHtml, reportText, planText, modelId),
-    () => new OpenAIChatSession(initialHtml, reportText, planText, modelId)
+    () => new GeminiChatSession(ai, initialHtml, reportText, planText, modelId, outputType),
+    () => new OpenRouterChatSession(initialHtml, reportText, planText, modelId, outputType),
+    () => new OpenAIChatSession(initialHtml, reportText, planText, modelId, outputType)
   );
 }
 

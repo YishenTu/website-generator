@@ -7,6 +7,7 @@ import { SettingsSidebar } from "./components/SettingsSidebar";
 import { OutputDisplay } from "./components/OutputDisplay";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AppProvider, type AppContextType } from './contexts/AppContext';
+import { ConfirmationProvider } from './contexts/ConfirmationContext';
 import { copyHtmlToClipboard, downloadHtmlFile } from './components/fileUtils';
 import { ActiveTab } from './types/types';
 import { useWebsiteGeneration } from './hooks/useWebsiteGeneration';
@@ -231,7 +232,8 @@ const App: React.FC = () => {
 
   // Main app layout
   return (
-    <AppProvider value={contextValue}>
+    <ConfirmationProvider>
+      <AppProvider value={contextValue}>
       <div className={combineStyles(LAYOUT_STYLES.flexCol, 'h-screen p-4 md:p-6 bg-black text-slate-100 overflow-hidden')}>
         {/* Header */}
         <header className={combineStyles('mb-4 md:mb-6', LAYOUT_STYLES.flexShrink0, LAYOUT_STYLES.relative)}>
@@ -334,6 +336,7 @@ const App: React.FC = () => {
         </main>
       </div>
     </AppProvider>
+    </ConfirmationProvider>
   );
 };
 

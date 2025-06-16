@@ -109,9 +109,10 @@ export async function generateWebsiteFromReportWithPlanStream(
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
   modelName?: string,
-  maxThinking: boolean = false
+  maxThinking: boolean = false,
+  outputType: 'webpage' | 'slides' = 'webpage'
 ): Promise<void> {
-  const prompt = generateWebsitePromptWithPlan(reportText, planText);
+  const prompt = generateWebsitePromptWithPlan(reportText, planText, outputType);
   const model = modelName || DEFAULT_MODEL;
 
   const requestParams = maxThinking ? { 
@@ -161,11 +162,11 @@ export async function generateWebsiteFromReportWithPlanStream(
 export class GeminiChatSession {
   private chatSession: Chat;
 
-  constructor(ai: GoogleGenAI, initialHtml: string, reportText: string, planText: string, modelName?: string) {
+  constructor(ai: GoogleGenAI, initialHtml: string, reportText: string, planText: string, modelName?: string, outputType: 'webpage' | 'slides' = 'webpage') {
     const model = modelName || DEFAULT_MODEL;
     // 构造Gemini API格式的聊天历史
     const chatHistory = [
-      { role: "user", parts: [{ text: getHtmlChatInitialMessage(initialHtml, reportText, planText) }] },
+      { role: "user", parts: [{ text: getHtmlChatInitialMessage(initialHtml, reportText, planText, outputType) }] },
       { role: "model", parts: [{ text: initialHtml }] }
     ];
     

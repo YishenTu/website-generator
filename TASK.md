@@ -68,24 +68,24 @@ Add slides generation capability while maintaining the same plan → approve →
 
 ### Phase 3: Slides Prompts Design
 
-- [ ] **Task 3.1**: Design slides plan generation prompt
+- [x] **Task 3.1**: Design slides plan generation prompt
   - Focus on presentation structure and flow
   - Human-readable slide outline with content descriptions
   - Include design notes for each slide (layout, visuals)
   - Specify presentation-appropriate content density
 
-- [ ] **Task 3.2**: Design slides HTML generation prompt
+- [x] **Task 3.2**: Design slides HTML generation prompt
   - Generate single HTML file with slide sections
   - Include navigation component injection instructions
   - Emphasize slide-appropriate visual hierarchy
   - Specify Tailwind CSS classes for presentation styling
 
-- [ ] **Task 3.3**: Include navigation component in HTML template
+- [x] **Task 3.3**: Include navigation component in HTML template
   - Add instructions to inject slideNavigation.js script
   - Specify proper HTML structure for slides (sections with IDs)
   - Include CSS classes for slide transitions and layout
 
-- [ ] **Task 3.4**: Test prompts with sample inputs
+- [x] **Task 3.4**: Test prompts with sample inputs
   - Generate sample slide plans from test reports
   - Generate sample slide HTML from test plans
   - Verify output quality and structure

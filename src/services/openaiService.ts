@@ -112,9 +112,10 @@ export async function generateWebsiteFromReportWithPlanStreamOpenAI(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  outputType: 'webpage' | 'slides' = 'webpage'
 ): Promise<void> {
-  const prompt = generateWebsitePromptWithPlan(reportText, planText);
+  const prompt = generateWebsitePromptWithPlan(reportText, planText, outputType);
   return makeOpenAIStreamRequest(prompt, onChunk, onComplete, signal, modelName);
 }
 
@@ -124,7 +125,7 @@ export class OpenAIChatSession {
   private messages: OpenAIMessage[] = [];
   private apiKey: string;
   private modelName: string;
-  constructor(initialHtml: string, reportText: string, planText: string, modelName?: string) {
+  constructor(initialHtml: string, reportText: string, planText: string, modelName?: string, outputType: 'webpage' | 'slides' = 'webpage') {
     this.apiKey = process.env.OPENAI_API_KEY || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
@@ -140,7 +141,7 @@ export class OpenAIChatSession {
       },
       {
         role: 'user',
-        content: getHtmlChatInitialMessage(initialHtml, reportText, planText)
+        content: getHtmlChatInitialMessage(initialHtml, reportText, planText, outputType)
       },
       {
         role: 'assistant',

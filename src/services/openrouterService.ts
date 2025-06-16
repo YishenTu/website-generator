@@ -190,9 +190,10 @@ export async function generateWebsiteFromReportWithPlanStreamOpenRouter(
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
   modelName?: string,
-  maxThinking: boolean = false
+  maxThinking: boolean = false,
+  outputType: 'webpage' | 'slides' = 'webpage'
 ): Promise<void> {
-  const prompt = generateWebsitePromptWithPlan(reportText, planText);
+  const prompt = generateWebsitePromptWithPlan(reportText, planText, outputType);
   return makeOpenRouterStreamRequest(prompt, onChunk, onComplete, signal, modelName, maxThinking);
 }
 
@@ -203,7 +204,7 @@ export class OpenRouterChatSession {
   private apiKey: string;
   private modelName: string;
 
-  constructor(initialHtml: string, reportText: string, planText: string, modelName?: string) {
+  constructor(initialHtml: string, reportText: string, planText: string, modelName?: string, outputType: 'webpage' | 'slides' = 'webpage') {
     this.apiKey = getEnvVar('OPENROUTER_API_KEY') || '';
     this.modelName = modelName || DEFAULT_MODEL;
     
@@ -219,7 +220,7 @@ export class OpenRouterChatSession {
       },
       {
         role: 'user',
-        content: getHtmlChatInitialMessage(initialHtml, reportText, planText)
+        content: getHtmlChatInitialMessage(initialHtml, reportText, planText, outputType)
       },
       {
         role: 'assistant',
