@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Commands
 
 ### Development
-- `npm run dev` - Start development server on port 3000 (user will run manually)
+- `npm run dev` - Start development server on port 5173 (user will run manually)
 - `npm run build` - Build production version to `dist/`
 - `npm run preview` - Preview production build
 
@@ -13,25 +13,28 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - DO NOT run `npm run dev` automatically - the user will start the development server manually when needed
 
 ### TypeScript Configuration
-- Uses TypeScript 5.7 with strict mode enabled
-- Path aliases configured: `@/*` maps to project root
-- Includes strict linting options: noUnusedLocals, noUnusedParameters, noFallthroughCasesInSwitch, noUncheckedIndexedAccess
+- Uses TypeScript 5.7.2 with strict mode enabled
+- Vite 6.2.0 as build tool
+- React 19.1.0 and TypeScript strict configuration
+- No path aliases configured (uses relative imports)
 
 ### Docker
 - `./scripts/deploy.sh` - Automated deployment with Docker (checks environment, creates .env, builds, and starts containers)
+- Deploys to port 8080 via nginx proxy
 - `docker-compose up -d` - Start containers in background
 - `docker-compose down` - Stop and remove containers
 - `docker-compose logs -f` - View container logs
 
 ## Architecture
 
-This is a React-based AI website generator that transforms text reports into complete websites using multiple AI models.
+This is a React-based AI website generator that transforms text reports into complete websites or interactive presentation slides using multiple AI models.
 
 ### Key Components Architecture
 - **App.tsx** - Main component with stage management (initial → planPending → planReady → htmlPending → htmlReady)
-- **useWebsiteGeneration** hook - Core business logic managing the entire generation workflow and state
+- **useWebsiteGeneration** & **useOptimizedWebsiteGeneration** hooks - Core business logic managing the entire generation workflow and state
 - **AppStages.tsx** - Renders different UI stages based on current app state
 - **aiService.ts** - Unified AI service layer that routes requests to Gemini, OpenRouter, or OpenAI based on model selection
+- **Output Types** - Supports both website generation and interactive presentation slides
 
 ### Service Layer Pattern
 The app uses a service abstraction pattern where:
@@ -46,10 +49,10 @@ The app uses a service abstraction pattern where:
 - Error boundaries provide app-level error handling
 
 ### Generation Workflow
-1. Report input → Plan generation (streaming)
+1. Report input → Choose output type (website or slides) → Plan generation (streaming)
 2. Plan editing/refinement via chat (optional)
-3. Plan → HTML generation (streaming)
-4. HTML refinement via chat (optional)
+3. Plan → HTML/Slides generation (streaming) with output type-specific templates
+4. HTML/Slides refinement via chat (optional)
 
 ### Environment Configuration
 - API keys for GEMINI_API_KEY, OPENROUTER_API_KEY, OPENAI_API_KEY
@@ -58,11 +61,15 @@ The app uses a service abstraction pattern where:
 
 ### File Organization
 - `src/components/` - React components and utility functions
-- `src/hooks/` - Custom React hooks
-- `src/services/` - AI service integrations
-- `src/utils/` - Shared utilities (constants, logging, error handling, styling)
+  - `src/components/stages/` - Stage-specific workflow components
+  - `src/components/icons/` - Icon components
+- `src/hooks/` - Custom React hooks (useWebsiteGeneration, useOptimizedWebsiteGeneration, useDebounce, etc.)
+- `src/services/` - AI service integrations (aiService, geminiService, openaiService, openrouterService)
+- `src/utils/` - Shared utilities (constants, logging, error handling, styling, HTML processing)
 - `src/types/` - TypeScript type definitions
-- `src/templates/` - AI prompt templates
+- `src/templates/` - AI prompt templates (websitePrompts, slidesPrompts, chatPrompts)
+- `src/contexts/` - React contexts (AppContext, ConfirmationContext)
+- `src/constants/` - Internationalization and constants
 
 ### Styling System
 - Uses Tailwind CSS with centralized style constants in styleConstants.ts

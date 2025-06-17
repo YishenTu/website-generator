@@ -54,8 +54,9 @@ npm run dev
 
 ## Tech Stack
 
-- **Frontend**: React 19, TypeScript 5.7, Vite 6.2, Tailwind CSS
-- **AI Integration**: Gemini, OpenRouter, OpenAI APIs
+- **Frontend**: React 19.1.0, TypeScript 5.7.2, Vite 6.2.0, Tailwind CSS
+- **AI Integration**: Gemini, OpenRouter, OpenAI APIs with @google/genai v1.0.1
+- **Code Editor**: CodeMirror with HTML syntax highlighting
 - **Deployment**: Docker, Nginx
 - **Version**: 1.2.4
 
@@ -72,17 +73,18 @@ npm run dev
 ```
 src/
 ├── components/          # React components
-│   ├── stages/         # Stage-specific workflow components
+│   ├── stages/         # Stage-specific workflow components (5 stages)
 │   └── icons/          # Icon components
-├── hooks/              # Custom React hooks
-├── services/           # AI service integrations
-├── templates/          # AI prompt templates
+├── hooks/              # Custom React hooks (useWebsiteGeneration, useOptimizedWebsiteGeneration)
+├── services/           # AI service integrations (aiService, geminiService, openaiService, openrouterService)
+├── templates/          # AI prompt templates (websitePrompts, slidesPrompts, chatPrompts)
 ├── types/              # TypeScript definitions
-├── utils/              # Shared utilities
-└── contexts/           # React contexts
+├── utils/              # Shared utilities (constants, logging, HTML processing, validation)
+├── contexts/           # React contexts (AppContext, ConfirmationContext)
+└── constants/          # Internationalization and constants
 
-docker/                 # Docker configuration
-scripts/                # Deployment scripts
+docker/                 # Docker configuration (Dockerfile, docker-compose.yml, nginx.conf)
+scripts/                # Deployment scripts (deploy.sh)
 ```
 
 ## Commands

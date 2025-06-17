@@ -97,11 +97,34 @@ The keynote should be delivered as a single HTML file with built-in navigation, 
 const SLIDES_CORE_TASK_AND_PLAN_ADHERENCE = `
 **Core Task & Requirements (Guided by the Plan):**
 
-1.  **Adhere to the Plan:** The generated HTML structure, slide content, sequencing, layout, and styling cues MUST be derived from the "Slides Plan to Follow". The original report is for detailed content extraction where the plan refers to it.
+1. **Adhere to the Plan:** The generated HTML structure, slide content, sequencing, layout, and styling cues MUST be derived from the "Slides Plan to Follow".
 
-2.  **Template Compliance:** Each slide in the plan specifies a template assignment (TEMPLATE 1, 2, 3, or 4). You MUST use the exact template structure specified in the plan for each slide. Do not deviate from the assigned templates or create custom layouts.
+2. **CRITICAL: CONTENT EXTRACTION & ELABORATION**
 
-2.5 **🚨 THE GOLDEN RULE: PRESERVE TEMPLATE INTEGRITY**
+**The plan provides bullet points as a framework, but you MUST extract detailed content from the original report to create substantial, well-balanced slides:**
+
+- **Extract & Elaborate:** For each bullet point in the plan, find the relevant section in the original report and extract specific details, examples, data, quotes, and explanations
+- **Content Density Requirements:** Each slide should have sufficient content for visual balance - avoid slides with just 2-3 brief bullet points
+- **Specific Elaboration Guidelines:**
+  * Transform brief bullet points into detailed paragraphs with context from the report
+  * Include specific data, statistics, examples, and quotes from the original report
+  * Add supporting details that weren't mentioned in the plan but exist in the report
+  * Provide context and background information to make each slide self-contained
+- **Content Quality Standards:**
+  * Each content slide should have 4-8 substantial points or 2-4 detailed paragraphs
+  * Minimal slides (Template 3) should still have meaningful, elaborated content
+  * Use the report's specific language, terminology, and examples
+  * Include relevant quotes, statistics, or findings from the report
+
+**Example Transformation:**
+- Plan bullet point: "Market analysis shows growth trends"
+- Generated slide content: Include specific growth percentages, time periods, market segments, key drivers, comparative data, and supporting evidence from the report
+
+This content extraction is MANDATORY - do not generate sparse slides with only the plan's bullet points.
+
+3. **Template Compliance:** Each slide in the plan specifies a template assignment (TEMPLATE 1, 2, 3, or 4). You MUST use the exact template structure specified in the plan for each slide. Do not deviate from the assigned templates or create custom layouts.
+
+4. **THE GOLDEN RULE: PRESERVE TEMPLATE INTEGRITY**
 
 Your absolute highest priority is to maintain the structural and visual integrity of the 4 canonical templates:
 - **DO NOT** alter, add, or remove any Tailwind CSS classes related to layout (e.g., \`flex\`, \`items-center\`, \`justify-center\`, \`w-full\`, \`h-screen\`)
@@ -109,20 +132,20 @@ Your absolute highest priority is to maintain the structural and visual integrit
 - **DO NOT** override template CSS with custom styles
 - **FAILURE** to follow this rule will break the presentation's core functionality. The layout system is intentionally rigid and must not be changed.
 
-3. **Language Requirements:**
+5. **Language Requirements:**
     - The presentation content language MUST be based on the language specified in the "Slides Plan to Follow". The plan is the single source of truth for language selection.
     - DO NOT assume language from report content - ONLY follow the plan's language directive
     - If plan specifies "中文", write all slide content in Chinese
     - If plan specifies "English", write all slide content in English
 
-4. **Single HTML File Output:**
+6. **Single HTML File Output:**
     - Generate a complete, self-contained HTML file with all slides and navigation functionality.
     - Include all necessary JavaScript for slide navigation within the HTML file.
     - Ensure the presentation works offline without external dependencies (except CDN resources).
 `;
 
 const SLIDES_LAYOUT_AND_STRUCTURE = `
-5.  **🎨 VISUAL BALANCE & LAYOUT STRUCTURE:**
+7. **VISUAL BALANCE & LAYOUT STRUCTURE:**
 
 **Core Principle: Consistent Template-Based Design**
 Every slide MUST use one of the 4 canonical templates (see Template System section). This ensures:
@@ -131,11 +154,7 @@ Every slide MUST use one of the 4 canonical templates (see Template System secti
 - **Professional Visual Hierarchy:** Standardized spacing and proportions
 
 **Template Selection Guidelines:**
-- **Slide Type Detection:** Analyze slide content to determine appropriate template:
-  * Presentation title, author, section dividers → TEMPLATE 1 (Hero)
-  * Bullet points, paragraphs, mixed content → TEMPLATE 2 (Content)
-  * Quotes, single statistics, simple statements → TEMPLATE 3 (Minimal)
-  * Background images with overlaid text → TEMPLATE 4 (Fullscreen)
+- **Slide Type Detection:** Analyze slide content to determine appropriate template (see Template System section for detailed rules)
 
 **Visual Balance Enforcement:**
 - **Rule of Thirds Application:** Template 2 uses 25% title zone + 75% content zone for optimal balance
@@ -158,7 +177,7 @@ Every slide MUST use one of the 4 canonical templates (see Template System secti
 - **Zone Separation:** \`mb-8\` between title and content zones`;
 
 const SLIDES_TEMPLATE_SYSTEM = `
-5.5  **🎯 TEMPLATE-BASED LAYOUT SYSTEM:**
+8. **TEMPLATE-BASED LAYOUT SYSTEM:**
 
 **CRITICAL: Use only these 4 canonical slide templates. DO NOT create custom layouts.**
 
@@ -220,15 +239,10 @@ const SLIDES_TEMPLATE_SYSTEM = `
 </section>
 \`\`\`
 
-**Visual Balance Enforcement Rules:**
-- **Consistent Title Positioning:** Templates 1 & 2 guarantee titles appear in same relative position
-- **Content Distribution:** Template 2's content zone automatically centers sparse content, scrolls dense content
-- **Responsive Proportions:** All templates use responsive spacing (\`lg:\` prefixes) and relative units
-- **Overflow Handling:** Template 2 includes \`overflow-y-auto\` to prevent layout breaking
-- **Gap-Based Spacing:** Use \`space-y-*\` for automatic, flexible vertical spacing`;
+`;
 
 const SLIDES_NAVIGATION_AND_FUNCTIONALITY = `
-6.  **Navigation and Functionality:**
+9.  **Navigation and Functionality:**
     *   **Navigation Component Placeholder:**
         -   You MUST include this exact placeholder in your HTML: \`<!-- NAVIGATION_COMPONENT_PLACEHOLDER -->\`
         -   Place it just before the closing \`</body>\` tag
@@ -244,7 +258,7 @@ const SLIDES_NAVIGATION_AND_FUNCTIONALITY = `
         -   Your ONLY responsibility is the slide structure - navigation is handled automatically`;
 
 const SLIDES_DESIGN_AND_AESTHETICS = `
-7.  **Design and Aesthetics (as per Plan):**
+10. **Design and Aesthetics (as per Plan):**
     *   **Theme Implementation:**
         -   For cyber theme: Primarily dark backgrounds (e.g., \`bg-black\`, \`bg-slate-900\`, \`bg-gray-900\`, \`bg-slate-800\`) with bright contrasting text and vibrant accent colors
         -   For light theme: Clean backgrounds (e.g., \`bg-white\`, \`bg-gray-50\`), subtle shadows, professional styling
@@ -273,16 +287,14 @@ const SLIDES_DESIGN_AND_AESTHETICS = `
         -   Adapt font sizes and spacing for different viewports`;
 
 const SLIDES_CSS_JAVASCRIPT_CONSISTENCY = `
-8.  **🚨 CRITICAL CSS & JAVASCRIPT REQUIREMENTS:**
+11. **CRITICAL CSS & JAVASCRIPT REQUIREMENTS:**
 
     **Slide Visibility Control:**
     This is the most critical technical requirement. Failure to follow this will break the entire keynote.
     - You MUST control slide visibility using CSS classes ONLY (\`slide-active\`)
-    - You MUST NOT use \`position: absolute\` or \`position: fixed\` on slides - this breaks flexbox centering
-    - You MUST NOT add inline \`style\` attributes for visibility control
     - You MUST NOT use JavaScript to set \`style.display\` - only use CSS classes (\`slide-active\`)
     
-    **⚠️ WARNING: Absolute/fixed positioning breaks flexbox layouts. The navigation component automatically handles slide visibility through CSS classes.**
+    **WARNING: See "GOLDEN RULE" section above for layout positioning requirements.**
 
     **Required CSS for Functionality:**
     You MUST include these exact, unmodified CSS rules in your \`<style>\` section. Do not add or change them:
@@ -326,7 +338,7 @@ const SLIDES_CSS_JAVASCRIPT_CONSISTENCY = `
     Without these exact rules, navigation will fail and layouts will be broken.`;
 
 const SLIDES_TECHNICAL_REQUIREMENTS = `
-9.  **Technical Requirements:**
+12. **Technical Requirements:**
     *   **HTML Boilerplate:** Include proper DOCTYPE, html lang attribute, head section with title, meta tags, and viewport settings.
     *   **Body Tag Restrictions:**
         -   DO NOT add \`overflow-hidden\` to body tag - it interferes with navigation
