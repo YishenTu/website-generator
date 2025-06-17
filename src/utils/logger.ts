@@ -4,7 +4,7 @@
  */
 
 // 检查是否为开发环境
-const isDevelopment = import.meta.env.DEV;
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 // 日志级别
 export enum LogLevel {

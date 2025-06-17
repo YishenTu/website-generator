@@ -33,7 +33,7 @@ The plan should be structured and easy to understand. Please outline the followi
         *   **Supporting Layout Element: "Bento Grid"** - Use grid layouts in appropriate content areas to showcase related item collections (such as statistics, features, comparison data, etc.)
         *   **Design Aesthetic: "Glassmorphism"** - Overall adoption of glassmorphism design style to create a modern, elegant visual effect
     *   **Bento Grid Usage Rules - Important:** Only use grid layouts when content can naturally be broken down into at least 2 related items per row. 
-    *   **Avoid:** DO NOT create single large boxes for entire sections or one box per section.
+    *   **Avoid:** DO NOT create single large boxes for entire sections or one box per section. DO NOT make large box backgrounds (like one large bento grid card) that encompass entire content areas.
 
 4.  **Styling & Visual Notes (Tailwind CSS based):**
     *   **Required Design Style Characteristics:**

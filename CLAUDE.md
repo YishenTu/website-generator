@@ -71,3 +71,40 @@ The app uses a service abstraction pattern where:
 - Cyberpunk aesthetic with icy blue color scheme
 - Custom fonts: Orbitron (cyberpunk titles), Rajdhani (subtitles), Space Mono, Exo 2
 - Enhanced visual effects: gradient animations, glow effects, neon styling
+
+## Development Guidelines
+
+### Code Quality Standards
+- TypeScript strict mode enabled with comprehensive linting rules
+- All components should use proper TypeScript typing
+- Follow existing code patterns and conventions
+- Use centralized constants from styleConstants.ts and constants.ts
+- Implement proper error handling with ErrorBoundary components
+
+### Testing
+- Check for existing test commands in package.json before running tests
+- Use `npm run build` to verify TypeScript compilation
+- Test with multiple AI models to ensure compatibility
+
+### Linting and Type Checking
+- Run `npm run build` to check for TypeScript errors
+- Follow strict linting rules: noUnusedLocals, noUnusedParameters, noFallthroughCasesInSwitch
+- Ensure all imports are properly typed and available
+
+### AI Integration Best Practices
+- Always validate API keys through envValidator.ts
+- Use the unified aiService.ts interface for AI calls
+- Implement proper stream handling for real-time responses
+- Handle rate limiting and error responses gracefully
+
+### Component Architecture
+- Follow the stage-based component pattern in src/components/stages/
+- Use custom hooks for complex state management
+- Implement proper loading states and error boundaries
+- Maintain consistent UI patterns across all stages
+
+### Performance Considerations
+- Use React.memo for frequently re-rendered components
+- Implement debouncing for user input (useDebounce hook)
+- Use lazy loading for heavy components
+- Optimize bundle size with proper imports

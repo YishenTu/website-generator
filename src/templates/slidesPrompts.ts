@@ -34,6 +34,7 @@ The plan should be structured for presentation flow and audience engagement. Ple
     *   **Content Density:** Optimize for readability - avoid text-heavy slides, use bullet points and visual elements.
     *   **Slide Transitions:** Consider how slides connect logically to maintain narrative flow.
     *   **Visual Consistency:** Maintain consistent styling, spacing, and typography across all slides.
+    *   **Avoid:** DO NOT create single large boxes for entire sections or one box per section. DO NOT make large box backgrounds (like one large bento grid card) that encompass entire content areas.
 
 4.  **Styling & Visual Notes (Tailwind CSS based):**
     *   **Presentation Design Characteristics:**
