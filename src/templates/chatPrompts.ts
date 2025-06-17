@@ -67,6 +67,25 @@ You are an expert web design planner. When the user asks you to modify a website
 - For important concepts that need to reference original terminology, include both Chinese and original language terms
 - Maintain consistency with the existing plan's language style`;
 
+const PLAN_CHAT_SLIDES_INSTRUCTION = `
+
+**🚨 CRITICAL: Slides Plan Format - MANDATORY COMPLIANCE 🚨**
+You are modifying a SLIDE PRESENTATION plan. VIOLATION OF THESE RULES WILL BREAK THE OUTPUT:
+
+**✅ REQUIRED FORMAT:**
+- The plan MUST be for slide presentation format, not webpage format
+- Each slide should have a clear title and template assignment (TEMPLATE 1, 2, 3, or 4)
+- Content should be organized slide-by-slide for keynote presentation flow
+- Maintain slide-specific design guidelines and structure requirements
+- The plan must specify "演示文稿内容语言" and "设计主题" at the beginning
+
+**❌ FORBIDDEN:**
+- Do NOT create webpage-style plans with sections like "Hero Section", "Features Section", etc.
+- Do NOT use webpage layout terminology
+- Do NOT ignore the slide presentation requirements
+
+**REMEMBER**: This is a SLIDE PRESENTATION plan, not a website plan. The output will be converted to HTML slides, not a webpage.`;
+
 // ==============================================
 // PUBLIC API FUNCTIONS
 // ==============================================
@@ -85,7 +104,16 @@ ${CHAT_SYSTEM_FOCUS_AND_INTEGRITY}`;
   return baseInstruction;
 };
 
-export const getPlanChatSystemInstruction = (): string => PLAN_CHAT_SYSTEM_INSTRUCTION;
+export const getPlanChatSystemInstruction = (outputType: 'webpage' | 'slides' = 'webpage'): string => {
+  const baseInstruction = PLAN_CHAT_SYSTEM_INSTRUCTION;
+  
+  // Add slides-specific instructions for plan format
+  if (outputType === 'slides') {
+    return baseInstruction + PLAN_CHAT_SLIDES_INSTRUCTION;
+  }
+  
+  return baseInstruction;
+};
 
 export const getHtmlChatInitialMessage = (initialHtml: string, reportText: string, planText: string, generateCodePromptFunction: (reportText: string, planText: string) => string): string => `
 I have a website generated from a report and a plan using the following complete generation context:

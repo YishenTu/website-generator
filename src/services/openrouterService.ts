@@ -279,7 +279,7 @@ export class OpenRouterPlanChatSession {
     this.messages = [
       {
         role: 'system',
-        content: getPlanChatSystemInstruction()
+        content: getPlanChatSystemInstruction(settings.outputType)
       },
       {
         role: 'user',

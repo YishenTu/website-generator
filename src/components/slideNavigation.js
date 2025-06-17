@@ -377,7 +377,7 @@ export const slideNavigationScript = `
 }
 
 .slide.slide-active {
-  display: block;
+  display: flex;
 }
 
 .slide.slide-entering {

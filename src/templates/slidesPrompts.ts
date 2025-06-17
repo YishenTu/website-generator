@@ -296,7 +296,7 @@ const SLIDES_CSS_JAVASCRIPT_CONSISTENCY = `
         /* DO NOT ADD 'position: absolute;' HERE - it breaks flexbox centering */
     }
     .slide.slide-active {
-        display: block;
+        display: flex;
         /* DO NOT ADD 'position: absolute;' HERE - it breaks flexbox centering */
     }
     /* --- END CORE RULES --- */

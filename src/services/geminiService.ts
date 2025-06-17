@@ -230,12 +230,12 @@ export class GeminiPlanChatSession {
     this.chatSession = ai.chats.create({
       model: model,
       config: { 
-        systemInstruction: getPlanChatSystemInstruction()
+        systemInstruction: getPlanChatSystemInstruction(settings.outputType)
       },
       history: chatHistory,
     });
 
-    logger.debug('Created Gemini plan chat session', { model });
+    logger.debug('Created Gemini plan chat session', { model, outputType: settings.outputType });
   }
 
   async sendMessageStream(
