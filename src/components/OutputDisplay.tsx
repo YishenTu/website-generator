@@ -47,6 +47,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
   // 添加iframe加载状态
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const [iframeError, setIframeError] = useState(false);
+  const [iframeKey, setIframeKey] = useState(0);
   
   // Create ref for iframe element
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -72,14 +73,9 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
   // 重置iframe状态当内容变化时
   useEffect(() => {
     if (debouncedHtmlContent !== null) {
-      setIsIframeLoading(true);
+      setIsIframeLoading(false); // Don't show loading overlay
       setIframeError(false);
-      // 设置一个最小加载时间，防止闪烁和确保内容正确加载
-      const minLoadingTime = setTimeout(() => {
-        setIsIframeLoading(false);
-      }, DELAYS.IFRAME_LOAD + 100); // 增加额外的时间确保稳定
-
-      return () => clearTimeout(minLoadingTime);
+      setIframeKey(prev => prev + 1); // Force iframe remount
     }
   }, [debouncedHtmlContent]);
 
@@ -164,15 +160,6 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
       // 添加样式元素
       const styleElement = doc.createElement('style');
       styleElement.textContent = `
-      /* 预加载时显示loading状态 - 使用更温和的过渡效果 */
-      body { 
-        opacity: 0.1; 
-        transition: opacity 0.2s ease-in-out; 
-      }
-      body.loaded { 
-        opacity: 1; 
-      }
-      
       /* 优化字体渲染 */
       * {
         -webkit-font-smoothing: antialiased;
@@ -180,30 +167,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
       }`;
       headElement.appendChild(styleElement);
       
-      // 添加脚本元素
-      const scriptElement = doc.createElement('script');
-      scriptElement.textContent = `
-      // 立即显示内容，避免白屏
-      document.body.classList.add('loaded');
-      
-      // 确保所有资源加载完成后再次确认显示
-      document.addEventListener('DOMContentLoaded', function() {
-        document.body.classList.add('loaded');
-        setTimeout(() => {
-          document.body.classList.add('loaded');
-        }, 50);
-      });
-      
-      // 处理错误情况
-      window.addEventListener('error', function(e) {
-        document.body.classList.add('loaded'); // 即使有错误也显示内容
-      });
-      
-      // 作为最后的保障，确保内容始终可见
-      setTimeout(() => {
-        document.body.classList.add('loaded');
-      }, 100);`;
-      headElement.appendChild(scriptElement);
+      // No script needed - iframe remounting handles loading properly
       
       // 序列化回HTML字符串并添加 DOCTYPE
       return `<!DOCTYPE html>\n${doc.documentElement.outerHTML}`;
@@ -309,7 +273,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             {activeTab === ActiveTab.Preview && (
               <iframe
                 ref={iframeRef}
-                // 移除key prop，避免不必要的重新创建
+                key={`preview-${iframeKey}`}
                 srcDoc={optimizedHtmlContent || ''}
                 title="Website Preview"
                 className={combineStyles('w-full border-0 h-full', isFullPreviewActive ? '' : 'rounded-md', 'bg-white')}
