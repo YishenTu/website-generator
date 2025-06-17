@@ -57,8 +57,11 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
 
   // iframe加载处理函数
   const handleIframeLoad = useCallback(() => {
-    setIsIframeLoading(false);
-    setIframeError(false);
+    // 延迟一小段时间确保iframe内容完全渲染
+    setTimeout(() => {
+      setIsIframeLoading(false);
+      setIframeError(false);
+    }, 50);
   }, []);
 
   const handleIframeError = useCallback(() => {
@@ -71,6 +74,12 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
     if (debouncedHtmlContent !== null) {
       setIsIframeLoading(true);
       setIframeError(false);
+      // 设置一个最小加载时间，防止闪烁和确保内容正确加载
+      const minLoadingTime = setTimeout(() => {
+        setIsIframeLoading(false);
+      }, DELAYS.IFRAME_LOAD + 100); // 增加额外的时间确保稳定
+
+      return () => clearTimeout(minLoadingTime);
     }
   }, [debouncedHtmlContent]);
 
@@ -155,10 +164,10 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
       // 添加样式元素
       const styleElement = doc.createElement('style');
       styleElement.textContent = `
-      /* 预加载时显示loading状态 */
+      /* 预加载时显示loading状态 - 使用更温和的过渡效果 */
       body { 
-        opacity: 0; 
-        transition: opacity 0.3s ease-in-out; 
+        opacity: 0.1; 
+        transition: opacity 0.2s ease-in-out; 
       }
       body.loaded { 
         opacity: 1; 
@@ -174,21 +183,26 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
       // 添加脚本元素
       const scriptElement = doc.createElement('script');
       scriptElement.textContent = `
-      // 确保所有资源加载完成后显示内容
+      // 立即显示内容，避免白屏
+      document.body.classList.add('loaded');
+      
+      // 确保所有资源加载完成后再次确认显示
       document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('loaded');
         setTimeout(() => {
           document.body.classList.add('loaded');
-        }, ${DELAYS.IFRAME_LOAD});
+        }, 50);
       });
       
       // 处理错误情况
       window.addEventListener('error', function(e) {
-        if (e.target && e.target !== window) {
-          // 资源加载错误（图片、脚本等）
-          // 在开发环境中记录错误
-        }
         document.body.classList.add('loaded'); // 即使有错误也显示内容
-      });`;
+      });
+      
+      // 作为最后的保障，确保内容始终可见
+      setTimeout(() => {
+        document.body.classList.add('loaded');
+      }, 100);`;
       headElement.appendChild(scriptElement);
       
       // 序列化回HTML字符串并添加 DOCTYPE

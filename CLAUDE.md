@@ -115,3 +115,4 @@ The app uses a service abstraction pattern where:
 - Implement debouncing for user input (useDebounce hook)
 - Use lazy loading for heavy components
 - Optimize bundle size with proper imports
+- Preview iframe loading optimization: Uses minimum loading times and fallback mechanisms to prevent blank white screens when content is first generated

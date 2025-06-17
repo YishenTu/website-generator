@@ -6,7 +6,7 @@
 // 延迟时间常量（毫秒）
 export const DELAYS = {
   DEBOUNCE_INPUT: 300,
-  IFRAME_LOAD: 100,
+  IFRAME_LOAD: 300, // 增加iframe加载延迟以确保内容完全渲染
   SCROLL_SMOOTH: 300,
   ANIMATION: 150,
   TRANSITION: 300,
