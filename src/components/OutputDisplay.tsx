@@ -74,9 +74,37 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
     }
   }, [debouncedHtmlContent]);
 
-  // 生成优化的HTML，预加载关键资源
+  // Handle fullscreen requests from iframe
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data && event.data.action) {
+        const iframe = iframeRef.current;
+        if (!iframe) return;
+
+        if (event.data.action === 'requestFullscreen') {
+          iframe.requestFullscreen?.().catch(err => {
+            console.log('Failed to enter fullscreen:', err.message);
+          });
+        } else if (event.data.action === 'exitFullscreen') {
+          document.exitFullscreen?.().catch(err => {
+            console.log('Failed to exit fullscreen:', err.message);
+          });
+        }
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
+  }, []);
+
+  // 生成优化的HTML，预加载关键资源 - 只在预览模式或非加载状态时处理
   const optimizedHtmlContent = useMemo(() => {
     if (debouncedHtmlContent === null || debouncedHtmlContent === undefined) return debouncedHtmlContent;
+    
+    // 性能优化：只在预览模式时进行复杂的DOM解析，编辑模式时直接返回原始内容
+    if (activeTab !== ActiveTab.Preview && !isLoading) {
+      return debouncedHtmlContent;
+    }
     
     try {
       // 使用DOMParser进行健壮的HTML解析和修改
@@ -171,7 +199,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
       console.warn('Failed to optimize HTML with DOMParser:', error);
       return debouncedHtmlContent;
     }
-  }, [debouncedHtmlContent]);
+  }, [debouncedHtmlContent, activeTab, isLoading]);
 
   const handleRetry = useCallback(() => {
     setIsIframeLoading(true);
@@ -271,7 +299,8 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
                 srcDoc={optimizedHtmlContent || ''}
                 title="Website Preview"
                 className={combineStyles('w-full border-0 h-full', isFullPreviewActive ? '' : 'rounded-md', 'bg-white')}
-                sandbox="allow-scripts allow-same-origin allow-downloads"
+                sandbox="allow-scripts allow-downloads"
+                allowFullScreen
                 loading="eager"
                 onLoad={handleIframeLoad}
                 onError={handleIframeError}

@@ -105,7 +105,7 @@ export const slideNavigationScript = `
       const prevButton = document.createElement('button');
       prevButton.id = 'slide-prev';
       prevButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
-      prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      prevButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>';
       prevButton.title = 'Previous slide (Arrow Left)';
       prevButton.onclick = this.prevSlide;
       
@@ -119,7 +119,7 @@ export const slideNavigationScript = `
       const nextButton = document.createElement('button');
       nextButton.id = 'slide-next';
       nextButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
-      nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      nextButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg>';
       nextButton.title = 'Next slide (Arrow Right)';
       nextButton.onclick = this.nextSlide;
       
@@ -127,7 +127,7 @@ export const slideNavigationScript = `
       const fullscreenButton = document.createElement('button');
       fullscreenButton.id = 'slide-fullscreen';
       fullscreenButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 ml-2';
-      fullscreenButton.innerHTML = '<i class="fas fa-expand"></i>';
+      fullscreenButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
       fullscreenButton.title = 'Toggle fullscreen (F)';
       fullscreenButton.onclick = this.toggleFullscreen.bind(this);
       
@@ -166,9 +166,24 @@ export const slideNavigationScript = `
         this.updateSlideLayout();
       });
       
-      // Handle fullscreen changes
+      // Handle fullscreen changes across different browsers
       document.addEventListener('fullscreenchange', () => {
         this.updateFullscreenButton();
+      });
+      document.addEventListener('webkitfullscreenchange', () => {
+        this.updateFullscreenButton();
+      });
+      document.addEventListener('mozfullscreenchange', () => {
+        this.updateFullscreenButton();
+      });
+      document.addEventListener('msfullscreenchange', () => {
+        this.updateFullscreenButton();
+      });
+      
+      // Also listen for resize events that might indicate fullscreen changes
+      window.addEventListener('resize', () => {
+        // Small delay to ensure screen dimensions are updated
+        setTimeout(() => this.updateFullscreenButton(), 100);
       });
     }
     
@@ -298,12 +313,56 @@ export const slideNavigationScript = `
     
     // Toggle fullscreen mode
     toggleFullscreen() {
-      if (!document.fullscreenElement) {
-        document.documentElement.requestFullscreen().catch(err => {
-          console.log(\`Error attempting to enable fullscreen: \${err.message}\`);
-        });
-      } else {
-        document.exitFullscreen();
+      try {
+        if (!document.fullscreenElement) {
+          // Try different approaches for fullscreen
+          const requestFullscreen = document.documentElement.requestFullscreen || 
+                                   document.documentElement.webkitRequestFullscreen || 
+                                   document.documentElement.mozRequestFullScreen || 
+                                   document.documentElement.msRequestFullscreen;
+          
+          if (requestFullscreen) {
+            requestFullscreen.call(document.documentElement).catch(err => {
+              console.log(\`Error attempting to enable fullscreen: \${err.message}\`);
+              // If iframe context, try to communicate with parent
+              if (window.parent && window.parent !== window) {
+                try {
+                  window.parent.postMessage({ action: 'requestFullscreen' }, '*');
+                } catch (e) {
+                  console.log('Could not communicate with parent window for fullscreen');
+                }
+              }
+            });
+          } else {
+            console.log('Fullscreen API not supported');
+          }
+        } else {
+          // Exit fullscreen
+          const exitFullscreen = document.exitFullscreen || 
+                                document.webkitExitFullscreen || 
+                                document.mozCancelFullScreen || 
+                                document.msExitFullscreen;
+          
+          if (exitFullscreen) {
+            exitFullscreen.call(document).catch(err => {
+              console.log(\`Error attempting to exit fullscreen: \${err.message}\`);
+            });
+          }
+        }
+      } catch (error) {
+        // Fallback for browsers that don't support fullscreen API or in iframe contexts
+        console.warn('Fullscreen API not supported or blocked:', error.message);
+        
+        // Try to communicate with parent window as fallback
+        if (window.parent && window.parent !== window) {
+          try {
+            window.parent.postMessage({ 
+              action: document.fullscreenElement ? 'exitFullscreen' : 'requestFullscreen' 
+            }, '*');
+          } catch (e) {
+            console.log('Could not communicate with parent window for fullscreen');
+          }
+        }
       }
     }
     
@@ -311,12 +370,21 @@ export const slideNavigationScript = `
     updateFullscreenButton() {
       if (!this.navElements) return;
       
-      const icon = this.navElements.fullscreenButton.querySelector('i');
-      if (document.fullscreenElement) {
-        icon.className = 'fas fa-compress';
+      // Check for fullscreen across different browsers and contexts
+      const isFullscreen = document.fullscreenElement || 
+                          document.webkitFullscreenElement || 
+                          document.mozFullScreenElement || 
+                          document.msFullscreenElement ||
+                          // Check if we're in an iframe that might be fullscreen
+                          (window.parent !== window && window.screen.height === window.innerHeight);
+      
+      if (isFullscreen) {
+        // Compress/exit fullscreen icon
+        this.navElements.fullscreenButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16h3v3h2v-5H5v2zm3-8H5v2h5V5H8v3zm6 11h2v-3h3v-2h-5v5zm2-11V5h-2v5h5V8h-3z"/></svg>';
         this.navElements.fullscreenButton.title = 'Exit fullscreen (F)';
       } else {
-        icon.className = 'fas fa-expand';
+        // Expand/enter fullscreen icon
+        this.navElements.fullscreenButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
         this.navElements.fullscreenButton.title = 'Toggle fullscreen (F)';
       }
     }
@@ -333,6 +401,10 @@ export const slideNavigationScript = `
     destroy() {
       // Remove event listeners
       document.removeEventListener('keydown', this.handleKeyboard);
+      document.removeEventListener('fullscreenchange', this.updateFullscreenButton);
+      document.removeEventListener('webkitfullscreenchange', this.updateFullscreenButton);
+      document.removeEventListener('mozfullscreenchange', this.updateFullscreenButton);
+      document.removeEventListener('msfullscreenchange', this.updateFullscreenButton);
       
       // Remove navigation UI
       if (this.navElements && this.navElements.container) {
@@ -427,6 +499,11 @@ export const slideNavigationScript = `
 
 // Export function to inject navigation into HTML
 export const injectSlideNavigation = (htmlContent) => {
+  // Check if navigation script is already injected to prevent duplicates
+  if (htmlContent.includes('id="slide-navigation"')) {
+    return htmlContent;
+  }
+  
   // Find the closing body tag and insert navigation script before it
   const bodyCloseIndex = htmlContent.lastIndexOf('</body>');
   if (bodyCloseIndex === -1) {

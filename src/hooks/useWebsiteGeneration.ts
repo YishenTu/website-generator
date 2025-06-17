@@ -569,7 +569,16 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   // Output Type, Theme and Language setter functions
   const setOutputType = useCallback((newOutputType: OutputType) => {
     setOutputTypeState(newOutputType);
-  }, []);
+    // Clear existing generated content when output type changes to prevent mismatched content
+    if (newOutputType !== outputType) {
+      setGeneratedPlan(null);
+      setGeneratedHtml(null);
+      // Reset to initial stage if we had generated content
+      if (generatedPlan || generatedHtml) {
+        setAppStage('initial');
+      }
+    }
+  }, [outputType, generatedPlan, generatedHtml]);
   const setTheme = useCallback((newTheme: Theme) => {
     setThemeState(newTheme);
   }, []);
