@@ -329,7 +329,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
       setGeneratedHtml(null);
       abortControllerRef.current = null;
     }
-  }, [reportText, htmlModel, chatModel, ai]);
+  }, [reportText, htmlModel, chatModel, ai, outputType]);
 
   // Chat message handling
   const handleSendChatMessage = useCallback(async (messageText: string) => {
@@ -404,7 +404,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
       setActiveTab(ActiveTab.Preview);
       abortControllerRef.current = null;
     }
-  }, []);
+  }, [outputType]);
 
   // Plan chat message handling
   const handleSendPlanChatMessage = useCallback(async (messageText: string) => {
