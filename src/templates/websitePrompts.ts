@@ -40,18 +40,25 @@ The plan should be structured and easy to understand. Please outline the followi
         *   **Linear App Style Features:** Clear vertical flow structure, distinct content hierarchy, modern application interface feel
         *   **Bento Grid Features:** Flexible grid layouts for related content groupings, responsive grid adaptation for different screen sizes
         *   **Glassmorphism Features:** Semi-transparent backgrounds, frosted glass effects, layered visual hierarchy, modern glass aesthetics
-    *   Color palette recommendations (e.g., "Primary: Sky Blue, Accent: Slate Gray, Background: Dark Slate")
+    *   Color palette should align with the specified design theme: {theme}
     *   Font style recommendations (e.g., "Clean sans-serif for body, slightly bolder sans-serif for headings")
+    *   **Theme Implementation Requirements:**
+        -   For cyber theme: Primarily dark backgrounds (blacks, deep grays, dark blues) with contrasting bright text and neon accent colors for highlights
+        -   For light theme: Clean white/light backgrounds, subtle shadows, minimal professional design
     *   **Glassmorphism Implementation Requirements - Must Include:**
         -   Semi-transparent backgrounds with backdrop blur effects (e.g., \`bg-white/10 backdrop-blur-md\`)
         -   Subtle borders and shadows for depth (e.g., \`border border-white/20 shadow-xl\`)
         -   Layered visual hierarchy with glass-like card components
         -   Key UI elements with frosted glass appearance, creating modern, clean aesthetic effects
 
-5.  **Interactive Features Planning:**
+5.  **Interactive & Visual Features:**
     *   **Chart and Graph Requirements:** Specify which sections would benefit from charts or graphs for statistical data (e.g., "Statistical data section needs bar charts", "Trend analysis needs line charts").
     *   **Visual Enhancement Needs:** Identify sections that need icons for visual hierarchy (e.g., "Feature section needs icon enhancement").
-    *   **Interactivity Requirements:** Specify interactive elements like hover effects or expandable content (e.g., "Cards need hover effects").`;
+    *   **Interactivity Requirements:** Specify interactive elements like hover effects or expandable content (e.g., "Cards need hover effects").
+
+6.  **Implementation Specifications:**
+    *   The plan must specify that the website content language should be: {lang}
+    *   The plan must specify that the website design theme should be: {theme}`;
 
 const PLAN_OUTPUT_FORMAT_INSTRUCTIONS = `
 **Output Format and Language Instructions:**
@@ -63,8 +70,6 @@ The plan should be directly usable as input for another AI to generate the HTML.
 - The plan should be written in Chinese (中文)
 - If the original report contains important concepts in languages other than Chinese, include both the Chinese translation and the original language terms in parentheses
 - Example: "数据分析 (Data Analysis)" or "人工智能 (Artificial Intelligence)"
-- The plan must specify that the website content language should be: {lang}
-- The plan must specify that the website design theme should be: {theme}
 
 Generated Website Plan:`;
 
@@ -110,6 +115,9 @@ const CODE_LAYOUT_CONTENT_AND_STYLING = `
 const CODE_PAGE_AESTHETICS_AND_STRUCTURE = `
 4.  **Overall Page Aesthetics & Structure (as per Plan):**
     *   **Design Philosophy:** Modern, clean, professional, and engaging, reflecting the theme from the plan. Consider glassmorphism design patterns for enhanced visual appeal.
+    *   **Theme Implementation:**
+        -   For cyber theme: Primarily dark backgrounds (e.g., \`bg-black\`, \`bg-slate-900\`, \`bg-gray-900\`, \`bg-slate-800\`) with bright contrasting text and vibrant accent colors
+        -   For light theme: Clean backgrounds (e.g., \`bg-white\`, \`bg-gray-50\`), subtle shadows, professional styling
     *   **Hero Section:** Start with a visually distinct hero section featuring the main title and compelling introduction, or ensure significant top margin if no distinct hero.
     *   **Responsive Layout Strategy:**
         -   **Negative Space Management:** Main content should not exceed 80% viewport width on large screens, providing at least 10% empty space on each side
@@ -126,7 +134,7 @@ const CODE_PAGE_AESTHETICS_AND_STRUCTURE = `
 
 const CODE_ADVANCED_INTERACTIVITY_AND_EXCELLENCE = `
 5.  **Advanced Interactivity & Excellence Standards:**
-    *   DO NOT hold back, give me the best you can do.
+    *   Implement the highest quality standards with comprehensive interactive features.
     *   Include thoughtful details like hover states, transitions, and micro-interactions using Tailwind CSS classes
     *   Apply design principles: hierarchy, contrast, balance, and movement
     *   Use smooth transitions (\`transition-all duration-300 ease-in-out\`) and hover effects (\`hover:shadow-lg hover:scale-105\`)
@@ -134,7 +142,7 @@ const CODE_ADVANCED_INTERACTIVITY_AND_EXCELLENCE = `
     *   Ensure consistent animation timing across all interactive elements`;
 
 const CODE_GENERATION_OUTPUT_HEADER = `
-Generated Showcase Webpage HTML (Based on Report and Plan):`;
+Generated Showcase Webpage HTML (Based on Report and Plan), do not hold back, give me the best you can do:`;
 
 // ==============================================
 // PUBLIC API FUNCTIONS

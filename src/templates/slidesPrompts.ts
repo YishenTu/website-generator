@@ -66,8 +66,13 @@ The plan should be structured for keynote flow and audience engagement. Please o
         -   For light theme: Clean white/light backgrounds, subtle shadows, minimal professional design
 
 5.  **Interactive & Visual Features:**
-    *   **Visual Enhancements:** Identify slides that need charts, graphs, icons, or other visual elements.
-    *   **Animations:** Suggest subtle transition effects between slides for professional keynote flow.`;
+    *   **Chart and Graph Requirements:** Identify slides that need charts, graphs, or data visualization elements.
+    *   **Visual Enhancement Needs:** Identify slides that need icons or other visual elements for hierarchy and engagement.
+    *   **Animation Requirements:** Suggest subtle transition effects between slides for professional keynote flow.
+
+6.  **Implementation Specifications:**
+    *   The plan must specify that the presentation content language should be: {lang}
+    *   The plan must specify that the presentation design theme should be: {theme}`;
 
 const SLIDES_PLAN_OUTPUT_FORMAT_INSTRUCTIONS = `
 **Output Format and Language Instructions:**
@@ -76,11 +81,9 @@ Do NOT include any HTML code, markdown formatting (like \`\`\` or # headings for
 The plan should be directly usable as input for another AI to generate the keynote HTML.
 
 **Language Requirements:**
-- The plan ITSELF should be written in Chinese (中文) regardless of the final presentation language
+- The plan should be written in Chinese (中文)
 - If the original report contains important concepts in languages other than Chinese, include both the Chinese translation and the original language terms in parentheses
 - Example: "数据分析 (Data Analysis)" or "用户体验 (User Experience)"
-- The plan must clearly specify at the beginning: "演示文稿内容语言：{lang}" (Presentation content language: {lang})
-- The plan must clearly specify at the beginning: "设计主题：{theme}" (Design theme: {theme})
 
 Generated Slides Keynote Plan:`;
 
@@ -370,7 +373,7 @@ const SLIDES_CODE_GENERATION_OUTPUT_HEADER = `
 - [ ] No typewriter animations on long text
 - [ ] Consistent color/opacity usage
 
-Generated Slide Keynote HTML (Based on Report and Plan):`;
+Generated Slide Keynote HTML (Based on Report and Plan), Do not hold back, give me the best you can do:`;
 
 // ==============================================
 // PUBLIC API FUNCTIONS
