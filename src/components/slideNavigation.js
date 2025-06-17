@@ -77,10 +77,8 @@ export const slideNavigationScript = `
         
         // Initially hide all slides except the first
         if (index === 0) {
-          slide.style.display = 'block';
           slide.classList.add('slide-active');
         } else {
-          slide.style.display = 'none';
           slide.classList.remove('slide-active');
         }
         
@@ -101,7 +99,7 @@ export const slideNavigationScript = `
       // Create navigation container
       const navContainer = document.createElement('div');
       navContainer.id = 'slide-navigation';
-      navContainer.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-4 bg-black/20 backdrop-blur-md rounded-full px-6 py-3 border border-white/20 shadow-xl';
+      navContainer.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-4 rounded-full px-6 py-3';
       
       // Previous button
       const prevButton = document.createElement('button');
@@ -114,7 +112,7 @@ export const slideNavigationScript = `
       // Slide counter
       const slideCounter = document.createElement('div');
       slideCounter.id = 'slide-counter';
-      slideCounter.className = 'text-white font-mono text-sm px-3 py-1 bg-white/10 rounded-full';
+      slideCounter.className = 'flex items-center justify-center h-10 text-white font-mono text-sm px-3 bg-white/10 rounded-full';
       slideCounter.textContent = \`1 / \${this.slides.length}\`;
       
       // Next button
@@ -258,13 +256,11 @@ export const slideNavigationScript = `
       
       // Hide current slide
       if (this.slides[this.currentSlide]) {
-        this.slides[this.currentSlide].style.display = 'none';
         this.slides[this.currentSlide].classList.remove('slide-active');
       }
       
       // Show new slide
       this.currentSlide = index;
-      this.slides[this.currentSlide].style.display = 'block';
       this.slides[this.currentSlide].classList.add('slide-active');
       
       // Update navigation state
@@ -345,7 +341,6 @@ export const slideNavigationScript = `
       
       // Reset slide styling
       this.slides.forEach(slide => {
-        slide.style.display = '';
         slide.classList.remove('slide-active');
       });
       
@@ -375,9 +370,14 @@ export const slideNavigationScript = `
 <style>
 /* Additional CSS for slide transitions and styling */
 .slide {
+  display: none;
   opacity: 1;
   transform: translateX(0);
   transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.slide.slide-active {
+  display: block;
 }
 
 .slide.slide-entering {
@@ -419,6 +419,7 @@ export const slideNavigationScript = `
   #slide-counter {
     font-size: 0.75rem;
     padding: 0.25rem 0.75rem;
+    height: 2.5rem;
   }
 }
 </style>

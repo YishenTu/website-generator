@@ -24,7 +24,7 @@ export const OptionButton: React.FC<OptionButtonProps> = ({
       aria-pressed={ariaPressed ?? selected}
       title={title}
       className={combineStyles(
-        'flex-1 px-3 py-3 rounded-lg text-sm font-medium transition-colors transition-shadow duration-300',
+        'flex-1 px-3 py-3 rounded-lg text-sm font-semibold transition-colors transition-shadow duration-300',
         'border backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-cyan-400/50',
         selected
           ? 'bg-cyan-500/20 border-cyan-400/50 text-cyan-300 shadow-lg shadow-cyan-500/25'

@@ -6,7 +6,7 @@ import {
   getHtmlChatInitialMessage,
   getPlanChatInitialMessage,
   type PlanSettings
-} from "../templates/promptTemplates";
+} from "../templates/promptOrchestrator";
 import { makeApiStreamRequest } from "./streamRequest";
 
 // 可选择的OpenAI模型列表

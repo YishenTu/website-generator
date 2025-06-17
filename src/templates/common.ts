@@ -5,13 +5,22 @@
 
 // --- Output Formatting Instructions ---
 
-export const HTML_OUTPUT_ONLY_FORMATTING_INSTRUCTIONS = `
+export const BASE_HTML_OUTPUT_INSTRUCTIONS = `
 Provide ONLY the complete HTML code, starting with \`<!DOCTYPE html>\` and ending with \`</html>\`.
-Do NOT include any explanatory text, comments, or markdown fences like \`\`\`html before or after the HTML code.
-All styling MUST use Tailwind CSS classes directly in the HTML elements. No \`<style>\` tags or external CSS files.`;
+Do NOT include any explanatory text, comments, or markdown fences like \`\`\`html before or after the HTML code.`;
 
 export const TAILWIND_STYLING_INSTRUCTIONS = `
 All styling MUST use Tailwind CSS classes directly in the HTML elements. No \`<style>\` tags or external CSS files.`;
+
+export const SLIDES_STYLE_REQUIREMENT = `
+You MUST include the required CSS rules in a \`<style>\` tag for slide navigation and animations.`;
+
+// Composed instructions for different use cases
+export const HTML_OUTPUT_ONLY_FORMATTING_INSTRUCTIONS = `${BASE_HTML_OUTPUT_INSTRUCTIONS}
+${TAILWIND_STYLING_INSTRUCTIONS}`;
+
+export const SLIDES_HTML_OUTPUT_INSTRUCTIONS = `${BASE_HTML_OUTPUT_INSTRUCTIONS}
+${SLIDES_STYLE_REQUIREMENT}`;
 
 // --- Interfaces ---
 

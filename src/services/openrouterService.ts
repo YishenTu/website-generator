@@ -6,7 +6,7 @@ import {
   getHtmlChatInitialMessage,
   getPlanChatInitialMessage,
   type PlanSettings
-} from "../templates/promptTemplates";
+} from "../templates/promptOrchestrator";
 import { makeApiStreamRequest } from "./streamRequest";
 import { ENV_VARS } from "../utils/constants";
 import { getEnvVar } from "../utils/env";

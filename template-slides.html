@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template System Demo - AI Slides Generator</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .slide {
+            visibility: hidden;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+        }
+        .slide.slide-active {
+            visibility: visible;
+        }
+        /* Template-specific enhancements for visual balance */
+        .slide h1, .slide h2 {
+            line-height: 1.1;
+            letter-spacing: -0.02em;
+        }
+        .slide .space-y-6 > * + * {
+            margin-top: 1.5rem;
+        }
+        .slide .space-y-8 > * + * {
+            margin-top: 2rem;
+        }
+        /* Responsive height adjustments for better balance */
+        @media (max-height: 600px) {
+            .slide .h-\[25\%\] { min-height: 120px; }
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .gradient-text {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .cyber-glow {
+            box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 text-white overflow-hidden">
+
+    <!-- Slide 1: TEMPLATE 1 (HERO_SLIDE) - Perfect Center -->
+    <section id="slide-1" class="slide h-screen w-full flex items-center justify-center">
+        <div class="text-center max-w-5xl mx-auto space-y-6 px-8">
+            <h1 class="text-5xl lg:text-7xl font-bold gradient-text">Template 1: Hero Slide</h1>
+            <h2 class="text-2xl lg:text-4xl text-purple-300 text-opacity-80">Perfect Center Positioning</h2>
+            <p class="text-lg lg:text-xl opacity-70 text-gray-300">For presentation titles, section breaks, and author slides</p>
+        </div>
+    </section>
+
+    <!-- Slide 2: TEMPLATE 2 (CONTENT_SLIDE) - Two-Zone System -->
+    <section id="slide-2" class="slide min-h-screen w-full flex flex-col p-16">
+        <!-- Title Zone: Fixed height for consistency -->
+        <div class="h-[25%] flex items-center border-b border-purple-400 border-opacity-20 mb-8">
+            <h2 class="text-4xl lg:text-5xl font-bold text-purple-300">Template 2: Content Slide</h2>
+        </div>
+        
+        <!-- Content Zone: Flexible, auto-adjusting -->
+        <div class="flex-grow flex flex-col justify-center overflow-y-auto">
+            <div class="space-y-6 lg:space-y-8">
+                <div class="bg-slate-800/50 rounded-xl p-6 cyber-glow">
+                    <h3 class="text-2xl font-semibold text-purple-300 mb-4">
+                        <i class="fas fa-layer-group mr-3"></i>Two-Zone System
+                    </h3>
+                    <ul class="space-y-3 text-lg">
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-3"></i>25% Title Zone - Fixed height for consistency</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-3"></i>75% Content Zone - Auto-adjusting and centered</li>
+                        <li class="flex items-center"><i class="fas fa-check text-green-400 mr-3"></i>Overflow protection with scrolling</li>
+                    </ul>
+                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-blue-900/30 rounded-xl p-4 text-center">
+                        <i class="fas fa-arrows-alt-v text-blue-400 text-3xl mb-2"></i>
+                        <p class="text-blue-300 font-medium">Sparse Content � Auto-centers</p>
+                    </div>
+                    <div class="bg-red-900/30 rounded-xl p-4 text-center">
+                        <i class="fas fa-scroll text-red-400 text-3xl mb-2"></i>
+                        <p class="text-red-300 font-medium">Dense Content � Scrolls</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 3: TEMPLATE 3 (MINIMAL_SLIDE) - Centered Content -->
+    <section id="slide-3" class="slide min-h-screen w-full flex items-center justify-center p-20">
+        <div class="text-center max-w-4xl mx-auto space-y-8">
+            <h1 class="text-5xl lg:text-6xl font-bold gradient-text">Template 3: Minimal</h1>
+            <div class="bg-slate-800/60 rounded-3xl p-12 cyber-glow">
+                <i class="fas fa-quote-left text-purple-400 text-4xl mb-6"></i>
+                <p class="text-2xl lg:text-3xl text-gray-200 mb-8 italic">
+                    "Perfect for quotes, key statistics, and impactful statements"
+                </p>
+                <div class="flex items-center justify-center space-x-8">
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-green-400">95%</div>
+                        <div class="text-sm text-gray-400">Visual Balance</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-blue-400">4</div>
+                        <div class="text-sm text-gray-400">Templates</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-4xl font-bold text-purple-400"></div>
+                        <div class="text-sm text-gray-400">Possibilities</div>
+                    </div>
+                </div>
+            </div>
+            <p class="text-lg text-gray-400">
+                Centered layout with generous whitespace for maximum impact
+            </p>
+        </div>
+    </section>
+
+    <!-- Slide 4: TEMPLATE 4 (FULLSCREEN_IMAGE) - Overlay Design -->
+    <section id="slide-4" class="slide min-h-screen w-full relative">
+        <!-- Background with gradient overlay -->
+        <div class="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-800 to-pink-900"></div>
+        <div class="absolute inset-0 bg-black/20"></div>
+        
+        <!-- Overlay content -->
+        <div class="absolute top-8 left-8 bg-black/70 backdrop-blur-sm p-6 rounded-lg max-w-md cyber-glow">
+            <h2 class="text-2xl lg:text-3xl font-bold text-white mb-2">Template 4: Fullscreen</h2>
+            <p class="text-lg text-white/90">Perfect for image backgrounds with overlay text</p>
+        </div>
+        
+        <!-- Center content demonstration -->
+        <div class="absolute inset-0 flex items-center justify-center">
+            <div class="text-center text-white">
+                <i class="fas fa-image text-8xl text-white/20 mb-6"></i>
+                <h3 class="text-4xl font-bold mb-4">Background Image Area</h3>
+                <p class="text-xl text-white/80">This template works great with hero images, data visualizations, or artistic backgrounds</p>
+            </div>
+        </div>
+        
+        <!-- Bottom right additional info -->
+        <div class="absolute bottom-8 right-8 bg-white/10 backdrop-blur-sm p-4 rounded-lg">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-palette text-purple-400"></i>
+                <span class="text-white/90">Custom overlay positioning</span>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 5: Template Comparison Summary -->
+    <section id="slide-5" class="slide min-h-screen w-full flex flex-col p-16">
+        <!-- Title Zone -->
+        <div class="h-[25%] flex items-center border-b border-purple-400 border-opacity-20 mb-8">
+            <h2 class="text-4xl lg:text-5xl font-bold gradient-text">Template Comparison</h2>
+        </div>
+        
+        <!-- Content Zone -->
+        <div class="flex-grow flex flex-col justify-center overflow-y-auto">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 space-y-0">
+                <!-- Template 1 -->
+                <div class="bg-green-900/20 rounded-xl p-6 border border-green-500/30">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-black font-bold mr-3">1</div>
+                        <h3 class="text-xl font-bold text-green-300">HERO_SLIDE</h3>
+                    </div>
+                    <ul class="space-y-2 text-sm text-green-100">
+                        <li>" Perfect center positioning</li>
+                        <li>" Title + subtitle + context</li>
+                        <li>" Presentation openings</li>
+                        <li>" Section breaks</li>
+                    </ul>
+                </div>
+                
+                <!-- Template 2 -->
+                <div class="bg-blue-900/20 rounded-xl p-6 border border-blue-500/30">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white font-bold mr-3">2</div>
+                        <h3 class="text-xl font-bold text-blue-300">CONTENT_SLIDE</h3>
+                    </div>
+                    <ul class="space-y-2 text-sm text-blue-100">
+                        <li>" Two-zone system (25%/75%)</li>
+                        <li>" Consistent title positioning</li>
+                        <li>" Auto-centering content</li>
+                        <li>" Overflow protection</li>
+                    </ul>
+                </div>
+                
+                <!-- Template 3 -->
+                <div class="bg-purple-900/20 rounded-xl p-6 border border-purple-500/30">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 bg-purple-500 rounded-full flex items-center justify-center text-white font-bold mr-3">3</div>
+                        <h3 class="text-xl font-bold text-purple-300">MINIMAL_SLIDE</h3>
+                    </div>
+                    <ul class="space-y-2 text-sm text-purple-100">
+                        <li>" Perfect centering</li>
+                        <li>" Quotes & statistics</li>
+                        <li>" Maximum whitespace</li>
+                        <li>" High impact statements</li>
+                    </ul>
+                </div>
+                
+                <!-- Template 4 -->
+                <div class="bg-pink-900/20 rounded-xl p-6 border border-pink-500/30">
+                    <div class="flex items-center mb-4">
+                        <div class="w-8 h-8 bg-pink-500 rounded-full flex items-center justify-center text-white font-bold mr-3">4</div>
+                        <h3 class="text-xl font-bold text-pink-300">FULLSCREEN_IMAGE</h3>
+                    </div>
+                    <ul class="space-y-2 text-sm text-pink-100">
+                        <li>" Background images</li>
+                        <li>" Overlay text positioning</li>
+                        <li>" Flexible overlay placement</li>
+                        <li>" Visual storytelling</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Slide 6: Implementation Benefits -->
+    <section id="slide-6" class="slide min-h-screen w-full flex items-center justify-center p-20">
+        <div class="text-center max-w-4xl mx-auto space-y-8">
+            <h1 class="text-5xl lg:text-6xl font-bold gradient-text">Implementation Benefits</h1>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div class="bg-slate-800/60 rounded-2xl p-8 cyber-glow">
+                    <i class="fas fa-balance-scale text-green-400 text-4xl mb-4"></i>
+                    <h3 class="text-2xl font-bold text-green-300 mb-4">Visual Balance</h3>
+                    <p class="text-gray-300">Consistent title positioning and content distribution across all slides</p>
+                </div>
+                <div class="bg-slate-800/60 rounded-2xl p-8 cyber-glow">
+                    <i class="fas fa-robot text-blue-400 text-4xl mb-4"></i>
+                    <h3 class="text-2xl font-bold text-blue-300 mb-4">AI Consistency</h3>
+                    <p class="text-gray-300">Deterministic templates eliminate layout guesswork for AI generation</p>
+                </div>
+                <div class="bg-slate-800/60 rounded-2xl p-8 cyber-glow">
+                    <i class="fas fa-mobile-alt text-purple-400 text-4xl mb-4"></i>
+                    <h3 class="text-2xl font-bold text-purple-300 mb-4">Responsive Design</h3>
+                    <p class="text-gray-300">All templates adapt gracefully to different screen sizes</p>
+                </div>
+                <div class="bg-slate-800/60 rounded-2xl p-8 cyber-glow">
+                    <i class="fas fa-user-cog text-pink-400 text-4xl mb-4"></i>
+                    <h3 class="text-2xl font-bold text-pink-300 mb-4">User Control</h3>
+                    <p class="text-gray-300">Template assignment during plan phase for review and customization</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- NAVIGATION_COMPONENT_PLACEHOLDER -->
+
+<script>
+(function() {
+  'use strict';
+  
+  // Slide Navigation Controller
+  class SlideNavigator {
+    constructor() {
+      this.slides = [];
+      this.currentSlide = 0;
+      this.isInitialized = false;
+      
+      // Bind methods to preserve context
+      this.nextSlide = this.nextSlide.bind(this);
+      this.prevSlide = this.prevSlide.bind(this);
+      this.goToSlide = this.goToSlide.bind(this);
+      this.handleKeyboard = this.handleKeyboard.bind(this);
+    }
+    
+    // Initialize the slide navigator
+    init() {
+      if (this.isInitialized) return;
+      
+      // Auto-detect slide sections
+      this.detectSlides();
+      
+      if (this.slides.length === 0) {
+        console.warn('No slides found. Expected elements with class "slide" or sections with IDs starting with "slide-"');
+        return;
+      }
+      
+      // Create navigation UI
+      this.createNavigationUI();
+      
+      // Setup event listeners
+      this.setupEventListeners();
+      
+      // Initialize first slide
+      this.goToSlide(0);
+      
+      this.isInitialized = true;
+      console.log(`Slide navigator initialized with ${this.slides.length} slides`);
+    }
+    
+    // Auto-detect slide sections in the HTML
+    detectSlides() {
+      // Look for elements with class 'slide' first
+      let slideElements = document.querySelectorAll('.slide');
+      
+      // If no .slide elements found, look for sections with IDs starting with 'slide-'
+      if (slideElements.length === 0) {
+        slideElements = document.querySelectorAll('section[id^="slide-"]');
+      }
+      
+      // If still no slides found, look for any section elements
+      if (slideElements.length === 0) {
+        slideElements = document.querySelectorAll('section');
+      }
+      
+      this.slides = Array.from(slideElements);
+      
+      // Setup initial styling
+      this.slides.forEach((slide, index) => {
+        slide.dataset.slideIndex = index;
+        
+        // Ensure slide class exists
+        if (!slide.classList.contains('slide')) {
+          slide.classList.add('slide');
+        }
+        
+        // Initially hide all slides except the first
+        if (index === 0) {
+          slide.classList.add('slide-active');
+        } else {
+          slide.classList.remove('slide-active');
+        }
+        
+        // Only add essential transition styling if not already present
+        if (!slide.classList.contains('transition-all')) {
+          slide.classList.add('transition-all', 'duration-500', 'ease-in-out');
+        }
+        
+        // Add minimum required styling for slide presentation if not present
+        if (!slide.classList.contains('min-h-screen') && !slide.classList.contains('h-screen')) {
+          slide.classList.add('min-h-screen', 'w-full');
+        }
+      });
+    }
+    
+    // Create navigation UI elements
+    createNavigationUI() {
+      // Create navigation container
+      const navContainer = document.createElement('div');
+      navContainer.id = 'slide-navigation';
+      navContainer.className = 'fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 flex items-center gap-4 rounded-full px-6 py-3';
+      
+      // Previous button
+      const prevButton = document.createElement('button');
+      prevButton.id = 'slide-prev';
+      prevButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+      prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
+      prevButton.title = 'Previous slide (Arrow Left)';
+      prevButton.onclick = this.prevSlide;
+      
+      // Slide counter
+      const slideCounter = document.createElement('div');
+      slideCounter.id = 'slide-counter';
+      slideCounter.className = 'flex items-center justify-center h-10 text-white font-mono text-sm px-3 bg-white/10 rounded-full';
+      slideCounter.textContent = `1 / ${this.slides.length}`;
+      
+      // Next button
+      const nextButton = document.createElement('button');
+      nextButton.id = 'slide-next';
+      nextButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+      nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
+      nextButton.title = 'Next slide (Arrow Right)';
+      nextButton.onclick = this.nextSlide;
+      
+      // Fullscreen button
+      const fullscreenButton = document.createElement('button');
+      fullscreenButton.id = 'slide-fullscreen';
+      fullscreenButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 ml-2';
+      fullscreenButton.innerHTML = '<i class="fas fa-expand"></i>';
+      fullscreenButton.title = 'Toggle fullscreen (F)';
+      fullscreenButton.onclick = this.toggleFullscreen.bind(this);
+      
+      // Template info button
+      const infoButton = document.createElement('button');
+      infoButton.id = 'slide-info';
+      infoButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 transition-all duration-200';
+      infoButton.innerHTML = '<i class="fas fa-info"></i>';
+      infoButton.title = 'Template info (I)';
+      infoButton.onclick = this.showTemplateInfo.bind(this);
+      
+      // Assemble navigation
+      navContainer.appendChild(prevButton);
+      navContainer.appendChild(slideCounter);
+      navContainer.appendChild(nextButton);
+      navContainer.appendChild(fullscreenButton);
+      navContainer.appendChild(infoButton);
+      
+      // Add to page
+      document.body.appendChild(navContainer);
+      
+      // Store references for easy access
+      this.navElements = {
+        container: navContainer,
+        prevButton,
+        nextButton,
+        counter: slideCounter,
+        fullscreenButton,
+        infoButton
+      };
+      
+      // Update button states
+      this.updateNavigationState();
+    }
+    
+    // Setup event listeners
+    setupEventListeners() {
+      // Keyboard navigation
+      document.addEventListener('keydown', this.handleKeyboard);
+      
+      // Touch/swipe support for mobile
+      this.setupTouchEvents();
+      
+      // Window resize handler
+      window.addEventListener('resize', () => {
+        this.updateSlideLayout();
+      });
+      
+      // Handle fullscreen changes
+      document.addEventListener('fullscreenchange', () => {
+        this.updateFullscreenButton();
+      });
+    }
+    
+    // Handle keyboard navigation
+    handleKeyboard(event) {
+      switch (event.key) {
+        case 'ArrowRight':
+        case ' ': // Space bar
+          event.preventDefault();
+          this.nextSlide();
+          break;
+        case 'ArrowLeft':
+          event.preventDefault();
+          this.prevSlide();
+          break;
+        case 'Home':
+          event.preventDefault();
+          this.goToSlide(0);
+          break;
+        case 'End':
+          event.preventDefault();
+          this.goToSlide(this.slides.length - 1);
+          break;
+        case 'Escape':
+          event.preventDefault();
+          if (document.fullscreenElement) {
+            document.exitFullscreen();
+          }
+          break;
+        case 'f':
+        case 'F':
+          event.preventDefault();
+          this.toggleFullscreen();
+          break;
+        case 'i':
+        case 'I':
+          event.preventDefault();
+          this.showTemplateInfo();
+          break;
+      }
+    }
+    
+    // Setup touch events for mobile
+    setupTouchEvents() {
+      let startX = 0;
+      let endX = 0;
+      
+      document.addEventListener('touchstart', (e) => {
+        startX = e.touches[0].clientX;
+      });
+      
+      document.addEventListener('touchend', (e) => {
+        endX = e.changedTouches[0].clientX;
+        this.handleTouch();
+      });
+      
+      this.handleTouch = () => {
+        const threshold = 50; // Minimum swipe distance
+        const diff = startX - endX;
+        
+        if (Math.abs(diff) > threshold) {
+          if (diff > 0) {
+            // Swipe left - next slide
+            this.nextSlide();
+          } else {
+            // Swipe right - previous slide
+            this.prevSlide();
+          }
+        }
+      };
+    }
+    
+    // Navigate to next slide
+    nextSlide() {
+      if (this.currentSlide < this.slides.length - 1) {
+        this.goToSlide(this.currentSlide + 1);
+      }
+    }
+    
+    // Navigate to previous slide
+    prevSlide() {
+      if (this.currentSlide > 0) {
+        this.goToSlide(this.currentSlide - 1);
+      }
+    }
+    
+    // Navigate to specific slide
+    goToSlide(index) {
+      if (index < 0 || index >= this.slides.length) return;
+      
+      // Hide current slide
+      if (this.slides[this.currentSlide]) {
+        this.slides[this.currentSlide].classList.remove('slide-active');
+      }
+      
+      // Show new slide
+      this.currentSlide = index;
+      this.slides[this.currentSlide].classList.add('slide-active');
+      
+      // Update navigation state
+      this.updateNavigationState();
+      
+      // Scroll to top of new slide
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Trigger custom event
+      const event = new CustomEvent('slideChange', {
+        detail: { currentSlide: this.currentSlide, totalSlides: this.slides.length }
+      });
+      document.dispatchEvent(event);
+    }
+    
+    // Update navigation button states and counter
+    updateNavigationState() {
+      if (!this.navElements) return;
+      
+      // Update counter
+      this.navElements.counter.textContent = `${this.currentSlide + 1} / ${this.slides.length}`;
+      
+      // Update button states
+      this.navElements.prevButton.disabled = this.currentSlide === 0;
+      this.navElements.nextButton.disabled = this.currentSlide === this.slides.length - 1;
+    }
+    
+    // Update slide layout on resize
+    updateSlideLayout() {
+      this.slides.forEach(slide => {
+        // Ensure slides maintain full height
+        slide.style.minHeight = window.innerHeight + 'px';
+      });
+    }
+    
+    // Toggle fullscreen mode
+    toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => {
+          console.log(`Error attempting to enable fullscreen: ${err.message}`);
+        });
+      } else {
+        document.exitFullscreen();
+      }
+    }
+    
+    // Update fullscreen button icon
+    updateFullscreenButton() {
+      if (!this.navElements) return;
+      
+      const icon = this.navElements.fullscreenButton.querySelector('i');
+      if (document.fullscreenElement) {
+        icon.className = 'fas fa-compress';
+        this.navElements.fullscreenButton.title = 'Exit fullscreen (F)';
+      } else {
+        icon.className = 'fas fa-expand';
+        this.navElements.fullscreenButton.title = 'Toggle fullscreen (F)';
+      }
+    }
+    
+    // Show template information for current slide
+    showTemplateInfo() {
+      const templates = [
+        'TEMPLATE 1 (HERO_SLIDE): Perfect center positioning for title slides',
+        'TEMPLATE 2 (CONTENT_SLIDE): Two-zone system with consistent title positioning',
+        'TEMPLATE 3 (MINIMAL_SLIDE): Centered content for quotes and key statements',
+        'TEMPLATE 4 (FULLSCREEN_IMAGE): Overlay design for background images',
+        'TEMPLATE 2 (CONTENT_SLIDE): Comparison summary using content template',
+        'TEMPLATE 3 (MINIMAL_SLIDE): Benefits overview with centered layout'
+      ];
+      
+      const currentTemplate = templates[this.currentSlide] || 'Unknown template';
+      
+      // Create temporary info overlay
+      const overlay = document.createElement('div');
+      overlay.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm z-[100] flex items-center justify-center';
+      overlay.innerHTML = `
+        <div class="bg-slate-800 rounded-xl p-8 max-w-md mx-4 text-center">
+          <h3 class="text-2xl font-bold text-purple-300 mb-4">Slide ${this.currentSlide + 1} Template</h3>
+          <p class="text-gray-300 mb-6">${currentTemplate}</p>
+          <button class="bg-purple-600 hover:bg-purple-700 px-6 py-2 rounded-lg text-white transition-colors">
+            Close (ESC)
+          </button>
+        </div>
+      `;
+      
+      // Close overlay on click or ESC
+      const closeOverlay = () => {
+        overlay.remove();
+        document.removeEventListener('keydown', escHandler);
+      };
+      
+      const escHandler = (e) => {
+        if (e.key === 'Escape') closeOverlay();
+      };
+      
+      overlay.addEventListener('click', closeOverlay);
+      overlay.querySelector('button').addEventListener('click', closeOverlay);
+      document.addEventListener('keydown', escHandler);
+      
+      document.body.appendChild(overlay);
+      
+      // Auto-close after 3 seconds
+      setTimeout(closeOverlay, 3000);
+    }
+    
+    // Public API methods
+    getCurrentSlide() {
+      return this.currentSlide;
+    }
+    
+    getTotalSlides() {
+      return this.slides.length;
+    }
+    
+    destroy() {
+      // Remove event listeners
+      document.removeEventListener('keydown', this.handleKeyboard);
+      
+      // Remove navigation UI
+      if (this.navElements && this.navElements.container) {
+        this.navElements.container.remove();
+      }
+      
+      // Reset slide styling
+      this.slides.forEach(slide => {
+        slide.style.display = '';
+        slide.classList.remove('slide-active');
+      });
+      
+      this.isInitialized = false;
+    }
+  }
+  
+  // Initialize when DOM is ready
+  function initSlideNavigation() {
+    const navigator = new SlideNavigator();
+    navigator.init();
+    
+    // Make navigator globally accessible
+    window.slideNavigator = navigator;
+  }
+  
+  // Auto-initialize when DOM is loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initSlideNavigation);
+  } else {
+    initSlideNavigation();
+  }
+  
+})();
+</script>
+
+<style>
+/* Additional CSS for slide transitions and styling */
+.slide {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+}
+
+.slide.slide-entering {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.slide.slide-exiting {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+/* Hide navigation in print mode */
+@media print {
+  #slide-navigation {
+    display: none !important;
+  }
+  
+  .slide {
+    page-break-after: always;
+    min-height: 100vh !important;
+    display: block !important;
+  }
+}
+
+/* Responsive navigation for mobile */
+@media (max-width: 640px) {
+  #slide-navigation {
+    bottom: 1rem;
+    padding: 0.5rem 1rem;
+    gap: 0.5rem;
+  }
+  
+  #slide-navigation button {
+    width: 2.5rem;
+    height: 2.5rem;
+  }
+  
+  #slide-counter {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.75rem;
+  }
+}
+</style>
+</body>
+</html>

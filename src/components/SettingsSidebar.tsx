@@ -22,7 +22,7 @@ export const SettingsSidebar: React.FC = () => {
 
         {/* Output Type Settings */}
         <fieldset className="mb-8">
-          <legend className="block text-sm font-medium text-slate-300 mb-3 font-rajdhani tracking-wide">
+          <legend className="block text-sm font-semibold text-slate-300 mb-3 font-rajdhani tracking-wide">
             {I18N_CONSTANTS.SETTINGS.OUTPUT_TYPE.LABEL}
           </legend>
           <div className="flex gap-3" role="group">
@@ -45,7 +45,7 @@ export const SettingsSidebar: React.FC = () => {
 
         {/* Theme Settings */}
         <fieldset className="mb-8">
-          <legend className="block text-sm font-medium text-slate-300 mb-3 font-rajdhani tracking-wide">
+          <legend className="block text-sm font-semibold text-slate-300 mb-3 font-rajdhani tracking-wide">
             {I18N_CONSTANTS.SETTINGS.THEME.LABEL}
           </legend>
           <div className="flex gap-3" role="group">
@@ -68,7 +68,7 @@ export const SettingsSidebar: React.FC = () => {
 
         {/* Language Settings */}
         <fieldset className="mb-8">
-          <legend className="block text-sm font-medium text-slate-300 mb-3 font-rajdhani tracking-wide">
+          <legend className="block text-sm font-semibold text-slate-300 mb-3 font-rajdhani tracking-wide">
             {I18N_CONSTANTS.SETTINGS.LANGUAGE.LABEL}
           </legend>
           <div className="flex gap-2" role="group">

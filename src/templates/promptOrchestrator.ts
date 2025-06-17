@@ -1,5 +1,5 @@
 // ==============================================
-// AI Website Generator - Prompt Templates (Orchestrator)
+// AI Website Generator - Prompt Orchestrator
 // ==============================================
 // Main orchestrator that imports from modular prompt templates and provides dispatch logic
 
@@ -71,4 +71,4 @@ export const getPlanChatInitialMessage = (initialPlan: string, reportText: strin
   const generatePlanPromptFunction = settings.outputType === 'slides' ? generateSlidesPlanPrompt : generateWebsitePlanPromptInternal;
   
   return getPlanChatInitialMessageFromChat(initialPlan, reportText, settings, generatePlanPromptFunction);
-};
+}; 

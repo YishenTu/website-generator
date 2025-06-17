@@ -7,7 +7,7 @@ import {
   getHtmlChatInitialMessage,
   getPlanChatInitialMessage,
   type PlanSettings
-} from "../templates/promptTemplates";
+} from "../templates/promptOrchestrator";
 import { handleApiError, formatErrorMessage } from "../utils/errorHandler";
 import { createLogger } from "../utils/logger";
 

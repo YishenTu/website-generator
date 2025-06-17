@@ -22,7 +22,7 @@ import {
 } from "./openaiService";
 import { ENV_VARS } from "../utils/constants";
 import { getEnvVar } from '../utils/env';
-import type { PlanSettings } from '../templates/promptTemplates';
+import type { PlanSettings } from '../templates/promptOrchestrator';
 
 // 模型信息接口
 export interface ModelInfo {
