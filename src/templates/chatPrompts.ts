@@ -32,17 +32,28 @@ Focus on accurately implementing the user's change requests while maintaining th
 // Slides-specific instructions for navigation component handling
 const SLIDES_NAVIGATION_INSTRUCTIONS = `
 
-**CRITICAL: Slides Navigation Component Handling**
-This is a SLIDE PRESENTATION with automatic navigation injection. You MUST follow these rules:
+**🚨 CRITICAL: Slides Navigation Component Handling - MANDATORY COMPLIANCE 🚨**
+This is a SLIDE PRESENTATION with automatic navigation injection. VIOLATION OF THESE RULES WILL BREAK THE APPLICATION:
 
-1. **DO NOT generate any navigation buttons, controls, or JavaScript yourself**
-2. **ALWAYS preserve the \`<!-- NAVIGATION_COMPONENT_PLACEHOLDER -->\` comment** - this is where the navigation component gets automatically injected
-3. **The navigation component includes**: previous/next buttons, slide counter, keyboard shortcuts, fullscreen toggle, touch support
-4. **If you don't see the placeholder**, add it just before the closing \`</body>\` tag: \`<!-- NAVIGATION_COMPONENT_PLACEHOLDER -->\`
-5. **Focus only on slide content** - the navigation system is handled automatically
-6. **Maintain slide structure**: Each slide should be a \`<section>\` with class="slide" and proper IDs (e.g., id="slide-1", id="slide-2")
+**❌ ABSOLUTELY FORBIDDEN:**
+- Creating any \`<button>\` elements for navigation
+- Writing any JavaScript for slide navigation
+- Adding event listeners like \`onclick\`, \`onkeydown\`, etc.
+- Generating navigation controls of any kind
 
-The navigation component will be automatically injected after your HTML generation, so do not include any manual navigation elements.`;
+**✅ REQUIRED ACTIONS:**
+1. **PRESERVE THE PLACEHOLDER**: Always keep \`<!-- NAVIGATION_COMPONENT_PLACEHOLDER -->\` exactly as is
+2. **LOCATION**: Placeholder MUST be just before the closing \`</body>\` tag
+3. **IF MISSING**: Add \`<!-- NAVIGATION_COMPONENT_PLACEHOLDER -->\` before \`</body>\` if you don't see it
+4. **SLIDE STRUCTURE**: Each slide = \`<section class="slide" id="slide-X">\`
+5. **CONTENT ONLY**: Focus ONLY on slide content, never navigation
+
+**🔍 SELF-CHECK BEFORE RESPONDING:**
+- [ ] Did I avoid creating any navigation buttons or JavaScript?
+- [ ] Is \`<!-- NAVIGATION_COMPONENT_PLACEHOLDER -->\` present before \`</body>\`?
+- [ ] Are all slides properly structured as \`<section class="slide">\`?
+
+**REMEMBER**: The navigation system (buttons, keyboard, touch) is automatically injected. Your job is ONLY slide content.`;
 
 // ==============================================
 // PLAN CHAT SYSTEM PROMPTS

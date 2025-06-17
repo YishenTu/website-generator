@@ -40,7 +40,7 @@ export const getLanguageText = (language: PlanSettings['language']): string => {
 export const getThemeText = (theme: PlanSettings['theme']): string => {
   return theme === 'light' 
     ? '简洁明亮的设计风格 (clean, minimal light theme)' 
-    : '玻璃拟物化设计风格 (glassmorphism design aesthetic)';
+    : '深色背景的赛博风格 (dark background cyber theme)';
 };
 
 // --- Template Processing Utilities ---
