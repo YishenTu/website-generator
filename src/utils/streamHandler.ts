@@ -46,14 +46,40 @@ export async function handleStreamResponse(
             
             // Handle different streaming formats
             let content: string | undefined;
-            
-            // OpenAI Responses API format
-            if (parsed.type === 'response.output_text.delta' && parsed.delta) {
-              content = parsed.delta;
+
+            // OpenAI Responses API: incremental output text
+            if (parsed.type === 'response.output_text.delta') {
+              // delta can be a string or object with output_text
+              if (typeof parsed.delta === 'string') {
+                content = parsed.delta;
+              } else if (parsed.delta?.output_text) {
+                if (Array.isArray(parsed.delta.output_text)) {
+                  content = parsed.delta.output_text.join('');
+                } else if (typeof parsed.delta.output_text === 'string') {
+                  content = parsed.delta.output_text;
+                }
+              }
             }
-            // OpenAI Responses API completion event
+            // OpenAI Responses API: non-delta full text event
+            else if (parsed.type === 'response.output_text' && parsed.output_text) {
+              if (Array.isArray(parsed.output_text)) {
+                content = parsed.output_text.join('');
+              } else if (typeof parsed.output_text === 'string') {
+                content = parsed.output_text;
+              }
+            }
+            // OpenAI Responses API: completion event - try to extract final text if no deltas were received
             else if (parsed.type === 'response.completed') {
-              options.onComplete(accumulatedText);
+              let finalText = accumulatedText;
+              const completedOutput = parsed.response?.output_text;
+              if (!finalText && completedOutput) {
+                if (Array.isArray(completedOutput)) {
+                  finalText = completedOutput.join('');
+                } else if (typeof completedOutput === 'string') {
+                  finalText = completedOutput;
+                }
+              }
+              options.onComplete(finalText);
               return;
             }
             // Chat Completions API format

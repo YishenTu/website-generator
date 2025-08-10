@@ -4,7 +4,6 @@ import { ModelSelector } from './ModelSelector';
 import { getDefaultModel } from '../services/aiService';
 import { isProviderAvailable } from '../utils/envValidator';
 import { PaperAirplaneIcon, StopIcon } from './icons';
-import { useDebounce } from '../hooks/useDebounce';
 import { useDebouncedCallback } from '../hooks/useStateDebouncer';
 
 interface ChatPanelProps {
@@ -152,14 +151,15 @@ const ChatPanelComponent: React.FC<ChatPanelProps> = ({
 };
 
 export const ChatPanel = React.memo(ChatPanelComponent, (prevProps, nextProps) => {
-  const messagesEqual = prevProps.messages.length === nextProps.messages.length &&
-    prevProps.messages.every((msg, index) => {
-      const nextMsg = nextProps.messages[index];
-      return msg.id === nextMsg.id && 
-             msg.text === nextMsg.text && 
-             msg.sender === nextMsg.sender;
+  // Compare messages safely by length, then by item equality
+  let messagesEqual = false;
+  if (prevProps.messages.length === nextProps.messages.length) {
+    messagesEqual = prevProps.messages.every((msg, index) => {
+      const nm = nextProps.messages[index];
+      return nm && msg.id === nm.id && msg.text === nm.text && msg.sender === nm.sender;
     });
-  
+  }
+
   return (
     messagesEqual &&
     prevProps.isLoading === nextProps.isLoading &&

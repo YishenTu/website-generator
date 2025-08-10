@@ -282,23 +282,29 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
           htmlBuffer.update(streamingHtml);
         },
         (finalHtml: string) => {
+          // Keep post-processing order consistent with plan stage
+          // 1) Flush buffered streaming updates first
+          htmlBuffer.flush();
+
+          // 2) Clean and post-process the final HTML
           const cleanedInitialHtml = cleanTextOutput(finalHtml);
-          
-          // Apply post-processing (navigation injection for slides)
           const { html: processedHtml, warnings } = processGeneratedHtml(cleanedInitialHtml, outputType);
-          
-          // Log any warnings from post-processing
+
+          // 3) Log any warnings from post-processing
           if (warnings.length > 0) {
             logger.warn('Post-processing warnings:', warnings);
           }
-          
-          htmlBuffer.flush();
+
+          // 4) Commit final HTML, end loading, and finalize stage
           setGeneratedHtml(processedHtml);
+          setIsLoading(false);
+          abortControllerRef.current = null;
           setAppStage('htmlReady');
 
+          // 5) Initialize chat session with the finalized HTML
           try {
             chatSessionRef.current = createHtmlChatSession(chatModel, ai, processedHtml, reportText, currentPlanText, outputType, maxThinking);
-            const messageText = outputType === 'slides' 
+            const messageText = outputType === 'slides'
               ? "Initial slide presentation generated. How would you like to refine it?"
               : "Initial website generated. How would you like to refine it?";
             setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: messageText, isHtml: false }]);
@@ -309,10 +315,9 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
               : "Website generated successfully! Note: Chat functionality is not available due to initialization error.";
             setChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: errorText, isHtml: false }]);
           }
-          
+
+          // 6) Only after everything is finalized, switch to Preview
           setActiveTab(ActiveTab.Preview);
-          setIsLoading(false);
-          abortControllerRef.current = null;
         },
         signal,
         maxThinking,
@@ -368,17 +373,20 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
           htmlBuffer.update(streamingHtml);
         },
         (finalText: string) => {
+          // Keep completion order consistent with plan stage
+          // 1) Flush buffered streaming updates first
+          htmlBuffer.flush();
+
+          // 2) Clean and post-process the final HTML
           const finalCleanedHtmlFromChat = cleanTextOutput(finalText);
-          
-          // Apply post-processing to maintain navigation component for slides
           const { html: processedHtml, warnings } = processGeneratedHtml(finalCleanedHtmlFromChat, outputType);
-          
-          // Log any warnings from post-processing
+
+          // 3) Log any warnings from post-processing
           if (warnings.length > 0) {
             logger.warn('Chat post-processing warnings:', warnings);
           }
-          
-          htmlBuffer.flush();
+
+          // 4) Commit final HTML
           setGeneratedHtml(processedHtml);
         },
         signal
