@@ -90,33 +90,51 @@
     scrollbar-color: rgba(255, 255, 255, 0.3) rgba(0, 0, 0, 0.3); /* thumb and track color */
   }
 
-  /* 毛玻璃效果基础样式 */
+  /* GPU-Optimized Glass Effects (Task 2.1) */
+  /* Only critical UI elements (modals, navigation) retain backdrop-filter for readability */
+  
+  /* OPTIMIZED: Static semi-transparent background - replaces blur for better performance */
   .glass-effect {
-    background: rgba(25, 25, 30, 0.3);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-  }
-
-  .glass-card {
     background: rgba(30, 30, 35, 0.4);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
-
-  .glass-dark {
-    background: rgba(15, 15, 20, 0.4);
-    backdrop-filter: blur(15px);
-    -webkit-backdrop-filter: blur(15px);
     border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   }
 
+  /* OPTIMIZED: Static background for cards - 12px blur removed */
+  .glass-card {
+    background: rgba(30, 30, 35, 0.45);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
+
+  /* OPTIMIZED: Darker static background - 15px blur removed */
+  .glass-dark {
+    background: rgba(15, 15, 20, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+  }
+
+  /* OPTIMIZED: Static background for inputs - 8px blur removed */
   .glass-input {
-    background: rgba(20, 20, 25, 0.25);
+    background: rgba(20, 20, 25, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+  }
+
+  /* CRITICAL: Retain blur for modal overlays - essential for readability */
+  .glass-modal {
+    background: rgba(0, 0, 0, 0.8);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* CRITICAL: Retain blur for navigation - essential for usability */
+  .glass-navigation {
+    background: rgba(15, 15, 20, 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
 
   /* 渐变背景 */
@@ -129,7 +147,188 @@
       rgba(0, 0, 0, 1) 100%);
   }
 
-  /* 渐变动画 */
+  /* Performance Mode CSS Classes (Task 2.2) */
+  /* These classes provide different visual effect levels based on performance preferences */
+  
+  /* Respect prefers-reduced-motion system setting */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+    
+    /* Disable all animations when reduced motion is preferred */
+    .animate-gradient-reverse,
+    .animate-title-gradient,
+    [class*="animate-"] {
+      animation: none !important;
+      transform: none !important;
+      filter: none !important;
+    }
+    
+    /* Static glow for reduced motion */
+    .text-shadow-glow {
+      text-shadow: 0 0 10px rgba(34, 211, 238, 0.3);
+    }
+  }
+
+  /* Reduce-motion blur override: disable all blurs when reduced motion is set */
+  .reduce-motion .blur-effects,
+  .reduce-motion .glass-modal,
+  .reduce-motion .glass-navigation {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+  }
+
+  /* Performance Mode Base Classes */
+  .perf-high .blur-effects {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+  
+  .perf-balanced .blur-effects {
+    /* Use static background instead of blur for better performance */
+    background: rgba(15, 15, 20, 0.6);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+  
+  .perf-low .blur-effects {
+    background: rgba(15, 15, 20, 0.8);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  /* Animation Performance Classes */
+  .perf-high .animations-enabled {
+    transition: all 0.3s ease;
+  }
+  
+  .perf-balanced .animations-enabled {
+    transition: opacity 0.2s ease, transform 0.2s ease;
+  }
+  
+  .perf-low .animations-enabled {
+    transition: none;
+  }
+
+  /* Shadow Performance Classes */
+  .perf-high .shadows-enabled {
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.4);
+  }
+  
+  .perf-balanced .shadows-enabled {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  }
+  
+  .perf-low .shadows-enabled {
+    box-shadow: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Performance Mode Animation Controls (Task 3.1) */
+  .perf-high .animate-title-gradient {
+    animation: title-gradient 6s ease-in-out infinite;
+    will-change: transform, filter;
+  }
+  
+  .perf-balanced .animate-title-gradient {
+    animation: title-gradient 8s ease-in-out infinite;
+    will-change: transform;
+    filter: none; /* Disable filter animations for better performance */
+  }
+  
+  .perf-low .animate-title-gradient {
+    animation: none;
+    transform: none;
+    filter: none;
+    will-change: auto;
+  }
+  
+  /* Text shadow performance levels */
+  .perf-high .text-shadow-glow {
+    text-shadow: 
+      0 0 10px rgba(34, 211, 238, 0.4),
+      0 0 20px rgba(34, 211, 238, 0.2),
+      0 0 40px rgba(34, 211, 238, 0.1);
+  }
+  
+  .perf-balanced .text-shadow-glow {
+    text-shadow: 0 0 15px rgba(34, 211, 238, 0.3);
+  }
+  
+  .perf-low .text-shadow-glow {
+    text-shadow: none;
+  }
+
+  /* Disable all animations in low performance mode */
+  .perf-low *,
+  .perf-low *::before,
+  .perf-low *::after {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    filter: none !important;
+    will-change: auto !important;
+  }
+
+  /* GPU-Optimized Title Animation (Task 3.1) */
+  @keyframes title-gradient {
+    0% {
+      transform: translateX(0) scale(1);
+      filter: hue-rotate(0deg);
+    }
+    33% {
+      transform: translateX(2px) scale(1.005);
+      filter: hue-rotate(15deg);
+    }
+    66% {
+      transform: translateX(-2px) scale(0.995);
+      filter: hue-rotate(-15deg);
+    }
+    100% {
+      transform: translateX(0) scale(1);
+      filter: hue-rotate(0deg);
+    }
+  }
+
+  /* Optimized title animation class */
+  .animate-title-gradient {
+    animation: title-gradient 6s ease-in-out infinite;
+    will-change: transform, filter;
+  }
+
+  /* Text shadow glow effect - replaces multiple blur layers */
+  .text-shadow-glow {
+    text-shadow: 
+      0 0 10px rgba(34, 211, 238, 0.4),
+      0 0 20px rgba(34, 211, 238, 0.2),
+      0 0 40px rgba(34, 211, 238, 0.1);
+  }
+
+  /* Animation Control Classes (Task 3.2) */
+  /* Used for visibility-based animation throttling */
+  .animation-paused {
+    animation-play-state: paused !important;
+  }
+  
+  .animation-running {
+    animation-play-state: running !important;
+  }
+  
+  /* Transition control for smooth pause/resume */
+  .transition-paused {
+    transition: none !important;
+  }
+  
+  .transition-running {
+    transition: all 0.3s ease !important;
+  }
+
+  /* Legacy gradient animations - kept for backward compatibility but optimized */
   @keyframes gradient {
     0% {
       background-position: 0% 50%;
@@ -142,22 +341,187 @@
     }
   }
 
-  /* 反向渐变动画 */
-  @keyframes gradient_reverse {
-    0% {
-      background-position: 100% 50%;
-    }
-    50% {
-      background-position: 0% 50%;
-    }
-    100% {
-      background-position: 100% 50%;
-    }
+  .animate-gradient-reverse {
+    animation: gradient 6s ease-in-out infinite reverse;
   }
 
-  /* 自定义动画类 */
-  .animate-gradient-reverse {
-    animation: gradient_reverse 6s ease-in-out infinite;
+  /* ===================================================================== */
+  /* STRATEGIC WILL-CHANGE OPTIMIZATION (Task 3.3)                        */
+  /*                                                                       */
+  /* OVERVIEW:                                                             */
+  /* This section implements strategic will-change properties to optimize  */
+  /* GPU acceleration and prevent memory leaks. The approach follows best  */
+  /* practices for modern web applications with complex animations.        */
+  /*                                                                       */
+  /* KEY PRINCIPLES:                                                       */
+  /* 1. Apply will-change BEFORE animations start, not continuously       */
+  /* 2. Remove will-change AFTER animations complete (prevents leaks)     */
+  /* 3. Use specific properties, not will-change: auto unless resetting   */
+  /* 4. Integrate with performance modes for device-appropriate behavior   */
+  /* 5. Coordinate with visibility-based animation throttling (Task 3.2)  */
+  /*                                                                       */
+  /* IMPLEMENTATION:                                                       */
+  /* - Hover/Focus states: Apply only during interaction                  */
+  /* - Continuous animations: Managed by animation control classes        */
+  /* - Layout transitions: Applied during state changes                   */
+  /* - Performance aware: Different strategies per performance level      */
+  /* ===================================================================== */
+  
+  /*
+   * Will-change classes for animated elements
+   * 
+   * PURPOSE: 
+   * The will-change property tells the browser which CSS properties are likely to change,
+   * enabling GPU acceleration and performance optimizations ahead of time.
+   * 
+   * IMPLEMENTATION STRATEGY:
+   * 1. Apply will-change BEFORE animations/transitions start
+   * 2. Remove will-change AFTER animations/transitions complete
+   * 3. Use specific properties (transform, opacity, etc.) not "auto"
+   * 4. Don't apply to too many elements simultaneously to avoid memory issues
+   * 
+   * USAGE PATTERNS:
+   * - Hover/Focus states: Apply will-change only during interaction
+   * - Continuous animations: Apply will-change for animation duration
+   * - Performance modes: Different will-change strategies per performance level
+   * - Dynamic control: JavaScript can add/remove will-change classes
+   * 
+   * MEMORY LEAK PREVENTION:
+   * - will-change: auto removes GPU layer (prevents memory leaks)
+   * - Use .will-change-auto class to reset will-change property
+   * - Animation pause/resume automatically manages will-change state
+   */
+
+  /* 
+   * SPINNER ANIMATIONS 
+   * Applied to: LoadingSpinner component (.animate-spin elements)
+   * Properties: transform (for rotation animation)
+   * When: Continuously during spinner visibility
+   */
+  .animate-spin {
+    will-change: transform;
+  }
+  
+  /* 
+   * INTERACTIVE HOVER ELEMENTS
+   * Applied to: Buttons, tabs, form inputs, and interactive components
+   * Properties: background-color, border-color, color, box-shadow
+   * When: Only during hover/focus states (memory efficient)
+   * Examples: TabButton, ChatPanel buttons, form elements
+   */
+  .will-change-on-hover:hover,
+  .will-change-on-hover:focus {
+    will-change: background-color, border-color, color, box-shadow;
+  }
+  
+  /* 
+   * TRANSFORM-HEAVY INTERACTIVE ELEMENTS 
+   * Applied to: Buttons with scale effects or complex hover animations
+   * Properties: transform, background-color, border-color
+   * When: During hover/focus states for elements with transform effects
+   */
+  .will-change-transform-hover:hover,
+  .will-change-transform-hover:focus {
+    will-change: transform, background-color, border-color;
+  }
+  
+  /* 
+   * TRANSITION ELEMENTS
+   * Applied to: Layout elements with transition-all (sidebar, panels)
+   * Properties: transform, opacity, background-color, border-color
+   * When: During layout transitions and state changes
+   * Examples: SettingsSidebar, main content panel transitions
+   */
+  .will-change-transitions {
+    will-change: transform, opacity, background-color, border-color;
+  }
+  
+  /* 
+   * WILL-CHANGE RESET 
+   * Applied to: Elements that need will-change removed to prevent memory leaks
+   * Properties: auto (browser default, removes GPU layer)
+   * When: After animations complete, during paused states, low performance mode
+   */
+  .will-change-auto {
+    will-change: auto;
+  }
+  
+  /* 
+   * OPACITY TRANSITIONS
+   * Applied to: Fade effects, pulse animations, visibility changes
+   * Properties: opacity
+   * When: During opacity-based animations and hover states
+   * Examples: animate-pulse elements, fade transitions
+   */
+  .will-change-opacity:hover,
+  .will-change-opacity:focus,
+  .will-change-opacity.animating {
+    will-change: opacity;
+  }
+  
+  /* 
+   * FILTER ANIMATIONS
+   * Applied to: Elements with blur, glow, or filter effects
+   * Properties: filter
+   * When: During filter-based animations (applied via .animating class)
+   * Note: Filter animations are expensive, use sparingly
+   */
+  .will-change-filter.animating {
+    will-change: filter;
+  }
+  
+  /* 
+   * COMPLEX ANIMATIONS
+   * Applied to: Elements with multiple simultaneous animations
+   * Properties: transform, opacity, filter
+   * When: During complex multi-property animations
+   * Note: Use only for high-value, complex animations
+   */
+  .will-change-complex.animating {
+    will-change: transform, opacity, filter;
+  }
+  
+  /* 
+   * PERFORMANCE MODE CONTROLS
+   * Applied automatically based on user's performance preference
+   * Purpose: Optimize will-change usage based on device capabilities
+   */
+  
+  /* High Performance: Full GPU acceleration */
+  .perf-high .will-change-full {
+    will-change: transform, opacity, filter, background-color;
+  }
+  
+  /* Balanced Performance: Essential GPU acceleration only */
+  .perf-balanced .will-change-essential {
+    will-change: transform, background-color;
+  }
+  
+  /* Low Performance: Disable GPU acceleration to save resources */
+  .perf-low .will-change-minimal {
+    will-change: auto;
+  }
+  
+  /*
+   * JAVASCRIPT-MANAGED WILL-CHANGE CLASSES
+   * These should be added/removed dynamically via JavaScript for fine control
+   * Use when CSS-only control is insufficient
+   * 
+   * Usage Pattern:
+   * 1. Add class before animation starts
+   * 2. Remove class after animation completes
+   * 3. Use intersection observers to manage visibility-based application
+   */
+  .js-will-change-transform {
+    will-change: transform;
+  }
+  
+  .js-will-change-opacity {
+    will-change: opacity;
+  }
+  
+  .js-will-change-colors {
+    will-change: background-color, border-color, color;
   }
 </style>
 <script type="importmap">

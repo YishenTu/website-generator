@@ -1,11 +1,13 @@
 import React, { createContext, useContext, ReactNode } from 'react';
 import { ActiveTab, ChatMessage } from '../types/types';
 import type { AppStage } from '../App';
+import { PerformanceMode } from '../hooks/usePerformanceMode';
 
-// Theme, Language, and Output Type types
+// Theme, Language, Output Type, and Performance Mode types
 export type Theme = 'cyber' | 'light';
 export type Language = 'default' | 'en' | 'zh';
 export type OutputType = 'webpage' | 'slides';
+export type PerformanceLevel = 'high' | 'balanced' | 'low';
 
 // State interface
 export interface AppState {
@@ -28,6 +30,10 @@ export interface AppState {
   outputType: OutputType;
   theme: Theme;
   language: Language;
+  // Performance mode state (Task 2.2)
+  performanceMode: PerformanceMode;
+  performanceLevel: PerformanceLevel;
+  prefersReducedMotion: boolean;
 }
 
 // Actions interface
@@ -59,6 +65,9 @@ export interface AppActions {
   setOutputType: (outputType: OutputType) => void;
   setTheme: (theme: Theme) => void;
   setLanguage: (language: Language) => void;
+  // Performance mode actions (Task 2.2)
+  setPerformanceLevel: (level: PerformanceLevel) => void;
+  togglePerformanceMode: () => void;
 }
 
 // Context type
@@ -119,4 +128,20 @@ export const useAppLanguage = (): Language => {
 export const useAppOutputType = (): OutputType => {
   const { state } = useAppContext();
   return state.outputType;
+};
+
+// Selector hooks for performance mode (Task 2.2)
+export const useAppPerformanceMode = (): PerformanceMode => {
+  const { state } = useAppContext();
+  return state.performanceMode;
+};
+
+export const useAppPerformanceLevel = (): PerformanceLevel => {
+  const { state } = useAppContext();
+  return state.performanceLevel;
+};
+
+export const useAppReducedMotion = (): boolean => {
+  const { state } = useAppContext();
+  return state.prefersReducedMotion;
 };

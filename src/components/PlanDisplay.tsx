@@ -104,7 +104,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
   const generateButtonDisabled = isAppLoading || isLoadingHtml || !editablePlanText.trim();
 
   return (
-    <div className={`flex flex-col glass-card ${containerPadding} rounded-xl shadow-2xl shadow-black/40 h-full`}>
+    <div className={`flex flex-col glass-card ${containerPadding} rounded-xl shadow-lg h-full`}>
       {/* Action buttons row */}
       {(hasManualEdit || showRefineButton) && (
         <div className={`flex items-center justify-end ${titleMargin} flex-shrink-0`}>
@@ -112,7 +112,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           {hasManualEdit && !isAppLoading && !isLoadingHtml && (
             <button
               onClick={handleResetToOriginal}
-              className="px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15"
+              className="px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 border border-transparent hover:border-white/15"
               aria-label="Reset to original plan"
               title="重置到原始plan"
             >
@@ -125,7 +125,7 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           {showRefineButton && onToggleRefine && !isAppLoading && (
             <button
               onClick={onToggleRefine}
-              className="px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md border border-transparent hover:border-white/15"
+              className="px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus:outline-none rounded-lg flex items-center justify-center text-white/70 hover:text-white hover:bg-slate-800/30 border border-transparent hover:border-white/15"
               aria-label="Toggle refine mode"
             >
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mr-1.5">
@@ -142,30 +142,30 @@ export const PlanDisplay: React.FC<PlanDisplayProps> = React.memo(({
           value={displayPlan}
           onChange={handlePlanTextChange}
           disabled={isTextareaDisabled} 
-          className="w-full h-full p-3 glass-input text-slate-200 border border-white/20 rounded-lg resize-none text-sm leading-relaxed custom-scrollbar focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 transition-all duration-200 disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full h-full p-3 glass-input text-slate-200 border border-white/20 rounded-lg resize-none text-sm leading-relaxed custom-scrollbar focus:ring-2 focus:ring-sky-500 focus:border-sky-500 focus:bg-white/5 transition-colors duration-150 disabled:opacity-70 disabled:cursor-not-allowed will-change-on-hover"
           aria-label="Website plan text"
           readOnly={isAppLoading && !isCompactView} // Readonly while plan is streaming in
         />
         
         {/* Edit status overlay */}
-        {hasManualEdit && !isAppLoading && (
-          <div className="absolute bottom-2 right-2 pointer-events-none">
-            <span className="text-xs px-2 py-1 rounded-md glass-effect backdrop-blur-lg text-amber-300 border border-amber-400/30">
+          {hasManualEdit && !isAppLoading && (
+            <div className="absolute bottom-2 right-2 pointer-events-none">
+            <span className="text-xs px-2 py-1 rounded-md glass-effect text-amber-300 border border-amber-400/30">
               已编辑
             </span>
-          </div>
-        )}
+            </div>
+          )}
       </div>
       <div className={`mt-4 flex ${isCompactView ? 'flex-col space-y-2' : 'flex-col space-y-3'} flex-shrink-0`}>
         <div className={`flex items-center gap-3`}>
           <button
             onClick={handleProceed}
             disabled={generateButtonDisabled}
-            className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+            className={`flex-1 px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus:outline-none rounded-lg flex items-center justify-center ${
               !generateButtonDisabled
-                ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
-                : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
-            } ${generateButtonDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border-white/15'}`}
+                ? 'glass-card border border-sky-400/50 text-sky-400 hover:border-sky-400/70'
+                : 'text-white/70 bg-slate-800/30 border border-transparent'
+            } ${generateButtonDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-slate-800/30 hover:border-white/15'}`}
             aria-label="Generate website from this plan"
           >
             <CheckCircleIcon className="w-5 h-5 mr-2" />

@@ -26,15 +26,29 @@ interface OpenAIMessage {
   content: string;
 }
 
+// Strict Responses API input message (content parts array)
+type OpenAIInputMessage = {
+  role: 'developer' | 'user' | 'assistant';
+  content: { type: 'text'; text: string }[];
+};
+
 // Responses API Request format
 interface OpenAIResponsesRequest {
   model: string;
-  input: string | OpenAIMessage[];
+  input: string | OpenAIInputMessage[];
   reasoning?: {
     effort: 'low' | 'medium' | 'high' | 'minimal';
     summary?: 'auto' | 'concise' | 'detailed';
   };
   stream?: boolean;
+}
+
+// Map our simple message shape to Responses API input format
+function toOpenAIInput(messages: OpenAIMessage[]): OpenAIInputMessage[] {
+  return messages.map(m => ({
+    role: m.role,
+    content: [{ type: 'text', text: m.content }]
+  }));
 }
 
 // --- Generic Stream Request Helper for Responses API ---
@@ -95,7 +109,7 @@ async function makeChatStreamRequest(
 ): Promise<void> {
   const requestBody: OpenAIResponsesRequest = {
     model: modelName || DEFAULT_MODEL,
-    input: messages,
+    input: toOpenAIInput(messages),
     stream: true
   };
 

@@ -137,7 +137,7 @@ const CODE_ADVANCED_INTERACTIVITY_AND_EXCELLENCE = `
     *   Implement the highest quality standards with comprehensive interactive features.
     *   Include thoughtful details like hover states, transitions, and micro-interactions using Tailwind CSS classes
     *   Apply design principles: hierarchy, contrast, balance, and movement
-    *   Use smooth transitions (\`transition-all duration-300 ease-in-out\`) and hover effects (\`hover:shadow-lg hover:scale-105\`)
+    *   Use smooth transitions (\`transition-colors duration-200 ease-in-out\` or \`transition-transform duration-200 ease-in-out\`) and hover effects (\`hover:shadow-lg hover:scale-105\`)
     *   Create depth with layered shadows and gradients where appropriate
     *   Ensure consistent animation timing across all interactive elements`;
 

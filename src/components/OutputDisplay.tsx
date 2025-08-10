@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { ActiveTab } from '../types/types';
-import { CodeEditor } from './CodeEditor';
+// Lazy-load CodeEditor to reduce initial bundle (Task 5.2)
+const CodeEditorLazy = React.lazy(() => import('./CodeEditor').then(m => ({ default: m.CodeEditor })));
 import { PreviewLoader } from './PreviewLoader';
 
 import { useDebounce } from '../hooks/useDebounce';
@@ -31,7 +32,7 @@ interface OutputDisplayProps {
   onHtmlContentChange?: (newHtml: string) => void; // New prop for editable code view
 }
 
-export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
+const OutputDisplayComponent: React.FC<OutputDisplayProps> = ({
   htmlContent,
   isLoading,
   error,
@@ -227,10 +228,10 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
          <button
             onClick={onToggleFullPreview}
             className={combineStyles(
-              'absolute top-4 right-4 z-[60] glass-effect hover:bg-white/20 text-white font-medium py-2 px-3 rounded-full shadow-2xl shadow-black/40 backdrop-blur-lg border border-white/20',
+              'absolute top-4 right-4 z-[60] glass-effect hover:bg-white/20 text-white font-medium py-2 px-3 rounded-full shadow-lg border border-white/30 hover:border-white/50',
               LAYOUT_STYLES.flexCenter,
               BUTTON_STYLES.smallButton,
-              'transition-all duration-200'
+              'transition-colors duration-150 will-change-on-hover'
             )}
             aria-label="Exit Full Preview"
           >
@@ -241,7 +242,7 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
       <div className={combineStyles(LAYOUT_STYLES.flexGrow, LAYOUT_STYLES.relative, LAYOUT_STYLES.minH0, isFullPreviewActive ? 'h-full w-full' : 'overflow-hidden')}>
         {error && (
           <div className={combineStyles(LAYOUT_STYLES.fullHeight, LAYOUT_STYLES.flexCenter, 'p-4')}>
-            <div className="text-center glass-effect bg-red-600/20 border border-red-500/30 text-red-200 p-4 rounded-xl shadow-2xl shadow-red-900/50 backdrop-blur-lg">
+            <div className="text-center glass-effect bg-red-600/20 border border-red-500/50 text-red-200 p-4 rounded-xl shadow-lg">
               <h3 className={combineStyles('font-semibold text-lg mb-1')}>{UI_TEXT.ERROR_TITLE}</h3>
               <p className={TEXT_STYLES.mutedXs}>{error}</p>
             </div>
@@ -285,13 +286,26 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
               />
             )}
             {activeTab === ActiveTab.Code && (
-              <CodeEditor
-                value={htmlContent || ''}
-                onChange={onHtmlContentChange}
-                readOnly={!onHtmlContentChange || isFullPreviewActive}
-                className="w-full h-full"
-                autoScrollToBottom={false}
-              />
+              <React.Suspense
+                fallback={(
+                  <div className="w-full h-full">
+                    <div className="h-full rounded-md glass-input border border-white/10 p-3 animate-pulse">
+                      <div className="h-4 w-1/2 bg-white/10 rounded mb-2" />
+                      <div className="h-4 w-1/3 bg-white/10 rounded mb-2" />
+                      <div className="h-4 w-2/3 bg-white/10 rounded mb-2" />
+                      <div className="h-4 w-1/4 bg-white/10 rounded" />
+                    </div>
+                  </div>
+                )}
+              >
+                <CodeEditorLazy
+                  value={htmlContent || ''}
+                  onChange={onHtmlContentChange}
+                  readOnly={!onHtmlContentChange || isFullPreviewActive}
+                  className="w-full h-full"
+                  autoScrollToBottom={false}
+                />
+              </React.Suspense>
             )}
           </>
         ) : null}
@@ -309,12 +323,12 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             <button
               onClick={onToggleFullPreview}
               disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
-              className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+              className={`flex-1 px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus:outline-none rounded-lg flex items-center justify-center will-change-on-hover ${
                 appStage === 'htmlPending'
-                  ? 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+                  ? 'text-white/70 bg-slate-800/30 border border-transparent'
                   : htmlContent && !error && appStage === 'htmlReady'
-                    ? 'glass-card border border-sky-400/50 text-sky-400 hover:shadow-lg hover:shadow-sky-500/20'
-                    : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+                    ? 'glass-card border border-sky-400/50 text-sky-400 hover:border-sky-400/70 hover:shadow-md'
+                    : 'text-white/70 bg-slate-800/30 border border-transparent'
               } ${(!htmlContent || !!error || isLoading || appStage === 'htmlPending') ? 'opacity-50 cursor-not-allowed' : ''}`}
               aria-label="Full Preview"
             >
@@ -324,12 +338,12 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             <button
               onClick={onCopyCode}
               disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
-              className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+              className={`flex-1 px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus:outline-none rounded-lg flex items-center justify-center will-change-on-hover ${
                 appStage === 'htmlPending'
-                  ? 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+                  ? 'text-white/70 bg-slate-800/30 border border-transparent'
                   : htmlContent && !error && appStage === 'htmlReady'
-                    ? 'glass-card border border-sky-400/50 text-sky-400 hover:shadow-lg hover:shadow-sky-500/20'
-                    : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+                    ? 'glass-card border border-sky-400/50 text-sky-400 hover:border-sky-400/70 hover:shadow-md'
+                    : 'text-white/70 bg-slate-800/30 border border-transparent'
               } ${(!htmlContent || !!error || isLoading || appStage === 'htmlPending') ? 'opacity-50 cursor-not-allowed' : ''}`}
               aria-label="Copy HTML code"
             >
@@ -339,12 +353,12 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
             <button
               onClick={onDownloadHtml}
               disabled={!htmlContent || !!error || isLoading || appStage === 'htmlPending'}
-              className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+              className={`flex-1 px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus:outline-none rounded-lg flex items-center justify-center will-change-on-hover ${
                 appStage === 'htmlPending'
-                  ? 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+                  ? 'text-white/70 bg-slate-800/30 border border-transparent'
                   : htmlContent && !error && appStage === 'htmlReady'
-                    ? 'glass-card border border-sky-400/50 text-sky-400 hover:shadow-lg hover:shadow-sky-500/20'
-                    : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
+                    ? 'glass-card border border-sky-400/50 text-sky-400 hover:border-sky-400/70 hover:shadow-md'
+                    : 'text-white/70 bg-slate-800/30 border border-transparent'
               } ${(!htmlContent || !!error || isLoading || appStage === 'htmlPending') ? 'opacity-50 cursor-not-allowed' : ''}`}
               aria-label="Download HTML file"
             >
@@ -355,5 +369,21 @@ export const OutputDisplay: React.FC<OutputDisplayProps> = React.memo(({
         </div>
       )}
     </div>
+  );
+};
+
+export const OutputDisplay = React.memo(OutputDisplayComponent, (prevProps, nextProps) => {
+  return (
+    prevProps.htmlContent === nextProps.htmlContent &&
+    prevProps.isLoading === nextProps.isLoading &&
+    prevProps.error === nextProps.error &&
+    prevProps.activeTab === nextProps.activeTab &&
+    prevProps.isFullPreviewActive === nextProps.isFullPreviewActive &&
+    prevProps.appStage === nextProps.appStage &&
+    prevProps.className === nextProps.className &&
+    prevProps.onCopyCode === nextProps.onCopyCode &&
+    prevProps.onDownloadHtml === nextProps.onDownloadHtml &&
+    prevProps.onToggleFullPreview === nextProps.onToggleFullPreview &&
+    prevProps.onHtmlContentChange === nextProps.onHtmlContentChange
   );
 });

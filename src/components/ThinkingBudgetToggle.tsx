@@ -21,11 +21,11 @@ export const ThinkingBudgetToggle: React.FC<ThinkingBudgetToggleProps> = ({
     <button
       onClick={handleClick}
       disabled={disabled}
-      className={`px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg
+      className={`px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus:outline-none rounded-lg
         ${
           enabled
-            ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
-            : 'text-white bg-slate-800/30 backdrop-blur-md border border-white/15 hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border-white/15'
+            ? 'glass-card border border-sky-400/50 text-sky-400 hover:border-sky-400/70'
+            : 'text-white bg-slate-800/30 border border-white/15 hover:text-white hover:bg-slate-800/30 hover:border-white/15'
         }
         ${disabled ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:border-transparent hover:text-white/70' : ''}
       `}

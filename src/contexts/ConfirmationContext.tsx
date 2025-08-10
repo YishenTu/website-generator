@@ -75,8 +75,8 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onCancel
 }) => {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-2xl max-w-md w-full mx-auto border border-gray-200 dark:border-slate-700">
+    <div className="fixed inset-0 bg-black/50 blur-effects backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-slate-800 rounded-xl shadow-lg max-w-md w-full mx-auto border border-gray-200 dark:border-slate-700">
         <div className="p-6">
           <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
             {title}

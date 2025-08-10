@@ -56,13 +56,13 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
   const showThinkingToggle = supportsThinking(selectedModel) && onMaxThinkingChange;
 
   return (
-    <div className="flex flex-col glass-card p-4 rounded-xl shadow-2xl shadow-black/40 h-full">
+    <div className="flex flex-col glass-card p-4 rounded-xl shadow-lg h-full">
       <div className="flex-grow min-h-0 flex flex-col relative">
         <textarea
           value={reportText}
           onChange={handleTextChange}
           placeholder={`Paste your text here... (minimum ${VALIDATION_LIMITS.REPORT_TEXT_MIN} characters)`}
-          className={`w-full p-3 glass-input text-slate-200 rounded-lg resize-none focus:ring-2 focus:border-sky-500 text-sm leading-relaxed flex-grow min-h-0 custom-scrollbar transition-all duration-200 ${
+          className={`w-full p-3 glass-input text-slate-200 rounded-lg resize-none focus:ring-2 focus:border-sky-500 text-sm leading-relaxed flex-grow min-h-0 custom-scrollbar transition-colors duration-150 will-change-on-hover ${
             validationError 
               ? 'border-red-500/50 focus:ring-red-500 focus:border-red-500' 
               : isApproachingLimit(reportText.length, VALIDATION_LIMITS.REPORT_TEXT_MAX)
@@ -80,7 +80,7 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
         <div className="absolute bottom-2 right-2 pointer-events-none">
           <span 
             id="char-count"
-            className={`text-xs px-2 py-1 rounded-md glass-effect backdrop-blur-lg ${
+            className={`text-xs px-2 py-1 rounded-md glass-effect ${
               isApproachingLimit(reportText.length, VALIDATION_LIMITS.REPORT_TEXT_MAX)
                 ? 'text-yellow-400 border border-yellow-400/30'
                 : reportText.length > VALIDATION_LIMITS.REPORT_TEXT_MAX
@@ -95,7 +95,7 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
         {/* Validation error overlay - positioned in bottom left of textarea */}
         {validationError && (
           <div className="absolute bottom-2 left-2 pointer-events-none">
-            <span id="validation-error" className="text-xs px-2 py-1 rounded-md glass-effect backdrop-blur-lg text-red-400 border border-red-400/30 max-w-xs truncate">
+            <span id="validation-error" className="text-xs px-2 py-1 rounded-md glass-effect text-red-400 border border-red-400/30 max-w-xs truncate">
               {validationError}
             </span>
           </div>
@@ -107,11 +107,11 @@ export const ReportInputForm: React.FC<ReportInputFormProps> = ({
           {/* 生成按钮 */}
           <button
             onClick={onGeneratePlan}
-            className={`flex-1 px-4 py-1.5 text-sm font-medium transition-all duration-300 focus:outline-none rounded-lg flex items-center justify-center ${
+            className={`flex-1 px-4 py-1.5 text-sm font-medium transition-colors duration-200 focus:outline-none rounded-lg flex items-center justify-center will-change-on-hover ${
               !isGenerationDisabled
-                ? 'glass-card border border-sky-400/50 text-sky-400 shadow-lg shadow-sky-500/20'
-                : 'text-white/70 bg-slate-800/30 backdrop-blur-md border border-transparent'
-            } ${isGenerationDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-slate-800/30 hover:backdrop-blur-md hover:border-white/15'}`}
+                ? 'glass-card border border-sky-400/50 text-sky-400 hover:border-sky-400/70'
+                : 'text-white/70 bg-slate-800/30 border border-transparent'
+            } ${isGenerationDisabled ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-slate-800/30 hover:border-white/15'}`}
             disabled={isGenerationDisabled}
             aria-label="Generate website plan from report"
           >

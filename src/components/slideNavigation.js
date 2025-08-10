@@ -83,8 +83,8 @@ export const slideNavigationScript = `
         }
         
         // Only add essential transition styling if not already present
-        if (!slide.classList.contains('transition-all')) {
-          slide.classList.add('transition-all', 'duration-500', 'ease-in-out');
+        if (!slide.classList.contains('transition-opacity')) {
+          slide.classList.add('transition-opacity', 'duration-500', 'ease-in-out');
         }
         
         // Add minimum required styling for slide presentation if not present
@@ -104,7 +104,7 @@ export const slideNavigationScript = `
       // Previous button
       const prevButton = document.createElement('button');
       prevButton.id = 'slide-prev';
-      prevButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+      prevButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed';
       prevButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M15.41 7.41L14 6l-6 6 6 6 1.41-1.41L10.83 12z"/></svg>';
       prevButton.title = 'Previous slide (Arrow Left)';
       prevButton.onclick = this.prevSlide;
@@ -118,7 +118,7 @@ export const slideNavigationScript = `
       // Next button
       const nextButton = document.createElement('button');
       nextButton.id = 'slide-next';
-      nextButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+      nextButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed';
       nextButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8.59 16.59L10 18l6-6-6-6-1.41 1.41L13.17 12z"/></svg>';
       nextButton.title = 'Next slide (Arrow Right)';
       nextButton.onclick = this.nextSlide;
@@ -126,7 +126,7 @@ export const slideNavigationScript = `
       // Fullscreen button
       const fullscreenButton = document.createElement('button');
       fullscreenButton.id = 'slide-fullscreen';
-      fullscreenButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 ml-2';
+      fullscreenButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors duration-150 ml-2';
       fullscreenButton.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/></svg>';
       fullscreenButton.title = 'Toggle fullscreen (F)';
       fullscreenButton.onclick = this.toggleFullscreen.bind(this);

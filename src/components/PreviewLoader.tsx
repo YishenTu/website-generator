@@ -21,7 +21,7 @@ export const PreviewLoader: React.FC<PreviewLoaderProps> = React.memo(({
         CONTAINER_STYLES.absolute,
         CONTAINER_STYLES.inset0,
         CONTAINER_STYLES.flexCenter,
-        'bg-slate-800 bg-opacity-50 z-20 rounded-b-md backdrop-blur-sm'
+        'bg-slate-800 bg-opacity-50 z-20 rounded-b-md'
       )}>
         <div className="text-center">
           <LoadingSpinner />
@@ -41,7 +41,7 @@ export const PreviewLoader: React.FC<PreviewLoaderProps> = React.memo(({
       CONTAINER_STYLES.absolute,
       CONTAINER_STYLES.inset0,
       CONTAINER_STYLES.flexCenter,
-      'bg-slate-800 bg-opacity-95 z-20 rounded-b-md backdrop-blur-sm'
+      'bg-slate-800 bg-opacity-95 z-20 rounded-b-md'
     )}>
       <div className="text-center">
         <div className="w-12 h-12 mx-auto mb-3 bg-red-500/20 rounded-full flex items-center justify-center">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAppTheme, useAppLanguage, useAppOutputType, useAppActions } from '../contexts/AppContext';
+import { useAppTheme, useAppLanguage, useAppOutputType, useAppPerformanceLevel, useAppReducedMotion, useAppActions } from '../contexts/AppContext';
 import { OptionButton } from './OptionButton';
 import { I18N_CONSTANTS } from '../constants/i18n';
 
@@ -7,11 +7,13 @@ export const SettingsSidebar: React.FC = () => {
   const outputType = useAppOutputType();
   const theme = useAppTheme();
   const language = useAppLanguage();
-  const { setOutputType, setTheme, setLanguage } = useAppActions();
+  const performanceLevel = useAppPerformanceLevel();
+  const prefersReducedMotion = useAppReducedMotion();
+  const { setOutputType, setTheme, setLanguage, setPerformanceLevel } = useAppActions();
 
   return (
-    <aside className="w-80 flex-shrink-0 transition-all duration-300">
-      <div className="glass-effect bg-slate-900/80 border border-cyan-500/30 rounded-lg p-6 shadow-2xl shadow-cyan-900/50 backdrop-blur-lg h-full">
+    <aside className="w-80 flex-shrink-0 transition-[opacity,transform] duration-200 will-change-on-hover">
+      <div className="glass-effect bg-slate-900/80 border border-cyan-500/50 hover:border-cyan-500/70 rounded-lg p-6 shadow-lg h-full">
         {/* Header */}
         <div className="mb-6">
           <h3 className="text-lg font-semibold text-cyan-400 mb-1 font-orbitron tracking-wider">
@@ -93,6 +95,38 @@ export const SettingsSidebar: React.FC = () => {
           </div>
         </fieldset>
 
+        {/* Performance Mode Settings (Task 2.2) */}
+        <fieldset className="mb-6">
+          <legend className="block text-sm font-semibold text-slate-300 mb-3 font-rajdhani tracking-wide">
+            Performance Mode
+          </legend>
+          {prefersReducedMotion && (
+            <div className="mb-3 p-2 bg-yellow-500/10 border border-yellow-500/30 rounded text-xs text-yellow-300">
+              ⚠️ Reduced motion detected - animations disabled by system preference
+            </div>
+          )}
+          <div className="flex gap-2" role="group">
+            <OptionButton
+              selected={performanceLevel === 'high'}
+              label="HQ"
+              onClick={() => setPerformanceLevel('high')}
+              title="Maximum visual effects - blur, animations, shadows, transitions"
+            />
+            <OptionButton
+              selected={performanceLevel === 'balanced'}
+              label="BAL"
+              onClick={() => setPerformanceLevel('balanced')}
+              title="Reduced effects for better performance while maintaining aesthetics"
+            />
+            <OptionButton
+              selected={performanceLevel === 'low'}
+              label="PERF"
+              onClick={() => setPerformanceLevel('low')}
+              title="Minimal effects for maximum performance and accessibility"
+            />
+          </div>
+          {/* Current settings summary removed per request */}
+        </fieldset>
 
       </div>
     </aside>

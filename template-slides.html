@@ -328,8 +328,8 @@
         }
         
         // Only add essential transition styling if not already present
-        if (!slide.classList.contains('transition-all')) {
-          slide.classList.add('transition-all', 'duration-500', 'ease-in-out');
+        if (!slide.classList.contains('transition-opacity')) {
+          slide.classList.add('transition-opacity', 'duration-500', 'ease-in-out');
         }
         
         // Add minimum required styling for slide presentation if not present
@@ -349,7 +349,7 @@
       // Previous button
       const prevButton = document.createElement('button');
       prevButton.id = 'slide-prev';
-      prevButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+      prevButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed';
       prevButton.innerHTML = '<i class="fas fa-chevron-left"></i>';
       prevButton.title = 'Previous slide (Arrow Left)';
       prevButton.onclick = this.prevSlide;
@@ -363,7 +363,7 @@
       // Next button
       const nextButton = document.createElement('button');
       nextButton.id = 'slide-next';
-      nextButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed';
+      nextButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors duration-150 disabled:opacity-50 disabled:cursor-not-allowed';
       nextButton.innerHTML = '<i class="fas fa-chevron-right"></i>';
       nextButton.title = 'Next slide (Arrow Right)';
       nextButton.onclick = this.nextSlide;
@@ -371,7 +371,7 @@
       // Fullscreen button
       const fullscreenButton = document.createElement('button');
       fullscreenButton.id = 'slide-fullscreen';
-      fullscreenButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-all duration-200 ml-2';
+      fullscreenButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 text-white transition-colors duration-150 ml-2';
       fullscreenButton.innerHTML = '<i class="fas fa-expand"></i>';
       fullscreenButton.title = 'Toggle fullscreen (F)';
       fullscreenButton.onclick = this.toggleFullscreen.bind(this);
@@ -379,7 +379,7 @@
       // Template info button
       const infoButton = document.createElement('button');
       infoButton.id = 'slide-info';
-      infoButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 transition-all duration-200';
+      infoButton.className = 'flex items-center justify-center w-10 h-10 rounded-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 transition-colors duration-150';
       infoButton.innerHTML = '<i class="fas fa-info"></i>';
       infoButton.title = 'Template info (I)';
       infoButton.onclick = this.showTemplateInfo.bind(this);

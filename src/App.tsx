@@ -3,7 +3,8 @@ import { GoogleGenAI } from "@google/genai";
 import { TabNavigation } from "./components/TabNavigation";
 import { TabContent } from "./components/TabContent";
 import { ChatPanel } from "./components/ChatPanel";
-import { SettingsSidebar } from "./components/SettingsSidebar";
+// Lazy-load SettingsSidebar to reduce initial bundle (Task 5.2)
+const SettingsSidebarLazy = React.lazy(() => import('./components/SettingsSidebar').then(m => ({ default: m.SettingsSidebar })));
 import { OutputDisplay } from "./components/OutputDisplay";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { AppProvider, type AppContextType } from './contexts/AppContext';
@@ -16,11 +17,42 @@ import { logger } from './utils/logger';
 import { getEnvVar } from './utils/env';
 import { LAYOUT_STYLES, combineStyles } from './utils/styleConstants';
 import { UI_TEXT, FILE } from './utils/constants';
+import { performanceMonitor } from './utils/performanceMonitor';
+import { usePerformanceMode } from './hooks/usePerformanceMode';
+import { useIntersectionObserver } from './hooks/useIntersectionObserver';
 
 export type AppStage = 'initial' | 'planPending' | 'planReady' | 'htmlPending' | 'htmlReady';
 
 // Inner component that uses the hooks and needs the providers
 const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
+  // Performance monitoring state
+  const [isPerformanceMonitoringEnabled, setIsPerformanceMonitoringEnabled] = React.useState(false);
+
+  // Title animation visibility observer (Task 3.2)
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const isTitleVisible = useIntersectionObserver(titleRef, {
+    rootMargin: '0px',
+    threshold: 0.1, // Trigger when 10% of title is visible
+    onVisibilityChange: (isVisible) => {
+      // Optional: Log visibility changes for debugging
+      if (process.env.NODE_ENV === 'development') {
+        logger.info(`Title animation visibility: ${isVisible}`);
+      }
+    }
+  });
+
+  // Performance mode hook (Task 2.2)
+  const {
+    performanceMode,
+    level: performanceLevel,
+    setLevel: setPerformanceLevel,
+    isHighPerformance,
+    isBalancedPerformance,
+    isLowPerformance,
+    toggleEnabled: togglePerformanceMode,
+    prefersReducedMotion,
+    features
+  } = usePerformanceMode();
 
   // Use the website generation hook
   const {
@@ -103,6 +135,27 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
     setGeneratedHtml(newHtml);
   }, [setGeneratedHtml]);
 
+  // Performance monitoring control functions
+  const togglePerformanceMonitoring = useCallback(() => {
+    if (isPerformanceMonitoringEnabled) {
+      performanceMonitor.stopMonitoring();
+      setIsPerformanceMonitoringEnabled(false);
+      logger.info('Performance monitoring disabled');
+    } else {
+      performanceMonitor.startMonitoring();
+      setIsPerformanceMonitoringEnabled(true);
+      logger.info('Performance monitoring enabled - press Ctrl+Shift+P to log metrics');
+    }
+  }, [isPerformanceMonitoringEnabled]);
+
+  const logPerformanceMetrics = useCallback(() => {
+    if (isPerformanceMonitoringEnabled) {
+      performanceMonitor.logMetrics();
+    } else {
+      logger.warn('Performance monitoring is not enabled');
+    }
+  }, [isPerformanceMonitoringEnabled]);
+
   // Memoized context value
   const contextValue = useMemo((): AppContextType => ({
     state: {
@@ -124,7 +177,11 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
       maxThinking,
       outputType,
       theme,
-      language
+      language,
+      // Performance mode state (Task 2.2)
+      performanceMode,
+      performanceLevel,
+      prefersReducedMotion
     },
     actions: {
       setReportText,
@@ -153,7 +210,10 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
       setIsRefineMode,
       setOutputType,
       setTheme,
-      setLanguage
+      setLanguage,
+      // Performance mode actions (Task 2.2)
+      setPerformanceLevel,
+      togglePerformanceMode
     }
   }), [
     // State dependencies
@@ -161,6 +221,7 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
     planModel, htmlModel, chatModel, planChatModel,
     isLoading, isChatLoading, isPlanChatLoading,
     activeTab, chatMessages, planChatMessages, maxThinking, outputType, theme, language,
+    performanceMode, performanceLevel, prefersReducedMotion,
     // Action dependencies
     setReportText, handleGeneratePlan, handleGenerateHtmlFromPlan,
     handleStartNewSession, handleResetToInitial, handleStopGeneration,
@@ -169,7 +230,8 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
     setActiveTab, setMaxThinking, initializePlanChatSession,
     isChatAvailable, isPlanChatAvailable, handlePlanChatModelChange,
     handleChatModelChange, handleCopyCode, handleDownloadHtml,
-    toggleFullPreview, handleHtmlContentChange, setIsRefineMode, setOutputType, setTheme, setLanguage
+    toggleFullPreview, handleHtmlContentChange, setIsRefineMode, setOutputType, setTheme, setLanguage,
+    setPerformanceLevel, togglePerformanceMode
   ]);
 
   // Handle ESC key for full preview
@@ -182,6 +244,34 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
     window.addEventListener('keydown', handleEscKey);
     return () => window.removeEventListener('keydown', handleEscKey);
   }, [isFullPreviewActive, setIsFullPreviewActive]);
+
+  // Handle keyboard shortcuts for performance monitoring
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // Ctrl+Shift+M: Toggle performance monitoring
+      if (event.ctrlKey && event.shiftKey && event.key === 'M') {
+        event.preventDefault();
+        togglePerformanceMonitoring();
+      }
+      // Ctrl+Shift+P: Log performance metrics
+      else if (event.ctrlKey && event.shiftKey && event.key === 'P') {
+        event.preventDefault();
+        logPerformanceMetrics();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [togglePerformanceMonitoring, logPerformanceMetrics]);
+
+  // Cleanup performance monitoring on unmount
+  useEffect(() => {
+    return () => {
+      if (isPerformanceMonitoringEnabled) {
+        performanceMonitor.stopMonitoring();
+      }
+    };
+  }, []);
 
   // Handle tab switching with workflow logic
   const handleTabChange = useCallback((tab: ActiveTab) => {
@@ -223,58 +313,74 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
   // Main app layout
   return (
     <AppProvider value={contextValue}>
-      <div className={combineStyles(LAYOUT_STYLES.flexCol, 'h-screen p-4 md:p-6 bg-black text-slate-100 overflow-hidden')}>
+      <div className={combineStyles(
+        LAYOUT_STYLES.flexCol, 
+        'h-screen p-4 md:p-6 bg-black text-slate-100 overflow-hidden',
+        // Performance mode CSS classes (Task 2.2)
+        `perf-${performanceLevel}`,
+        prefersReducedMotion ? 'reduce-motion' : ''
+      )}>
         {/* Header */}
         <header className={combineStyles('mb-4 md:mb-6', LAYOUT_STYLES.flexShrink0, LAYOUT_STYLES.relative)}>
           <div className="text-center relative">
-            {/* Cyberpunk Title with Enhanced Effects */}
+            {/* Optimized Cyberpunk Title with GPU-Accelerated Animation */}
             <div className="relative">
-              <h1 className="text-4xl md:text-6xl font-black mb-2 relative font-orbitron tracking-wider">
-                <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-ice-blue bg-clip-text text-transparent bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite] drop-shadow-[0_0_20px_rgba(34,211,238,0.4)]">
-                  FROSTBYTE
-                </span>
-                <span className="ml-3 bg-gradient-to-r from-blue-300 via-cyan-300 to-white bg-clip-text text-transparent bg-[length:200%_100%] animate-gradient-reverse drop-shadow-[0_0_15px_rgba(147,197,253,0.3)]">
-                  AI
-                </span>
-                
-                {/* Multiple Glow Layers */}
-                <span className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-400 to-ice-blue bg-clip-text text-transparent blur-sm opacity-30 bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite]">
-                  FROSTBYTE
-                </span>
-                <span className="absolute inset-0 ml-3 bg-gradient-to-r from-blue-300 via-cyan-300 to-white bg-clip-text text-transparent blur-sm opacity-30 bg-[length:200%_100%] animate-gradient-reverse">
-                  AI
-                </span>
-                
-                {/* Outer Glow */}
-                <span className="absolute inset-0 bg-gradient-to-r from-cyan-400 via-blue-400 to-ice-blue bg-clip-text text-transparent blur-lg opacity-15 bg-[length:200%_100%] animate-[gradient_6s_ease-in-out_infinite] scale-110">
-                  FROSTBYTE
-                </span>
-                <span className="absolute inset-0 ml-3 bg-gradient-to-r from-blue-300 via-cyan-300 to-white bg-clip-text text-transparent blur-lg opacity-15 bg-[length:200%_100%] animate-gradient-reverse scale-110">
-                  AI
+              <h1 
+                ref={titleRef}
+                className="text-4xl md:text-6xl font-black mb-2 relative font-orbitron tracking-wider"
+              >
+                {/* Single optimized animated layer with visibility-based animation control */}
+                <span className={combineStyles(
+                  "relative inline-block will-change-transform text-shadow-glow",
+                  "animate-title-gradient",
+                  // Apply animation pause/resume based on visibility and motion preferences (Task 3.2)
+                  !isTitleVisible || prefersReducedMotion ? "animation-paused" : "animation-running"
+                )}>
+                  <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-ice-blue bg-clip-text text-transparent">
+                    FROSTBYTE
+                  </span>
+                  <span className="ml-3 bg-gradient-to-r from-blue-300 via-cyan-300 to-white bg-clip-text text-transparent">
+                    AI
+                  </span>
                 </span>
               </h1>
               
               {/* Subtitle */}
               <p className="text-xs md:text-sm font-rajdhani font-medium text-cyan-400/70 tracking-[0.3em] uppercase">
                 Neural Website Generator
+                {isPerformanceMonitoringEnabled && (
+                  <span className="ml-2 text-xs bg-green-500/20 text-green-400 px-2 py-1 rounded border border-green-500/30">
+                    PERF MONITORING
+                  </span>
+                )}
               </p>
             </div>
             
-            {/* Enhanced Decorative Elements */}
-            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-[35rem] h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-70 shadow-[0_0_10px_rgba(34,211,238,0.5)]"></div>
-            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-[25rem] h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-50"></div>
-            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-[30rem] h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-60 shadow-[0_0_8px_rgba(59,130,246,0.4)]"></div>
-            <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 w-[20rem] h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-40"></div>
+            {/* Enhanced Decorative Elements with will-change optimization for transform
+                 Note: These elements use static transforms, so will-change: auto is appropriate
+                 to avoid unnecessary GPU layers for non-animating elements */}
+            <div className="absolute -top-6 left-1/2 transform -translate-x-1/2 w-[35rem] h-px bg-gradient-to-r from-transparent via-cyan-500 to-transparent opacity-70 border-t border-cyan-500/30 will-change-auto"></div>
+            <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 w-[25rem] h-px bg-gradient-to-r from-transparent via-blue-400 to-transparent opacity-50 will-change-auto"></div>
+            <div className="absolute -bottom-6 left-1/2 transform -translate-x-1/2 w-[30rem] h-px bg-gradient-to-r from-transparent via-blue-500 to-transparent opacity-60 border-b border-blue-500/30 will-change-auto"></div>
+            <div className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 w-[20rem] h-px bg-gradient-to-r from-transparent via-cyan-400 to-transparent opacity-40 will-change-auto"></div>
             
-            {/* Side Accents */}
-            <div className="absolute top-1/2 -left-8 w-2 h-2 bg-cyan-400 blur-sm opacity-60 animate-pulse"></div>
-            <div className="absolute top-1/2 -right-8 w-2 h-2 bg-blue-400 blur-sm opacity-60 animate-pulse" style={{animationDelay: '1s'}}></div>
+            {/* Side Accents with visibility-based animation throttling and will-change for opacity
+                 Note: will-change-opacity is applied during animation, will-change-auto when paused
+                 This prevents memory leaks when animations are not visible or disabled */}
+            <div className={combineStyles(
+              "absolute top-1/2 -left-8 w-2 h-2 bg-cyan-400 blur-sm opacity-60 animate-pulse will-change-opacity",
+              !isTitleVisible || prefersReducedMotion ? "animation-paused will-change-auto" : "animation-running"
+            )}></div>
+            <div className={combineStyles(
+              "absolute top-1/2 -right-8 w-2 h-2 bg-blue-400 blur-sm opacity-60 animate-pulse will-change-opacity",
+              !isTitleVisible || prefersReducedMotion ? "animation-paused will-change-auto" : "animation-running"
+            )} style={{animationDelay: '1s'}}></div>
           </div>
         </header>
 
         {/* Error display */}
         {error && (
-          <div className="mb-4 p-3 glass-effect bg-red-600/20 text-red-200 border border-red-500/30 rounded-lg text-center text-sm shadow-2xl shadow-red-900/50 backdrop-blur-lg" role="alert">
+          <div className="mb-4 p-3 glass-effect bg-red-600/20 text-red-200 border border-red-500/50 rounded-lg text-center text-sm shadow-lg" role="alert">
             {error}
           </div>
         )}
@@ -299,16 +405,32 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
         {/* Main content area - fixed at 75% width */}
         <main className={combineStyles(LAYOUT_STYLES.flexGrow, 'flex justify-center min-h-0')}>
           <div className="w-3/4 max-w-7xl flex gap-6 min-w-0">
-            {/* Main content panel */}
-            <div className={`${(activeTab === ActiveTab.Input || isRefineMode) ? 'flex-1 min-w-0' : 'w-full'} transition-all duration-300`}>
+            {/* Main content panel with will-change during transitions
+                 Note: will-change-on-hover optimizes layout transitions when panel size changes */}
+            <div className={`${(activeTab === ActiveTab.Input || isRefineMode) ? 'flex-1 min-w-0' : 'w-full'} transition-[transform,opacity] duration-200 will-change-on-hover`}>
               <TabContent activeTab={activeTab} appStage={appStage} />
             </div>
             
             {/* Settings Sidebar for Input tab, Chat panel for other tabs */}
             {activeTab === ActiveTab.Input ? (
-              <SettingsSidebar />
+              <React.Suspense
+                fallback={(
+                  <aside className="w-80 flex-shrink-0">
+                    <div className="glass-effect bg-slate-900/60 border border-cyan-500/30 rounded-lg p-6 shadow-md h-full animate-pulse">
+                      <div className="h-5 w-2/3 bg-white/10 rounded mb-4" />
+                      <div className="space-y-3">
+                        <div className="h-9 bg-white/10 rounded" />
+                        <div className="h-9 bg-white/10 rounded" />
+                        <div className="h-9 bg-white/10 rounded" />
+                      </div>
+                    </div>
+                  </aside>
+                )}
+              >
+                <SettingsSidebarLazy />
+              </React.Suspense>
             ) : isRefineMode && (
-              <div className="w-80 flex-shrink-0 transition-all duration-300">
+              <div className="w-80 flex-shrink-0 transition-[opacity,transform] duration-200 will-change-on-hover">
                 <ChatPanel
                   messages={activeTab === ActiveTab.Plan ? planChatMessages : chatMessages}
                   onSendMessage={activeTab === ActiveTab.Plan ? handleSendPlanChatMessage : handleSendChatMessage}

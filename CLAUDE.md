@@ -126,8 +126,16 @@ The app uses a service abstraction pattern where:
 - Maintain consistent UI patterns across all stages
 
 ### Performance Considerations
-- Use React.memo for frequently re-rendered components
-- Implement debouncing for user input (useDebounce hook)
-- Use lazy loading for heavy components
-- Optimize bundle size with proper imports
-- Preview iframe loading optimization: Uses minimum loading times and fallback mechanisms to prevent blank white screens when content is first generated
+- Prefer React.memo with custom comparators for frequently re-rendered components (OutputDisplay, ChatPanel, ModelSelector already memoized)
+- Debounce rapid interactions (useDebounce, useStateDebouncer hooks)
+- Lazy-load heavy components: `SettingsSidebar` and `CodeEditor` use `React.lazy` + Suspense fallbacks
+- Keep Suspense skeletons lightweight to avoid layout shifts and FOUC
+- Optimize bundle size; avoid re-introducing global backdrop-blur and heavy shadows
+- Preview iframe: rely on re-mounting and simple load handlers; avoid injecting heavy scripts
+
+### Recent Optimizations (Do Not Regress)
+- Performance Mode with three levels (HQ/BAL/PERF) persisted to localStorage and honoring `prefers-reduced-motion`.
+- Backdrop-blur limited to critical UI; static glass alternatives elsewhere.
+- Animation throttling via IntersectionObserver; strategic `will-change` usage.
+- Transition and shadow simplifications focusing on GPU-friendly properties.
+- Removed standalone `docs/` reports; performance notes are consolidated in README.
