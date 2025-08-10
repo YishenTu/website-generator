@@ -38,7 +38,7 @@ AI-powered content generator that transforms text reports into complete websites
 
 ```bash
 npm install
-# Create .env.local with your API keys:
+# Create .env with your API keys:
 # GEMINI_API_KEY=your_key
 # OPENROUTER_API_KEY=your_key
 # OPENAI_API_KEY=your_key

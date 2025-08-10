@@ -36,7 +36,7 @@ Thumbs.db
 # 排除环境变量文件（稍后会通过环境变量传递）
 .env*
 !.env.example
-!.env.local
+!.env
 
 # 排除测试覆盖率
 coverage

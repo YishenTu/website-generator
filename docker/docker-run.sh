@@ -13,18 +13,13 @@ NC='\033[0m' # No Color
 echo -e "${GREEN}Building Docker image...${NC}"
 
 # Load environment variables
-if [ -f "../.env.local" ]; then
-    set -a
-    source ../.env.local
-    set +a
-    echo "Loaded .env.local"
-elif [ -f "../.env" ]; then
+if [ -f "../.env" ]; then
     set -a
     source ../.env
     set +a
     echo "Loaded .env"
 else
-    echo -e "${RED}Warning: No .env or .env.local file found${NC}"
+    echo -e "${RED}Warning: No .env file found${NC}"
 fi
 
 # Build the image with build args
@@ -45,7 +40,7 @@ echo -e "${GREEN}Starting new container...${NC}"
 docker run -d \
     --name ai-website-generator \
     -p 8080:8080 \
-    --env-file ../.env.local \
+    --env-file ../.env \
     --restart unless-stopped \
     ai-website-generator:latest
 
