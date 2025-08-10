@@ -24,25 +24,27 @@ AI-powered content generator that transforms text reports into complete websites
    - [OpenAI API](https://platform.openai.com/)
    - [OpenRouter API](https://openrouter.ai/) 
 
-2. **Deploy**:
+2. **Safely store your API Keys**
+   Create `.env` file in root dir with your API keys:
+   ```
+   # GEMINI_API_KEY=your_key
+   # OPENROUTER_API_KEY=your_key
+   # OPENAI_API_KEY=your_key
+   ```
+
+3. **Deploy**:
    ```bash
-   cd docker
-   ./docker-run.sh
+   cd docker && ./docker-run.sh
    ```
    The script builds the Docker image and starts the container without nesting.
 
-3. **Access**: Open http://localhost:8080
+4. **Access**: Open http://localhost:8080
 
 ### Local Development
 
 **Prerequisites**: Node.js 18+
 
 ```bash
-npm install
-# Create .env with your API keys:
-# GEMINI_API_KEY=your_key
-# OPENROUTER_API_KEY=your_key
-# OPENAI_API_KEY=your_key
 npm run dev
 ```
 
@@ -61,20 +63,6 @@ npm run dev
 - **Deployment**: Docker, Nginx
 - **Version**: 1.2.4
 
-## Performance
-
-- GPU-friendly UI: Reduced backdrop-blur, simplified shadows, scoped transitions.
-- Animation control: Off-screen throttling and reduced-motion support.
-- Lazy loading: `SettingsSidebar` and `CodeEditor` loaded on demand with skeleton fallbacks.
-- Result: ~40–50% GPU reduction in common flows; smooth 60fps in normal use.
-
-### Performance Mode
-- Levels: HQ (full effects), BAL (reduced effects), PERF (minimal effects).
-- Location: Settings sidebar → Performance Mode.
-- Behavior: Applies instantly and persists via localStorage; respects `prefers-reduced-motion`.
-
-Note: Standalone reports previously under `docs/` were removed. Key notes live here to avoid drift.
-
 ## Architecture
 
 - Stage-based workflow: `initial → planPending → planReady → htmlPending → htmlReady`
@@ -87,35 +75,59 @@ Note: Standalone reports previously under `docs/` were removed. Key notes live h
 
 ```
 src/
-├── components/         # React components and UI elements
-│   ├── stages/        # Stage-specific workflow components (5 stages)
-│   └── icons/         # Icon components
+├── App.tsx            # Main application component with context providers
+├── main.tsx           # Application entry point and React DOM rendering
+├── components/        # React components and UI elements
+│   ├── stages/        # Stage-specific workflow components
+│   │   ├── InitialStage.tsx
+│   │   ├── PlanPendingStage.tsx
+│   │   ├── PlanReadyStage.tsx
+│   │   ├── HtmlPendingStage.tsx
+│   │   └── HtmlReadyStage.tsx
+│   ├── icons/         # Icon components
+│   └── *.tsx          # UI components (ChatPanel, CodeEditor, ModelSelector, etc.)
 ├── hooks/             # Custom React hooks
 │   ├── useWebsiteGeneration.ts        # Main generation logic
-│   └── useOptimizedWebsiteGeneration.ts
+│   ├── useOptimizedWebsiteGeneration.ts # Performance-optimized generation
+│   ├── usePerformanceMode.ts          # Performance mode management
+│   ├── useDebounce.ts                 # Debouncing utilities
+│   └── ...                            # Other utility hooks
 ├── services/          # AI service integrations
 │   ├── aiService.ts         # Unified AI interface with model dispatch
 │   ├── geminiService.ts     # Google Gemini integration
-│   ├── openaiService.ts     # OpenAI Responses API (GPT-5)
+│   ├── openaiService.ts     # OpenAI integration
 │   ├── openrouterService.ts # OpenRouter integration
 │   └── streamRequest.ts     # Stream processing utilities
 ├── templates/         # AI prompt templates
 │   ├── websitePrompts.ts    # Website generation prompts
 │   ├── slidesPrompts.ts     # Slides generation prompts
-│   └── chatPrompts.ts       # Chat refinement prompts
+│   ├── chatPrompts.ts       # Chat refinement prompts
+│   ├── promptOrchestrator.ts # Prompt composition and management
+│   └── common.ts            # Shared prompt utilities
 ├── types/             # TypeScript type definitions
+│   └── types.ts             # Core type definitions
 ├── utils/             # Shared utilities
-│   ├── streamHandler.ts     # SSE stream parsing (supports both APIs)
+│   ├── streamHandler.ts     # SSE stream parsing
 │   ├── htmlPostProcessor.ts # HTML processing and optimization
-│   └── envValidator.ts      # Environment and API key validation
+│   ├── htmlSanitizer.ts     # HTML sanitization for security
+│   ├── envValidator.ts      # Environment and API key validation
+│   ├── styleConstants.ts    # Centralized style constants
+│   ├── logger.ts            # Logging utilities
+│   └── ...                  # Other utilities
 ├── contexts/          # React contexts
-└── constants/         # i18n and configuration constants
+│   ├── AppContext.tsx       # Global app state
+│   └── ConfirmationContext.tsx # Confirmation dialogs
+└── constants/         # Configuration constants
+    └── i18n.ts              # Internationalization strings
 
 docker/                # Docker configuration and deployment
 ├── Dockerfile         # Multi-stage build configuration
-├── nginx.conf         # Nginx server configuration (port 8080)
+├── nginx.conf         # Nginx server configuration
 ├── docker-compose.yml # Docker compose configuration
-└── docker-run.sh      # Deployment script (avoids container nesting)
+└── docker-run.sh      # Deployment script
+
+index.html             # Main HTML entry point with Tailwind config
+template-slides.html   # Sample presentation slides template
 ```
 
 ## Commands
@@ -131,7 +143,7 @@ docker/                # Docker configuration and deployment
 - **Language**: Auto-detect, English, or Chinese output
 - **Theme**: Cyberpunk dark theme or clean light theme
 - **AI Model**: Select from available models based on API keys
-- **Max Thinking**: Enable enhanced reasoning for GPT-5, Claude, and DeepSeek models
+- **Max Thinking**: Enable enhanced reasoning
 
 ## Security
 
