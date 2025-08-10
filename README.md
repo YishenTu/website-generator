@@ -20,7 +20,7 @@ AI-powered content generator that transforms text reports into complete websites
 
 1. **Get API Keys**:
    - [Gemini API](https://aistudio.google.com/app/apikey) 
-   - [OpenAI API](https://platform.openai.com/) (optional)
+   - [OpenAI API](https://platform.openai.com/)
    - [OpenRouter API](https://openrouter.ai/) 
 
 2. **Deploy**:
