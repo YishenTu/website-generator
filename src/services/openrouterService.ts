@@ -1,5 +1,5 @@
-import { 
-  generateWebsitePlanPrompt, 
+import {
+  generateWebsitePlanPrompt,
   generateWebsitePromptWithPlan,
   getChatSystemInstruction,
   getPlanChatSystemInstruction,
@@ -18,27 +18,11 @@ const OPENROUTER_API_URL = 'https://openrouter.ai/api/v1/chat/completions';
 export const OPENROUTER_MODELS = [
   {
     id: 'anthropic/claude-sonnet-4',
-    name: 'Claude 4 Sonnet'
+    name: 'Claude Sonnet 4'
   },
   {
-    id: 'anthropic/claude-opus-4',
-    name: 'Claude 4 Opus'
-  },
-  {
-    id: 'anthropic/claude-3.7-sonnet',
-    name: 'Claude 3.7 Sonnet'
-  },
-  {
-    id: 'deepseek/deepseek-r1-0528',
-    name: 'DeepSeek R1'
-  },
-  {
-    id: 'openai/o3',
-    name: 'OpenAI o3'
-  },
-  {
-    id: 'openai/o3-pro',
-    name: 'OpenAI o3-Pro'
+    id: 'anthropic/claude-opus-4.1',
+    name: 'Claude Opus 4.1'
   }
 ] as const;
 
@@ -80,7 +64,7 @@ function createReasoningConfig(modelId: string, maxThinking: boolean = false): R
       exclude: true // 永远排除reasoning tokens输出
     };
   }
-  
+
   // 对于其他模型（包括OpenAI o3/o3-pro和DeepSeek R1），使用effort=high
   logger.info(`Setting reasoning effort to 'high' for model ${modelId}, exclude: true`);
   return {
@@ -102,12 +86,12 @@ async function makeGenericStreamRequest(
   if (!apiKey) {
     throw new Error(`OpenRouter API key is not configured. Please ensure the ${ENV_VARS.OPENROUTER_API_KEY} environment variable is set.`);
   }
-  
+
   // Log reasoning configuration if present
   if (requestBody.reasoning) {
     logger.info(`Using reasoning configuration: ${JSON.stringify(requestBody.reasoning)}`);
   }
-  
+
   await makeApiStreamRequest(OPENROUTER_API_URL, apiKey, requestBody, onChunk, onComplete, signal, errorContext);
 }
 
@@ -207,7 +191,7 @@ export class OpenRouterChatSession {
   constructor(initialHtml: string, reportText: string, planText: string, modelName?: string, outputType: 'webpage' | 'slides' = 'webpage') {
     this.apiKey = getEnvVar('OPENROUTER_API_KEY') || '';
     this.modelName = modelName || DEFAULT_MODEL;
-    
+
     if (!this.apiKey) {
       throw new Error("OpenRouter API key is not configured.");
     }
@@ -270,7 +254,7 @@ export class OpenRouterPlanChatSession {
   constructor(initialPlan: string, reportText: string, settings: PlanSettings, modelName?: string) {
     this.apiKey = getEnvVar('OPENROUTER_API_KEY') || '';
     this.modelName = modelName || DEFAULT_MODEL;
-    
+
     if (!this.apiKey) {
       throw new Error("OpenRouter API key is not configured.");
     }

@@ -232,7 +232,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
   const initializePlanChatSession = useCallback((planText: string, model?: string) => {
     const targetModel = model || planChatModel;
     try {
-      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText, reportText, { theme, language, outputType });
+      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText, reportText, { theme, language, outputType }, maxThinking);
       setPlanChatMessages([{ id: Date.now().toString(), sender: UserType.AI, text: "Plan generated. How would you like to modify it?", isHtml: false }]);
     } catch (error) {
       logger.error("Failed to initialize plan chat session:", error);
@@ -297,7 +297,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
           setAppStage('htmlReady');
 
           try {
-            chatSessionRef.current = createHtmlChatSession(chatModel, ai, processedHtml, reportText, currentPlanText, outputType);
+            chatSessionRef.current = createHtmlChatSession(chatModel, ai, processedHtml, reportText, currentPlanText, outputType, maxThinking);
             const messageText = outputType === 'slides' 
               ? "Initial slide presentation generated. How would you like to refine it?"
               : "Initial website generated. How would you like to refine it?";
@@ -479,7 +479,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
     
     if (generatedHtml && reportText && lastUsedPlanText) {
       try {
-        chatSessionRef.current = createHtmlChatSession(model, ai, generatedHtml, reportText, lastUsedPlanText, outputType);
+        chatSessionRef.current = createHtmlChatSession(model, ai, generatedHtml, reportText, lastUsedPlanText, outputType, maxThinking);
         setChatMessages((prev: ChatMessage[]) => [
           ...prev,
           { 
@@ -494,7 +494,7 @@ export function useWebsiteGeneration({ ai }: UseWebsiteGenerationProps): UseWebs
         setError(`Failed to initialize chat with ${getModelDisplayName(model)}`);
       }
     }
-  }, [chatModel, generatedHtml, ai, reportText, lastUsedPlanText, outputType]);
+  }, [chatModel, generatedHtml, ai, reportText, lastUsedPlanText, outputType, maxThinking]);
 
   const handlePlanChatModelChange = useCallback((model: string) => {
     if (model === planChatModel) return;

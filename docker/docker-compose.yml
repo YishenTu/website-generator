@@ -2,8 +2,8 @@ services:
   ai-website-generator:
     image: ai-website-generator:latest
     build:
-      context: ..
-      dockerfile: docker/Dockerfile
+      context: .
+      dockerfile: Dockerfile
       args:
         - GEMINI_API_KEY=${GEMINI_API_KEY}
         - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
@@ -25,8 +25,4 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.ai-website-generator.rule=Host(`localhost`)"
-      - "traefik.http.services.ai-website-generator.loadbalancer.server.port=80"
-
-networks:
-  default:
-    name: ai-website-generator-network 
+      - "traefik.http.services.ai-website-generator.loadbalancer.server.port=80" 

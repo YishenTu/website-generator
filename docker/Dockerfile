@@ -36,8 +36,8 @@ COPY docker/nginx.conf /etc/nginx/nginx.conf
 # 从构建阶段复制构建结果
 COPY --from=builder /app/dist /usr/share/nginx/html
 
-# 暴露80端口
-EXPOSE 80
+# 暴露8080端口
+EXPOSE 8080
 
 # 启动nginx
 CMD ["nginx", "-g", "daemon off;"] 

@@ -1,5 +1,5 @@
-import { 
-  generateWebsitePlanPrompt, 
+import {
+  generateWebsitePlanPrompt,
   generateWebsitePromptWithPlan,
   getChatSystemInstruction,
   getPlanChatSystemInstruction,
@@ -9,46 +9,59 @@ import {
 } from "../templates/promptOrchestrator";
 import { makeApiStreamRequest } from "./streamRequest";
 
-// 可选择的OpenAI模型列表
+// Available OpenAI models
 export const OPENAI_MODELS = [
   {
-    id: 'gpt-4o',
-    name: 'GPT-4o'
-  },
-  {
-    id: 'gpt-4.1',
-    name: 'GPT-4.1'
+    id: 'gpt-5',
+    name: 'GPT-5'
   }
 ] as const;
 
-// 默认模型
+// Default model
 const DEFAULT_MODEL = OPENAI_MODELS[0].id;
 
+// Responses API Message format
 interface OpenAIMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: 'developer' | 'user' | 'assistant';
   content: string;
 }
 
-interface OpenAIRequest {
+// Responses API Request format
+interface OpenAIResponsesRequest {
   model: string;
-  messages: OpenAIMessage[];
-  stream: boolean;
+  input: string | OpenAIMessage[];
+  reasoning?: {
+    effort: 'low' | 'medium' | 'high' | 'minimal';
+    summary?: 'auto' | 'concise' | 'detailed';
+  };
+  stream?: boolean;
 }
 
-// --- Generic Stream Request Helper ---
+// --- Generic Stream Request Helper for Responses API ---
 
 async function makeGenericStreamRequest(
-  requestBody: OpenAIRequest,
+  requestBody: OpenAIResponsesRequest,
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  errorContext: string = "OpenAI"
+  errorContext: string = "OpenAI",
+  enableMaxThinking: boolean = false
 ): Promise<void> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error("OpenAI API key is not configured. Please ensure the OPENAI_API_KEY environment variable is set.");
   }
-  await makeApiStreamRequest("https://api.openai.com/v1/chat/completions", apiKey, requestBody, onChunk, onComplete, signal, errorContext);
+  
+  // Set reasoning effort based on max thinking setting
+  if (!requestBody.reasoning) {
+    requestBody.reasoning = {
+      effort: enableMaxThinking ? 'high' : 'medium',
+      summary: 'auto'
+    };
+  }
+  
+  // Use Responses API endpoint
+  await makeApiStreamRequest("https://api.openai.com/v1/responses", apiKey, requestBody, onChunk, onComplete, signal, errorContext);
 }
 
 // --- Base Stream Request Function ---
@@ -58,20 +71,16 @@ async function makeOpenAIStreamRequest(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  enableMaxThinking: boolean = false
 ): Promise<void> {
-  const requestBody: OpenAIRequest = {
+  const requestBody: OpenAIResponsesRequest = {
     model: modelName || DEFAULT_MODEL,
-    messages: [
-      {
-        role: 'user',
-        content: prompt
-      }
-    ],
+    input: prompt,
     stream: true
   };
 
-  return makeGenericStreamRequest(requestBody, onChunk, onComplete, signal);
+  return makeGenericStreamRequest(requestBody, onChunk, onComplete, signal, "OpenAI", enableMaxThinking);
 }
 
 // --- Chat Stream Request Function ---
@@ -81,15 +90,16 @@ async function makeChatStreamRequest(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  enableMaxThinking: boolean = false
 ): Promise<void> {
-  const requestBody: OpenAIRequest = {
+  const requestBody: OpenAIResponsesRequest = {
     model: modelName || DEFAULT_MODEL,
-    messages: [...messages],
+    input: messages,
     stream: true
   };
 
-  return makeGenericStreamRequest(requestBody, onChunk, onComplete, signal, "chat");
+  return makeGenericStreamRequest(requestBody, onChunk, onComplete, signal, "chat", enableMaxThinking);
 }
 
 // --- Public API Functions ---
@@ -100,10 +110,11 @@ export async function generateWebsitePlanStreamOpenAI(
   onChunk: (chunkText: string) => void,
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
-  modelName?: string
+  modelName?: string,
+  enableMaxThinking: boolean = false
 ): Promise<void> {
   const prompt = generateWebsitePlanPrompt(reportText, settings);
-  return makeOpenAIStreamRequest(prompt, onChunk, onComplete, signal, modelName);
+  return makeOpenAIStreamRequest(prompt, onChunk, onComplete, signal, modelName, enableMaxThinking);
 }
 
 export async function generateWebsiteFromReportWithPlanStreamOpenAI(
@@ -113,10 +124,11 @@ export async function generateWebsiteFromReportWithPlanStreamOpenAI(
   onComplete: (finalText: string) => void,
   signal?: AbortSignal,
   modelName?: string,
-  outputType: 'webpage' | 'slides' = 'webpage'
+  outputType: 'webpage' | 'slides' = 'webpage',
+  enableMaxThinking: boolean = false
 ): Promise<void> {
   const prompt = generateWebsitePromptWithPlan(reportText, planText, outputType);
-  return makeOpenAIStreamRequest(prompt, onChunk, onComplete, signal, modelName);
+  return makeOpenAIStreamRequest(prompt, onChunk, onComplete, signal, modelName, enableMaxThinking);
 }
 
 // --- Chat Session Classes ---
@@ -125,18 +137,21 @@ export class OpenAIChatSession {
   private messages: OpenAIMessage[] = [];
   private apiKey: string;
   private modelName: string;
-  constructor(initialHtml: string, reportText: string, planText: string, modelName?: string, outputType: 'webpage' | 'slides' = 'webpage') {
+  private enableMaxThinking: boolean;
+  
+  constructor(initialHtml: string, reportText: string, planText: string, modelName?: string, outputType: 'webpage' | 'slides' = 'webpage', enableMaxThinking: boolean = false) {
     this.apiKey = process.env.OPENAI_API_KEY || '';
     this.modelName = modelName || DEFAULT_MODEL;
-    
+    this.enableMaxThinking = enableMaxThinking;
+
     if (!this.apiKey) {
       throw new Error("OpenAI API key is not configured.");
     }
 
-    // Initialize chat session with system instruction and initial HTML using promptTemplates
+    // Initialize chat session with system instruction and initial HTML
     this.messages = [
       {
-        role: 'system',
+        role: 'developer',
         content: getChatSystemInstruction(outputType)
       },
       {
@@ -177,7 +192,8 @@ export class OpenAIChatSession {
         onComplete(accumulatedText);
       },
       signal,
-      this.modelName
+      this.modelName,
+      this.enableMaxThinking
     );
   }
 }
@@ -186,18 +202,21 @@ export class OpenAIPlanChatSession {
   private messages: OpenAIMessage[] = [];
   private apiKey: string;
   private modelName: string;
-  constructor(initialPlan: string, reportText: string, settings: PlanSettings, modelName?: string) {
+  private enableMaxThinking: boolean;
+  
+  constructor(initialPlan: string, reportText: string, settings: PlanSettings, modelName?: string, enableMaxThinking: boolean = false) {
     this.apiKey = process.env.OPENAI_API_KEY || '';
     this.modelName = modelName || DEFAULT_MODEL;
-    
+    this.enableMaxThinking = enableMaxThinking;
+
     if (!this.apiKey) {
       throw new Error("OpenAI API key is not configured.");
     }
 
-    // Initialize chat session with system instruction for plan modification using promptTemplates
+    // Initialize chat session with system instruction for plan modification
     this.messages = [
       {
-        role: 'system',
+        role: 'developer',
         content: getPlanChatSystemInstruction(settings.outputType)
       },
       {
@@ -238,7 +257,8 @@ export class OpenAIPlanChatSession {
         onComplete(accumulatedText);
       },
       signal,
-      this.modelName
+      this.modelName,
+      this.enableMaxThinking
     );
   }
-} 
+}

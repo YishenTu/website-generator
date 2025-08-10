@@ -19,11 +19,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - No path aliases configured (uses relative imports)
 
 ### Docker
-- `./scripts/deploy.sh` - Automated deployment with Docker (checks environment, creates .env, builds, and starts containers)
-- Deploys to port 8080 via nginx proxy
-- `docker-compose up -d` - Start containers in background
-- `docker-compose down` - Stop and remove containers
-- `docker-compose logs -f` - View container logs
+- `cd docker && ./docker-run.sh` - Build and deploy Docker container (runs on port 8080)
+- Container runs directly without nesting in Docker Desktop
+- Docker files are organized in `docker/` folder:
+  - `Dockerfile` - Multi-stage build configuration
+  - `nginx.conf` - Nginx server configuration (listens on port 8080)
+  - `docker-compose.yml` - Docker compose configuration (if needed)
+  - `docker-run.sh` - Deployment script that avoids container nesting
+- Useful Docker commands:
+  - `docker logs ai-website-generator` - View container logs
+  - `docker stop ai-website-generator` - Stop container
+  - `docker restart ai-website-generator` - Restart container
 
 ## Architecture
 
@@ -35,12 +41,16 @@ This is a React-based AI website generator that transforms text reports into com
 - **AppStages.tsx** - Renders different UI stages based on current app state
 - **aiService.ts** - Unified AI service layer that routes requests to Gemini, OpenRouter, or OpenAI based on model selection
 - **Output Types** - Supports both website generation and interactive presentation slides
+- **Max Thinking** - Enhanced reasoning mode for GPT-5, Claude, and DeepSeek models with adjustable effort levels
 
 ### Service Layer Pattern
 The app uses a service abstraction pattern where:
-- Each AI provider has its own service file (geminiService.ts, openrouterService.ts, openaiService.ts)
+- Each AI provider has its own service file:
+  - **geminiService.ts** - Google Gemini models integration
+  - **openrouterService.ts** - OpenRouter for Claude, DeepSeek, GPT-4, etc.
+  - **openaiService.ts** - OpenAI Responses API for GPT-5 with reasoning effort control
 - aiService.ts provides a unified interface using model dispatch pattern
-- Stream processing is handled uniformly across all providers via streamRequest.ts
+- Stream processing handles both Chat Completions API and Responses API formats via streamHandler.ts
 
 ### State Management Pattern
 - Uses custom hooks for complex state (useWebsiteGeneration, useBufferedUpdater)
@@ -103,6 +113,11 @@ The app uses a service abstraction pattern where:
 - Use the unified aiService.ts interface for AI calls
 - Implement proper stream handling for real-time responses
 - Handle rate limiting and error responses gracefully
+- OpenAI GPT-5 specific:
+  - Uses Responses API endpoint (`/v1/responses`) instead of Chat Completions
+  - Supports `reasoning_effort` parameter: 'low', 'medium' (default), 'high'
+  - Stream events format: `response.output_text.delta` with text in `delta` field
+  - Role mapping: 'developer' role for system instructions
 
 ### Component Architecture
 - Follow the stage-based component pattern in src/components/stages/

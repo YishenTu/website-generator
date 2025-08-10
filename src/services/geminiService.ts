@@ -1,6 +1,6 @@
 import { GoogleGenAI, Chat } from "@google/genai";
-import { 
-  generateWebsitePlanPrompt, 
+import {
+  generateWebsitePlanPrompt,
   generateWebsitePromptWithPlan,
   getChatSystemInstruction,
   getPlanChatSystemInstruction,
@@ -19,10 +19,6 @@ export const GEMINI_MODELS = [
   {
     id: "gemini-2.5-pro",
     name: "Gemini 2.5 Pro"
-  },
-  {
-    id: "gemini-2.5-flash",
-    name: "Gemini 2.5 Flash"
   }
 ] as const;
 
@@ -58,18 +54,18 @@ export async function generateWebsitePlanStream(
 ): Promise<void> {
   const prompt = generateWebsitePlanPrompt(reportText, settings);
   const model = modelName || DEFAULT_MODEL;
-  
-  const requestParams = maxThinking ? { 
-    model: model, 
+
+  const requestParams = maxThinking ? {
+    model: model,
     contents: prompt,
     generationConfig: createGenerationConfig(model)
   } : {
-    model: model, 
+    model: model,
     contents: prompt
   };
 
-  logger.debug(`Starting plan generation stream${maxThinking ? ' with maximum thinking budget' : ''}`, { 
-    model, 
+  logger.debug(`Starting plan generation stream${maxThinking ? ' with maximum thinking budget' : ''}`, {
+    model,
     maxThinking,
     ...(maxThinking && { thinkingBudget: getMaxThinkingBudget(model) })
   });
@@ -83,10 +79,10 @@ export async function generateWebsitePlanStream(
       if (signal?.aborted) {
         throw new DOMException('The user aborted a request.', 'AbortError');
       }
-      const chunkText = chunk.text; 
-      if (chunkText) { 
+      const chunkText = chunk.text;
+      if (chunkText) {
         accumulatedText += chunkText;
-        onChunk(chunkText); 
+        onChunk(chunkText);
       }
     }
     logger.debug('Plan stream completed', { length: accumulatedText.length });
@@ -115,17 +111,17 @@ export async function generateWebsiteFromReportWithPlanStream(
   const prompt = generateWebsitePromptWithPlan(reportText, planText, outputType);
   const model = modelName || DEFAULT_MODEL;
 
-  const requestParams = maxThinking ? { 
-    model: model, 
+  const requestParams = maxThinking ? {
+    model: model,
     contents: prompt,
     generationConfig: createGenerationConfig(model)
   } : {
-    model: model, 
+    model: model,
     contents: prompt
   };
-  
-  logger.debug(`Starting website HTML generation stream${maxThinking ? ' with maximum thinking budget' : ''}`, { 
-    model, 
+
+  logger.debug(`Starting website HTML generation stream${maxThinking ? ' with maximum thinking budget' : ''}`, {
+    model,
     maxThinking,
     ...(maxThinking && { thinkingBudget: getMaxThinkingBudget(model) })
   });
@@ -133,16 +129,16 @@ export async function generateWebsiteFromReportWithPlanStream(
     // Fix: Pass AbortSignal directly within the first argument object
     const streamRequest = signal ? { ...requestParams, signal } : requestParams;
     const responseStream = await ai.models.generateContentStream(streamRequest);
-    
+
     let accumulatedText = "";
     for await (const chunk of responseStream) {
       if (signal?.aborted) {
         throw new DOMException('The user aborted a request.', 'AbortError');
       }
-      const chunkText = chunk.text; 
-      if (chunkText) { 
+      const chunkText = chunk.text;
+      if (chunkText) {
         accumulatedText += chunkText;
-        onChunk(chunkText); 
+        onChunk(chunkText);
       }
     }
     logger.debug('HTML stream completed', { length: accumulatedText.length });
@@ -169,10 +165,10 @@ export class GeminiChatSession {
       { role: "user", parts: [{ text: getHtmlChatInitialMessage(initialHtml, reportText, planText, outputType) }] },
       { role: "model", parts: [{ text: initialHtml }] }
     ];
-    
+
     this.chatSession = ai.chats.create({
       model: model,
-      config: { 
+      config: {
         systemInstruction: getChatSystemInstruction(outputType)
       },
       history: chatHistory,
@@ -226,10 +222,10 @@ export class GeminiPlanChatSession {
       { role: "user", parts: [{ text: getPlanChatInitialMessage(initialPlan, reportText, settings) }] },
       { role: "model", parts: [{ text: initialPlan }] }
     ];
-    
+
     this.chatSession = ai.chats.create({
       model: model,
-      config: { 
+      config: {
         systemInstruction: getPlanChatSystemInstruction(settings.outputType)
       },
       history: chatHistory,

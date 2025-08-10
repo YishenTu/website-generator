@@ -29,6 +29,11 @@ export async function handleStreamResponse(
       const lines = chunk.split('\n').filter(line => line.trim());
 
       for (const line of lines) {
+        // Handle OpenAI Responses API format (event + data lines)
+        if (line.startsWith('event: ')) {
+          continue;
+        }
+        
         if (line.startsWith('data: ')) {
           const data = line.slice(6);
           if (data === '[DONE]') {
@@ -38,13 +43,38 @@ export async function handleStreamResponse(
 
           try {
             const parsed = JSON.parse(data);
-            const content = parsed.choices?.[0]?.delta?.content;
+            
+            // Handle different streaming formats
+            let content: string | undefined;
+            
+            // OpenAI Responses API format
+            if (parsed.type === 'response.output_text.delta' && parsed.delta) {
+              content = parsed.delta;
+            }
+            // OpenAI Responses API completion event
+            else if (parsed.type === 'response.completed') {
+              options.onComplete(accumulatedText);
+              return;
+            }
+            // Chat Completions API format
+            else if (parsed.choices?.[0]?.delta?.content) {
+              content = parsed.choices[0].delta.content;
+            }
+            // Other possible formats
+            else if (parsed.output) {
+              content = parsed.output;
+            } else if (parsed.delta?.output) {
+              content = parsed.delta.output;
+            } else if (parsed.delta?.content) {
+              content = parsed.delta.content;
+            }
+            
             if (content) {
               accumulatedText += content;
               options.onChunk(content);
             }
           } catch (e) {
-            // 忽略解析错误
+            // Ignore parsing errors
           }
         }
       }

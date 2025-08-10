@@ -336,7 +336,7 @@ export function useOptimizedWebsiteGeneration({ ai }: UseWebsiteGenerationProps)
   const initializePlanChatSession = useCallback((planText: string, model?: string) => {
     const targetModel = model || state.planChatModel;
     try {
-      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText, state.reportText);
+      planChatSessionRef.current = createPlanChatSession(targetModel, ai, planText, state.reportText, { theme: state.theme, language: state.language, outputType: state.outputType }, state.maxThinking);
       dispatch({ type: 'SET_PLAN_CHAT_MESSAGES', payload: [{ 
         id: Date.now().toString(), 
         sender: UserType.AI, 

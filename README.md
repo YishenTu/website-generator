@@ -5,13 +5,13 @@ AI-powered content generator that transforms text reports into complete websites
 ## Features
 
 - **Multiple Output Types**: Generate responsive websites or interactive presentation slides
-- **Multiple AI Models**: Gemini, Claude, GPT-4, and more via OpenRouter
+- **Multiple AI Models**: GPT, Gemini, Claude and more via OpenRouter
+- **Advanced Reasoning**: Enable maximum thinking for better result
 - **Interactive Chat**: Real-time AI conversation for optimization and refinement
 - **Code Editor**: Built-in editor with live preview functionality
 - **Smart Planning**: AI analyzes reports and generates structured content plans
 - **Multi-language Support**: Auto-detect or specify English/Chinese output
 - **Flexible Themes**: Choose between cyberpunk dark theme or clean light theme
-- **Modern UI**: Responsive interface with glassmorphism effects
 - **One-Click Deploy**: Automated Docker deployment
 
 ## Quick Start
@@ -19,15 +19,16 @@ AI-powered content generator that transforms text reports into complete websites
 ### Docker Deployment (Recommended)
 
 1. **Get API Keys**:
-   - [Gemini API](https://aistudio.google.com/app/apikey) (required)
-   - [OpenRouter API](https://openrouter.ai/) (optional)
+   - [Gemini API](https://aistudio.google.com/app/apikey) 
    - [OpenAI API](https://platform.openai.com/) (optional)
+   - [OpenRouter API](https://openrouter.ai/) 
 
 2. **Deploy**:
    ```bash
-   ./scripts/deploy.sh
+   cd docker
+   ./docker-run.sh
    ```
-   The script handles environment setup, builds containers, and starts the app.
+   The script builds the Docker image and starts the container without nesting.
 
 3. **Access**: Open http://localhost:8080
 
@@ -39,8 +40,8 @@ AI-powered content generator that transforms text reports into complete websites
 npm install
 # Create .env.local with your API keys:
 # GEMINI_API_KEY=your_key
-# OPENROUTER_API_KEY=your_key (optional)
-# OPENAI_API_KEY=your_key (optional)
+# OPENROUTER_API_KEY=your_key
+# OPENAI_API_KEY=your_key
 npm run dev
 ```
 
@@ -55,7 +56,6 @@ npm run dev
 ## Tech Stack
 
 - **Frontend**: React 19.1.0, TypeScript 5.7.2, Vite 6.2.0, Tailwind CSS
-- **AI Integration**: Gemini, OpenRouter, OpenAI APIs with @google/genai v1.0.1
 - **Code Editor**: CodeMirror with HTML syntax highlighting
 - **Deployment**: Docker, Nginx
 - **Version**: 1.2.4
@@ -72,19 +72,35 @@ npm run dev
 
 ```
 src/
-├── components/          # React components
-│   ├── stages/         # Stage-specific workflow components (5 stages)
-│   └── icons/          # Icon components
-├── hooks/              # Custom React hooks (useWebsiteGeneration, useOptimizedWebsiteGeneration)
-├── services/           # AI service integrations (aiService, geminiService, openaiService, openrouterService)
-├── templates/          # AI prompt templates (websitePrompts, slidesPrompts, chatPrompts)
-├── types/              # TypeScript definitions
-├── utils/              # Shared utilities (constants, logging, HTML processing, validation)
-├── contexts/           # React contexts (AppContext, ConfirmationContext)
-└── constants/          # Internationalization and constants
+├── components/         # React components and UI elements
+│   ├── stages/        # Stage-specific workflow components (5 stages)
+│   └── icons/         # Icon components
+├── hooks/             # Custom React hooks
+│   ├── useWebsiteGeneration.ts        # Main generation logic
+│   └── useOptimizedWebsiteGeneration.ts
+├── services/          # AI service integrations
+│   ├── aiService.ts         # Unified AI interface with model dispatch
+│   ├── geminiService.ts     # Google Gemini integration
+│   ├── openaiService.ts     # OpenAI Responses API (GPT-5)
+│   ├── openrouterService.ts # OpenRouter integration
+│   └── streamRequest.ts     # Stream processing utilities
+├── templates/         # AI prompt templates
+│   ├── websitePrompts.ts    # Website generation prompts
+│   ├── slidesPrompts.ts     # Slides generation prompts
+│   └── chatPrompts.ts       # Chat refinement prompts
+├── types/             # TypeScript type definitions
+├── utils/             # Shared utilities
+│   ├── streamHandler.ts     # SSE stream parsing (supports both APIs)
+│   ├── htmlPostProcessor.ts # HTML processing and optimization
+│   └── envValidator.ts      # Environment and API key validation
+├── contexts/          # React contexts
+└── constants/         # i18n and configuration constants
 
-docker/                 # Docker configuration (Dockerfile, docker-compose.yml, nginx.conf)
-scripts/                # Deployment scripts (deploy.sh)
+docker/                # Docker configuration and deployment
+├── Dockerfile         # Multi-stage build configuration
+├── nginx.conf         # Nginx server configuration (port 8080)
+├── docker-compose.yml # Docker compose configuration
+└── docker-run.sh      # Deployment script (avoids container nesting)
 ```
 
 ## Commands
@@ -92,7 +108,7 @@ scripts/                # Deployment scripts (deploy.sh)
 - `npm run dev` - Development server
 - `npm run build` - Production build  
 - `npm run preview` - Preview build
-- `./scripts/deploy.sh` - Docker deployment
+- `cd docker && ./docker-run.sh` - Docker deployment
 
 ## Configuration Options
 
@@ -100,6 +116,7 @@ scripts/                # Deployment scripts (deploy.sh)
 - **Language**: Auto-detect, English, or Chinese output
 - **Theme**: Cyberpunk dark theme or clean light theme
 - **AI Model**: Select from available models based on API keys
+- **Max Thinking**: Enable enhanced reasoning for GPT-5, Claude, and DeepSeek models
 
 ## Security
 
