@@ -3,17 +3,16 @@ import { useBufferedUpdater } from './useBufferedUpdater';
 import { GoogleGenAI } from "@google/genai";
 import { 
   generateWebsitePlan, 
-  generateWebsiteFromPlan,
   validateModelApiKeys,
-  createHtmlChatSession,
   createPlanChatSession,
   ChatSession,
   getDefaultModel
 } from '../services/aiService';
-import { cleanTextOutput, getModelDisplayName } from '../components/textUtils';
-import { abortAllOperations, resetAppToInitialState } from '../components/appStateUtils';
+import { cleanTextOutput } from '../components/textUtils';
+import { abortAllOperations } from '../components/appStateUtils';
 import { ActiveTab, ChatMessage, UserType } from '../types/types';
 import type { AppStage } from '../App';
+import { Theme, Language, OutputType } from '../contexts/AppContext';
 import { createLogger } from '../utils/logger';
 import { ERROR_MESSAGES } from '../utils/constants';
 import { getAvailableProviders } from '../utils/envValidator';
@@ -41,6 +40,9 @@ interface WebsiteGenerationState {
   chatMessages: ChatMessage[];
   planChatMessages: ChatMessage[];
   maxThinking: boolean;
+  theme: Theme;
+  language: Language;
+  outputType: OutputType;
 }
 
 // Action types
@@ -66,6 +68,9 @@ type WebsiteGenerationAction =
   | { type: 'ADD_CHAT_MESSAGE'; payload: ChatMessage }
   | { type: 'ADD_PLAN_CHAT_MESSAGE'; payload: ChatMessage }
   | { type: 'SET_MAX_THINKING'; payload: boolean }
+  | { type: 'SET_THEME'; payload: Theme }
+  | { type: 'SET_LANGUAGE'; payload: Language }
+  | { type: 'SET_OUTPUT_TYPE'; payload: OutputType }
   | { type: 'RESET_TO_INITIAL' }
   | { type: 'START_PLAN_GENERATION' }
   | { type: 'START_HTML_GENERATION' };
@@ -115,6 +120,12 @@ function websiteGenerationReducer(state: WebsiteGenerationState, action: Website
       return { ...state, planChatMessages: [...state.planChatMessages, action.payload] };
     case 'SET_MAX_THINKING':
       return { ...state, maxThinking: action.payload };
+    case 'SET_THEME':
+      return { ...state, theme: action.payload };
+    case 'SET_LANGUAGE':
+      return { ...state, language: action.payload };
+    case 'SET_OUTPUT_TYPE':
+      return { ...state, outputType: action.payload };
     case 'RESET_TO_INITIAL':
       return {
         ...state,
@@ -225,10 +236,10 @@ export function useOptimizedWebsiteGeneration({ ai }: UseWebsiteGenerationProps)
     reportText: '',
     generatedPlan: null,
     generatedHtml: null,
-    planModel: getDefaultModel(defaultPlanProvider),
-    htmlModel: getDefaultModel(defaultHtmlProvider),
-    chatModel: getDefaultModel(defaultChatProvider),
-    planChatModel: getDefaultModel(defaultPlanProvider),
+    planModel: getDefaultModel(defaultPlanProvider as 'gemini' | 'openrouter' | 'openai'),
+    htmlModel: getDefaultModel(defaultHtmlProvider as 'gemini' | 'openrouter' | 'openai'),
+    chatModel: getDefaultModel(defaultChatProvider as 'gemini' | 'openrouter' | 'openai'),
+    planChatModel: getDefaultModel(defaultPlanProvider as 'gemini' | 'openrouter' | 'openai'),
     lastUsedPlanText: '',
     isLoading: false,
     isChatLoading: false,
@@ -240,7 +251,10 @@ export function useOptimizedWebsiteGeneration({ ai }: UseWebsiteGenerationProps)
     isRefineMode: false,
     chatMessages: [],
     planChatMessages: [],
-    maxThinking: false
+    maxThinking: false,
+    theme: 'cyber' as Theme,
+    language: 'default' as Language,
+    outputType: 'webpage' as OutputType
   }), [defaultPlanProvider, defaultHtmlProvider, defaultChatProvider]);
 
   const [state, dispatch] = useReducer(websiteGenerationReducer, initialState);
@@ -251,12 +265,13 @@ export function useOptimizedWebsiteGeneration({ ai }: UseWebsiteGenerationProps)
   const abortControllerRef = useRef<AbortController | null>(null);
   const planAbortControllerRef = useRef<AbortController | null>(null);
 
-  const htmlBuffer = useBufferedUpdater<string | null>((html) => 
-    dispatch({ type: 'SET_GENERATED_HTML', payload: html })
-  );
-  const planBuffer = useBufferedUpdater<string | null>((plan) => 
-    dispatch({ type: 'SET_GENERATED_PLAN', payload: plan })
-  );
+  const planBuffer = useBufferedUpdater<string | null>((plan) => {
+    if (typeof plan === 'function') {
+      // Handle function case by getting current state
+      return;
+    }
+    dispatch({ type: 'SET_GENERATED_PLAN', payload: plan });
+  });
 
   // Memoized action creators
   const actions = useMemo(() => ({
@@ -269,7 +284,10 @@ export function useOptimizedWebsiteGeneration({ ai }: UseWebsiteGenerationProps)
     setIsFullPreviewActive: (active: boolean) => dispatch({ type: 'SET_FULL_PREVIEW_ACTIVE', payload: active }),
     setIsRefineMode: (active: boolean) => dispatch({ type: 'SET_REFINE_MODE', payload: active }),
     setGeneratedHtml: (html: string | null) => dispatch({ type: 'SET_GENERATED_HTML', payload: html }),
-    setMaxThinking: (enabled: boolean) => dispatch({ type: 'SET_MAX_THINKING', payload: enabled })
+    setMaxThinking: (enabled: boolean) => dispatch({ type: 'SET_MAX_THINKING', payload: enabled }),
+    setTheme: (theme: Theme) => dispatch({ type: 'SET_THEME', payload: theme }),
+    setLanguage: (language: Language) => dispatch({ type: 'SET_LANGUAGE', payload: language }),
+    setOutputType: (outputType: OutputType) => dispatch({ type: 'SET_OUTPUT_TYPE', payload: outputType })
   }), []);
 
   // Plan generation (optimized with useCallback)
@@ -302,6 +320,11 @@ export function useOptimizedWebsiteGeneration({ ai }: UseWebsiteGenerationProps)
         state.planModel,
         ai,
         state.reportText,
+        {
+          theme: state.theme,
+          language: state.language,
+          outputType: state.outputType
+        },
         (chunk: string) => {
           streamingPlan += chunk;
           planBuffer.update(streamingPlan);
@@ -352,7 +375,7 @@ export function useOptimizedWebsiteGeneration({ ai }: UseWebsiteGenerationProps)
         isHtml: false 
       }] });
     }
-  }, [ai, state.planChatModel, state.reportText]);
+  }, [ai, state.planChatModel, state.reportText, state.theme, state.language, state.outputType, state.maxThinking]);
 
   // Memoized utility functions
   const isChatAvailable = useCallback(() => !!chatSessionRef.current, []);

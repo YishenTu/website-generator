@@ -63,6 +63,7 @@ export const useIntersectionObserver = (
     observerRef.current = new IntersectionObserver(
       (entries: IntersectionObserverEntry[]) => {
         const entry = entries[0];
+        if (!entry) return;
         const visible = entry.isIntersecting;
         
         setIsVisible(visible);
@@ -73,7 +74,7 @@ export const useIntersectionObserver = (
         }
         
         // Call optional callback
-        if (onVisibilityChange) {
+        if (onVisibilityChange && entry) {
           onVisibilityChange(visible, entry);
         }
       },
@@ -174,16 +175,17 @@ export const useIntersectionObserverEnhanced = (
     observerRef.current = new IntersectionObserver(
       (entries: IntersectionObserverEntry[]) => {
         const entry = entries[0];
+        if (!entry) return;
         const visible = entry.isIntersecting;
         
         setState(prevState => ({
           isVisible: visible,
           intersectionRatio: entry.intersectionRatio,
           hasBeenVisible: prevState.hasBeenVisible || visible,
-          entry
+          entry: entry as IntersectionObserverEntry
         }));
         
-        if (onVisibilityChange) {
+        if (onVisibilityChange && entry) {
           onVisibilityChange(visible, entry);
         }
       },

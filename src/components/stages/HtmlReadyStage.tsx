@@ -10,14 +10,12 @@ export const HtmlReadyStage: React.FC = React.memo(() => {
     isLoading,
     isChatLoading,
     appStage,
-    htmlModel,
     activeTab,
     chatMessages,
     chatModel
   } = useAppState();
   
   const { 
-    setActiveTab,
     handleStopGeneration,
     handleSendChatMessage,
     handleChatModelChange,

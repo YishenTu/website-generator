@@ -5,7 +5,6 @@ import { ReportInputForm } from './ReportInputForm';
 import { PlanDisplay } from './PlanDisplay';
 import { OutputDisplay } from './OutputDisplay';
 import { useAppState, useAppActions } from '../contexts/AppContext';
-import { CONTAINER_STYLES, LAYOUT_STYLES, combineStyles } from '../utils/styleConstants';
 
 interface TabContentProps {
   activeTab: ActiveTab;
@@ -22,39 +21,21 @@ export const TabContent: React.FC<TabContentProps> = React.memo(({
     generatedHtml,
     planModel, 
     htmlModel,
-    chatModel,
-    planChatModel,
     isLoading, 
-    isChatLoading,
-    isPlanChatLoading,
-    maxThinking,
-    chatMessages,
-    planChatMessages
+    maxThinking
   } = useAppState();
   
   const { 
     setReportText,
     handleGeneratePlan,
     handleGenerateHtmlFromPlan,
-    handleStartNewSession,
-    handleResetToInitial,
-    handleStopGeneration,
     setPlanModel,
     setHtmlModel,
-    setChatModel,
-    setPlanChatModel,
     setMaxThinking,
     onCopyCode,
     onDownloadHtml,
     onToggleFullPreview,
-    onHtmlContentChange,
-    handleSendChatMessage,
-    handleSendPlanChatMessage,
-    initializePlanChatSession,
-    isChatAvailable,
-    isPlanChatAvailable,
-    handleChatModelChange,
-    handlePlanChatModelChange
+    onHtmlContentChange
   } = useAppActions();
 
   const renderInputTab = () => (
@@ -80,7 +61,7 @@ export const TabContent: React.FC<TabContentProps> = React.memo(({
           <PlanDisplay 
             planText={generatedPlan || ''}
             onProceedToHtml={handleGenerateHtmlFromPlan}
-            isAppLoading={isLoading && appStage === 'planPending'}
+            isAppLoading={isLoading}
             isLoadingHtml={false}
             isCompactView={false}
             htmlModel={htmlModel}
@@ -98,7 +79,7 @@ export const TabContent: React.FC<TabContentProps> = React.memo(({
           <PlanDisplay 
             planText={generatedPlan}
             onProceedToHtml={handleGenerateHtmlFromPlan}
-            isAppLoading={isLoading && appStage === 'planPending'}
+            isAppLoading={false}
             isLoadingHtml={isLoading && (appStage === 'htmlPending')}
             isCompactView={false}
             htmlModel={htmlModel}

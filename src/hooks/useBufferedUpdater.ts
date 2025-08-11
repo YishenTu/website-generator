@@ -4,7 +4,7 @@ import { useCallback, useRef } from 'react';
  * Buffer updates and commit them on the next animation frame to reduce re-renders.
  */
 export function useBufferedUpdater<T>(setter: React.Dispatch<React.SetStateAction<T>>) {
-  const bufferRef = useRef<T>();
+  const bufferRef = useRef<T | undefined>(undefined);
   const rafRef = useRef<number | undefined>(undefined);
 
   const flush = useCallback(() => {

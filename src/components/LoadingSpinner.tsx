@@ -16,8 +16,8 @@ export const LoadingSpinner: React.FC<LoadingSpinnerProps> = React.memo(({
   const prefersReducedMotion = useReducedMotion();
   
   // Visibility observer for animation throttling (Task 3.2)
-  const spinnerRef = useRef<SVGSVGElement>(null);
-  const isSpinnerVisible = useIntersectionObserver(spinnerRef, {
+  const spinnerRef = useRef<SVGSVGElement | null>(null);
+  const isSpinnerVisible = useIntersectionObserver(spinnerRef as React.RefObject<Element>, {
     rootMargin: '50px', // Start animation slightly before coming into view
     threshold: 0,       // Trigger as soon as any part is visible
   });

@@ -322,7 +322,7 @@ class PerformanceMonitor {
       }
 
       // Try to get memory info extension (Chrome/Firefox specific)
-      const memoryInfo = (gl as any).getExtension('WEBGL_debug_renderer_info');
+      (gl as any).getExtension('WEBGL_debug_renderer_info');
       
       // Note: Actual GPU memory usage is not directly accessible via web APIs
       // This is a placeholder implementation that would need to be enhanced

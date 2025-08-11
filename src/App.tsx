@@ -29,8 +29,8 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
   const [isPerformanceMonitoringEnabled, setIsPerformanceMonitoringEnabled] = React.useState(false);
 
   // Title animation visibility observer (Task 3.2)
-  const titleRef = useRef<HTMLHeadingElement>(null);
-  const isTitleVisible = useIntersectionObserver(titleRef, {
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
+  const isTitleVisible = useIntersectionObserver(titleRef as React.RefObject<Element>, {
     rootMargin: '0px',
     threshold: 0.1, // Trigger when 10% of title is visible
     onVisibilityChange: (isVisible) => {
@@ -46,12 +46,8 @@ const AppContent: React.FC<{ ai: GoogleGenAI }> = ({ ai }) => {
     performanceMode,
     level: performanceLevel,
     setLevel: setPerformanceLevel,
-    isHighPerformance,
-    isBalancedPerformance,
-    isLowPerformance,
     toggleEnabled: togglePerformanceMode,
-    prefersReducedMotion,
-    features
+    prefersReducedMotion
   } = usePerformanceMode();
 
   // Use the website generation hook

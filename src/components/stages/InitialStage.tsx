@@ -15,9 +15,6 @@ export const InitialStage: React.FC = React.memo(() => {
   const { 
     setReportText,
     handleGeneratePlan,
-    handleStartNewSession,
-    handleResetToInitial,
-    handleStopGeneration,
     setPlanModel,
     setMaxThinking
   } = useAppActions();

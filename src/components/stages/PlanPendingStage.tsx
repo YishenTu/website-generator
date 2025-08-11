@@ -19,9 +19,6 @@ export const PlanPendingStage: React.FC = React.memo(() => {
     setReportText,
     handleGeneratePlan,
     handleGenerateHtmlFromPlan,
-    handleStartNewSession,
-    handleResetToInitial,
-    handleStopGeneration,
     setPlanModel,
     setHtmlModel,
     setMaxThinking
